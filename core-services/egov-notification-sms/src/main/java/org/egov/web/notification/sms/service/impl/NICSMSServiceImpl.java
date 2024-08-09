@@ -133,10 +133,18 @@ public class NICSMSServiceImpl extends BaseSMSService {
 			final_data += "&mnumber=91" + sms.getMobileNumber();
 			final_data += "&signature=" + smsProperties.getSenderid();
 			final_data += "&dlt_entity_id=" + smsProperties.getSmsEntityId();
+			
+			final StringBuffer stringBuffer = new StringBuffer();
 			if (null == sms.getTemplateId()) {
 				final_data += "&dlt_template_id=" + smsProperties.getSmsDefaultTmplid();
-			} else
+			} else {
 				final_data += "&dlt_template_id=" + sms.getTemplateId();
+			
+			}
+			
+			log.info("sms api url : " + smsProperties.getUrl());
+			log.info("sms response: " + stringBuffer.toString());
+			log.info("sms data: " + final_data);
 
 			if (smsProperties.isSmsEnabled()) {
 				HttpsURLConnection conn = (HttpsURLConnection) new URL(smsProperties.getUrl() + "?" + final_data)
@@ -147,7 +155,7 @@ public class NICSMSServiceImpl extends BaseSMSService {
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.connect();
 				final BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-				final StringBuffer stringBuffer = new StringBuffer();
+//				final StringBuffer stringBuffer = new StringBuffer();
 				String line;
 				while ((line = rd.readLine()) != null) {
 					stringBuffer.append(line);
