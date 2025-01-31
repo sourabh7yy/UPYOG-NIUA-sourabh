@@ -24,6 +24,8 @@ import { TableConfig } from "./config/inbox-table-config";
 import ApplicationDetails from "./pages/employee/ApplicationDetails";
 import PropertySearch from "./pageComponents/PropertySearch";
 import NewApplication from "./pages/employee/NewApplication";
+import TextInput from "./components/TextInput";
+import MobileNumber from "./components/mobileNumber";
 
 
 const componentsToRegister = {
@@ -42,6 +44,8 @@ const componentsToRegister = {
   PTRServiceDoc,
   PTRWFApplicationTimeline,
   PropertySearch, // component added for property search
+  TextInput,
+  MobileNumber
 };
 
 // function of component registry to add entries in the registry
