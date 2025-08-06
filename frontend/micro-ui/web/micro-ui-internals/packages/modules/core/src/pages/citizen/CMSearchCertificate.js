@@ -78,8 +78,10 @@ const VSearchCertificate = () => {
 
     // Hook to fetch city data
     const { data: cityData } = Digit.Hooks.useCustomMDMS(
+
         Digit.ULBService.getStateId(),
         "tenant",
+
         [{ name: "tenants" }],
         {
             select: (data) => {
@@ -91,7 +93,6 @@ const VSearchCertificate = () => {
             },
         }
     );
-
 
     // sets ishuman to be true based on token
     useEffect(() => {
@@ -117,31 +118,38 @@ const VSearchCertificate = () => {
      * including name, mobileNumber, certificate number, issue date, validity date, and status.
      * If the application does not exist, it displays a warning toast notification.
      */
+    const mutation = Digit.Hooks.cm.useCMSearch();
     const ModuleData = async () => {
         if (certificate_name && certificate_No) {
-            const Details = await Digit.CMServices.search(
-                {
-                    tenantId,
-                    filters: { moduleName: certificate_name.code, applicationNumber: certificate_No }
+            const formdata = {
+                ModuleSearchCriteria: {
+                    tenantId:selectedCity?.code || tenantId,
+                    applicationNumber: certificate_No,
+                    moduleName: certificate_name.code
                 }
-            );
-            applicationData = Details?.CommonDetail;
-
+            };
+            
+            mutation.mutate(formdata, {
+                onSuccess: (Details) => {
+                    const applicationData = Details?.CommonDetail;
             if (applicationData?.applicationNumber) {
-                setUpdatedData([
-                    {
+                 setUpdatedData([{
                         name: applicationData?.name || "NA",
                         mobileNumber: applicationData?.mobileNumber || "NA",
                         certificateNumber: applicationData?.applicationNumber || "NA",
                         issueDate: applicationData?.fromDate || "NA",
                         validUpto: applicationData?.toDate || "NA",
                         certificateStatus: applicationData?.status || "NA",
+                        }]);
+                        setistable(true);
+                    } else {
+                        setShowToast({ label: t("VS_APPLICATION_DOESNOT_EXIST"), warning: true });
                     }
-                ])
-                setistable(true);
-            } else {
-                setShowToast({ label: t("VS_APPLICATION_DOESNOT_EXIST"), warning: true })
-            }
+                },
+                onError: (error) => {
+                    setShowToast({ label: t("VS_APPLICATION_DOESNOT_EXIST"), warning: true });
+                }
+            });
         }
     }
 
@@ -214,7 +222,9 @@ const VSearchCertificate = () => {
                                         option={cityData}
                                         optionKey="i18nKey"
                                         optionCardStyles={{ overflowY: "auto", maxHeight: "300px" }}
+
                                         className="verificationDropdown"
+
                                         t={t}
                                         disable={false}
                                         placeholder={"Please select city"}

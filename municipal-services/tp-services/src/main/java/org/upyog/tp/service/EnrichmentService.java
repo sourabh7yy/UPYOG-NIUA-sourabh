@@ -13,6 +13,7 @@ import org.upyog.tp.enums.TreePruningStatus;
 import org.upyog.tp.repository.IdGenRepository;
 import org.upyog.tp.util.TreePruningUtil;
 import org.upyog.tp.util.UserUtil;
+import org.upyog.tp.web.models.ApplicantDetail;
 import org.upyog.tp.web.models.AuditDetails;
 import org.upyog.tp.web.models.treePruning.TreePruningBookingDetail;
 import org.upyog.tp.web.models.treePruning.TreePruningBookingRequest;
@@ -45,27 +46,41 @@ public class EnrichmentService {
         String userUuid = requestInfo.getUserInfo().getUuid();
         AuditDetails auditDetails = TreePruningUtil.getAuditDetails(requestInfo.getUserInfo().getUuid(), true);
 
-        // If the mobile number in the request matches the applicant's mobile number, then set the applicantDetailId as userUuid
-        if (UserUtil.isCurrentUserApplicant(treePruningRequest)) {
-            treePruningDetail.setApplicantUuid(userUuid);
-        } else {
-            // If the mobile number does not match, set the applicantDetailId to null and addressDetailId to null
+        if (config.getIsUserProfileEnabled()){
+            // If the mobile number in the request matches the applicant's mobile number, then set the applicantDetailId as userUuid
+            if (UserUtil.isCurrentUserApplicant(treePruningRequest)) {
+                treePruningDetail.setApplicantUuid(userUuid);
+            } else {
+                // If the mobile number does not match, set the applicantDetailId to null and addressDetailId to null
+                treePruningDetail.setApplicantUuid(null);
+                treePruningDetail.setAddressDetailId(null);
+            }
+
+            String applicantDetailId = treePruningDetail.getApplicantUuid();
+            String addressDetailId = treePruningDetail.getAddressDetailId();
+
+            if (StringUtils.isBlank(applicantDetailId)) {
+                // Enrich user details for existing user or user details with address for new user
+                enrichUserDetails(treePruningRequest);
+            }
+            if (StringUtils.isBlank(addressDetailId)) {
+                // Enrich address details only
+                enrichAddressDetails(treePruningRequest, treePruningDetail);
+            }
+        }else{
+            /*
+             * If the currently logged-in user is not the same as the applicant mobile number entered in the form is different from the login mobile number,
+             * then we proceed to enrich user details, which will create a new user with the provided details.
+             * If the currently logged-in user is the same as the applicant mobile number, we do not enrich user details
+             * user profile is not enabled for this service, we explicitly set `applicantDetailId` and `addressDetailId` to null in the application details
+             */
+            if (!UserUtil.isCurrentUserApplicant(treePruningRequest)) {
+                // Enrich user details for existing user or user details with address for new user
+                enrichUserDetails(treePruningRequest);
+            }
             treePruningDetail.setApplicantUuid(null);
             treePruningDetail.setAddressDetailId(null);
         }
-
-        String applicantDetailId = treePruningDetail.getApplicantUuid();
-        String addressDetailId = treePruningDetail.getAddressDetailId();
-
-        if (StringUtils.isBlank(applicantDetailId)) {
-            // Enrich user details for existing user or user details with address for new user
-            enrichUserDetails(treePruningRequest);
-        }
-        if (StringUtils.isBlank(addressDetailId)) {
-            // Enrich address details only
-            enrichAddressDetails(treePruningRequest, treePruningDetail);
-        }
-
         treePruningDetail.setBookingId(bookingId);
         treePruningDetail.setApplicationDate(auditDetails.getCreatedTime());
         treePruningDetail.setBookingStatus(TreePruningStatus.valueOf(treePruningDetail.getBookingStatus()).toString());
@@ -101,6 +116,7 @@ public class EnrichmentService {
 
         treePruningDetail.getApplicantDetail().setBookingId(bookingId);
         treePruningDetail.getApplicantDetail().setApplicantId(TreePruningUtil.getRandonUUID());
+        treePruningDetail.getAddress().setAddressId(TreePruningUtil.getRandonUUID());
         treePruningDetail.getApplicantDetail().setAuditDetails(auditDetails);
         treePruningDetail.getAddress().setApplicantId(treePruningDetail.getApplicantDetail().getApplicantId());
 
@@ -122,11 +138,14 @@ public class EnrichmentService {
     private void enrichUserDetails(TreePruningBookingRequest treePruningRequest) {
         // Try fetching an existing user for the given request
         TreePruningBookingDetail treePruningDetail = treePruningRequest.getTreePruningBookingDetail();
-        List<User> existingUsers = userService.fetchExistingOrCreateNewUser(treePruningRequest);
+        RequestInfo requestInfo = treePruningRequest.getRequestInfo();
+        ApplicantDetail applicantDetail = treePruningDetail.getApplicantDetail();
+        String tenantId = treePruningDetail.getTenantId();
+        User existingUsers = userService.fetchExistingUser(tenantId, applicantDetail, requestInfo);
 
-        if (!CollectionUtils.isEmpty(existingUsers)) {
-            treePruningDetail.setApplicantUuid(existingUsers.get(0).getUuid());
-            log.info("Existing user found with ID: {}", existingUsers.get(0).getUuid());
+        if (existingUsers != null) {
+            treePruningDetail.setApplicantUuid(existingUsers.getUuid());
+            log.info("Existing user found with ID: {}", existingUsers.getUuid());
             return;
         }
 
