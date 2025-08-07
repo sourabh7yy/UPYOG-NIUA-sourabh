@@ -21,17 +21,14 @@
 .employee-select-wrap:active {
   background-color: white;
 }
-
 .employee-select-wrap {
   @apply mb-lg relative;
 
   .select {
     @apply relative block w-full h-10 border border-solid border-input-border;
-
     &:hover {
       @apply border-2 border-solid border-primary-main;
     }
-
     input[type="text"] {
       width: calc(100% - 32px);
       background-color: transparent;
@@ -101,7 +98,6 @@
     }
   }
 }
-
 .fsm-registry-dropdown {
   .select {
     @apply flex;
@@ -215,17 +211,14 @@
     margin-bottom: 16px;
     border-radius: 6px;
     border: 1px solid #cccccc87;
-
     &.select-active {
       border-radius: 6px;
     }
   }
-
   .options-card {
     border-radius: 6px;
   }
 }
-
 .employee-select-wrap .select img,
 .employee-select-wrap .select svg {
   margin-top: 2px;

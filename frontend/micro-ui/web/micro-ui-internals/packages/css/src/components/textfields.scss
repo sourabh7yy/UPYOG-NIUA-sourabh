@@ -11,17 +11,14 @@
   margin-bottom: 16px !important;
   height: 40px !important;
 }
-
 .employee-card-input:disabled {
   @apply border-grey-dark text-grey-dark !important;
   pointer-events: none !important;
 }
-
 .employee-card-input:disabled {
   @apply border-grey-dark text-grey-dark !important;
   pointer-events: none !important;
 }
-
 .employee-card-input--front {
   width: fit-content !important;
   display: flex;
@@ -30,11 +27,9 @@
   border-right: 0;
   padding-right: 5px;
 }
-
 .employee-card-input-error {
   @apply mb-lg pl-sm block w-full h-10 outline-none border-2 border-error border-solid bg-white leading-10 text-form-field text-text-primary;
 }
-
 .card-textarea,
 .employee-card-textarea {
   @apply block outline-none mt-md mb-lg border w-full border-input-border border-solid bg-white h-24 text-form-field text-text-primary p-sm;
@@ -78,9 +73,9 @@
   }
 
   .card-textarea {
-    /* //width: 480px; */
+  /* //width: 480px; */
     @apply w-full;
-    max-width: 540px;
+    max-width:540px;
   }
 
   .employee-card-textarea {

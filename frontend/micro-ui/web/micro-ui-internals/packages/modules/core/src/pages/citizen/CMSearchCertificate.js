@@ -3,15 +3,15 @@ import { useTranslation } from "react-i18next";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useForm, Controller } from "react-hook-form";
 import {
+    TextInput,
     SubmitBar,
     SearchForm,
+    Dropdown,
     SearchField,
     Table,
     Header,
     Toast,
-    Loader,
-    Dropdown,
-    TextInput
+    Loader, 
 } from "@nudmcdgnpm/digit-ui-react-components";
 
 /**
@@ -40,7 +40,6 @@ const VSearchCertificate = () => {
     const [certificate_name, setCertificate_name] = useState("");
     const [certificate_No, setCertificate_No] = useState("");
     const [selectedCity, setSelectedCity] = useState("");
-
 
     // function to reset captcha
     const resetCaptcha = () => {
@@ -71,17 +70,15 @@ const VSearchCertificate = () => {
             select: (data) => {
                 const formattedData = data?.["VerificationSearch"]?.["CertificateType"].map((details) => {
                     return { i18nKey: `${details.name}`, code: `${details.code}`, active: `${details.active}` };
-                });
+                  });
                 return formattedData;
             },
         });
 
     // Hook to fetch city data
     const { data: cityData } = Digit.Hooks.useCustomMDMS(
-
         Digit.ULBService.getStateId(),
         "tenant",
-
         [{ name: "tenants" }],
         {
             select: (data) => {
@@ -93,7 +90,6 @@ const VSearchCertificate = () => {
             },
         }
     );
-
     // sets ishuman to be true based on token
     useEffect(() => {
         if (token) {
@@ -186,7 +182,7 @@ const VSearchCertificate = () => {
                 <div className="h1" style={{ fontSize: "40px", fontFamily: "Roboto Condensed", color: "#582766" }}>{t("SEARCH_CERTIFICATE")}</div>
                 <SearchForm onSubmit={onSubmit} handleSubmit={handleSubmit} className="verification-search-form">
                     <SearchField>
-                        <label className="astericColor" style={{ fontSize: "19px" }} >{t("CERTIFICATE_TYPE")}</label>  
+                        <label className="astericColor" style={{ fontSize: "19px" }} >{t("CERTIFICATE_TYPE")}</label>
                         <Controller
                             control={control}
                             name="certificateType"
@@ -201,7 +197,7 @@ const VSearchCertificate = () => {
                                     className="verificationDropdown"
                                     t={t}
                                     disable={false}
-                                    placeholder={" Please type and select the certificate type"}
+                                    placeholder={"Please type and select the certificate type"}
                                 />
                             )}
                         />
