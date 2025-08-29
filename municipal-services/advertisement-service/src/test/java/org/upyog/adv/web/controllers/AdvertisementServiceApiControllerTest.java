@@ -2,6 +2,8 @@ package org.upyog.adv.web.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -17,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * API tests for AdvertisementServiceApiController
  */
 @Disabled
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(AdvertisementServiceApiController.class)
 @Import(TestConfiguration.class)
 public class AdvertisementServiceApiControllerTest {

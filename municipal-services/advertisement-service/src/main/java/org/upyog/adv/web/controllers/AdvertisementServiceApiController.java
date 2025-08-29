@@ -33,12 +33,7 @@ import org.upyog.adv.web.models.ResponseInfo.StatusEnum;
 import org.upyog.adv.web.models.SlotSearchRequest;
 import org.upyog.adv.web.models.billing.Demand;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import digit.models.coremodels.RequestInfoWrapper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -174,7 +169,7 @@ public class AdvertisementServiceApiController {
 	 @RequestMapping(value = "/_deletedraft", method = RequestMethod.POST)
 		public ResponseEntity<AdvertisementResponse> advertisementDeleteDraft(
 				@RequestBody RequestInfoWrapper requestInfoWrapper,
-				@Parameter(description = "Draft ID to delete", required = true) @RequestParam(value = "draftId", required = true) String draftId) {
+                @RequestParam(value = "draftId", required = true) String draftId) {
 			String draftDiscardResponse = bookingService.deleteAdvertisementDraft(draftId);
 			ResponseInfo responseInfo = BookingUtil.createReponseInfo(requestInfoWrapper.getRequestInfo(),
 					draftDiscardResponse, StatusEnum.SUCCESSFUL);
