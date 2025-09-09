@@ -110,11 +110,18 @@
 			<artifactId>egf-master</artifactId>
 			<version>0.0.1</version>
 		</dependency>-->
-		<dependency>
-			<groupId>org.egov</groupId>
-			<artifactId>egf-master</artifactId>
-			<version>2.0.0</version>
-		</dependency>
+        <dependency>
+            <groupId>io.github.abhijniua</groupId>
+            <artifactId>egf-master</artifactId>
+            <version>2.0.4-SNAPSHOT</version>
+            <classifier>common</classifier>
+        </dependency>
+        <dependency>
+            <groupId>io.github.abhijniua</groupId>
+            <artifactId>egf-master</artifactId>
+            <version>2.0.4-SNAPSHOT</version>
+            <classifier>client</classifier>
+        </dependency>
 		<dependency>
 			<groupId>org.egov.services</groupId>
 			<artifactId>services-common</artifactId>
@@ -143,6 +150,13 @@
 		</dependency>
 	</dependencies>
 	<repositories>
+        <repository>
+            <id>central-portal-snapshots</id>
+            <name>Central Portal Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
 		<repository>
 			<id>repo.egovernments.org</id>
 			<name>eGov ERP Releases Repository</name>
@@ -155,6 +169,7 @@
 			<url>
 				https://nexus-repo.egovernments.org/nexus/content/repositories/snapshots/</url>
 		</repository>
+
 	</repositories>
 	<build>
 		<plugins>
