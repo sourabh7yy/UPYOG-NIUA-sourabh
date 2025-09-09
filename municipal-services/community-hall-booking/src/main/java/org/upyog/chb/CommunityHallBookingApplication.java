@@ -3,6 +3,7 @@ package org.upyog.chb;
 
 import java.util.TimeZone;
 
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.egov.encryption.config.EncryptionConfiguration;
 import org.egov.tracer.config.TracerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
