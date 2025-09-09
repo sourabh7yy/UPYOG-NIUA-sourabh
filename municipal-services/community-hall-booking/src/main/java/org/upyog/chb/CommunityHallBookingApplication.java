@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 //@EnableFeignClients
 @EnableTransactionManagement
 @EnableScheduling
+@EnableSchedulerLock(defaultLockAtMostFor = "PT30M")
 public class CommunityHallBookingApplication {
 	
 	@Value("${app.timezone}")
