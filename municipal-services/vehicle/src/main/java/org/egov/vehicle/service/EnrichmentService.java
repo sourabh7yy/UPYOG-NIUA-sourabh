@@ -38,10 +38,10 @@ public class EnrichmentService {
 
 		vehicleRequest.getVehicle().setId(UUID.randomUUID().toString());
 		if (vehicleRequest.getVehicle().getOwner().getId() == null) {
-			vehicleRequest.getVehicle().getOwner().setId(Long.parseLong(UUID.randomUUID().toString()));
+			vehicleRequest.getVehicle().getOwner().setId(UUID.randomUUID().toString());
 		}
-
-	}
+        vehicleRequest.getVehicle().setOwnerId(vehicleRequest.getVehicle().getOwner().getId());
+    }
 
 	public void enrichVehicleUpdateRequest(VehicleRequest vehicleRequest) {
 		RequestInfo requestInfo = vehicleRequest.getRequestInfo();
@@ -50,10 +50,11 @@ public class EnrichmentService {
 				vehicleRequest.getVehicle().getAuditDetails());
 		vehicleRequest.getVehicle().setAuditDetails(auditDetails);
 		if (vehicleRequest.getVehicle().getOwner().getId() == null) {
-			vehicleRequest.getVehicle().getOwner().setId(Long.parseLong(UUID.randomUUID().toString()));
+			vehicleRequest.getVehicle().getOwner().setId(UUID.randomUUID().toString());
 		}
+        vehicleRequest.getVehicle().setOwnerId(vehicleRequest.getVehicle().getOwner().getId());
+    }
 
-	}
 
 	public void enrichSearchData(List<Vehicle> vehicleList, RequestInfo requestInfo) {
 
