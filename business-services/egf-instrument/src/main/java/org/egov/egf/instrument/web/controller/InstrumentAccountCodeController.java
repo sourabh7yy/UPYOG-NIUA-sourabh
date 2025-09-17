@@ -179,5 +179,4 @@ public class InstrumentAccountCodeController {
                 .ts(Instant.now().toEpochMilli()).resMsgId(requestInfo.getMsgId())
                 .status(PLACEHOLDER).build();
     }
-
 }
