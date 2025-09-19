@@ -40,7 +40,8 @@ public class EnrichmentService {
 		if (vehicleRequest.getVehicle().getOwner().getId() == null) {
 			vehicleRequest.getVehicle().getOwner().setId(UUID.randomUUID().toString());
 		}
-        vehicleRequest.getVehicle().setOwnerId(vehicleRequest.getVehicle().getOwner().getId());
+        // Set owner UUID for persister - persister reads from $.vehicle.owner.uuid to populate database owner_id column
+        vehicleRequest.getVehicle().getOwner().setUuid(vehicleRequest.getVehicle().getOwner().getId());
     }
 
 	public void enrichVehicleUpdateRequest(VehicleRequest vehicleRequest) {
@@ -52,7 +53,8 @@ public class EnrichmentService {
 		if (vehicleRequest.getVehicle().getOwner().getId() == null) {
 			vehicleRequest.getVehicle().getOwner().setId(UUID.randomUUID().toString());
 		}
-        vehicleRequest.getVehicle().setOwnerId(vehicleRequest.getVehicle().getOwner().getId());
+        // Set owner UUID for persister - persister reads from $.vehicle.owner.uuid to populate database owner_id column
+        vehicleRequest.getVehicle().getOwner().setUuid(vehicleRequest.getVehicle().getOwner().getId());
     }
 
 
