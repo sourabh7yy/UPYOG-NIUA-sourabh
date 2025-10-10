@@ -32,6 +32,7 @@ import "@nudmcdgnpm/upyog-css";
 
 import { PTRModule, PTRLinks, PTRComponents } from "@upyog/upyog-ui-module-ptr";
 import { ASSETComponents, ASSETLinks, ASSETModule } from "@upyog/upyog-ui-module-asset";
+import { ASSETV2Components, ASSETV2Links, ASSETV2Module } from "@nudmcdgnpm/upyog-ui-module-asset-v2";
 
 import { 
   EWModule, 
@@ -87,7 +88,8 @@ const enabledModules = [
   "VENDOR",
   "MT",
   "PGRAI",
-  "TP"
+  "TP",
+  "ASSETV2"
 ];
 
 const initTokens = (stateCode) => {
@@ -159,7 +161,10 @@ const initDigitUI = () => {
   ...VENDORComponents,
   PGRAIModule,
   PGRAILinks,
-  ...PGRAIComponents
+  ...PGRAIComponents,
+  ...ASSETV2Components, 
+  ASSETV2Links, 
+  ASSETV2Module
   });
 
   initFSMComponents();
@@ -192,7 +197,7 @@ const initDigitUI = () => {
     },
   };
 
-  const stateCode = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID") || "pb";
+  const stateCode = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID") || "pg";
   initTokens(stateCode);
 
   const registry = window?.Digit.ComponentRegistryService.getRegistry();
