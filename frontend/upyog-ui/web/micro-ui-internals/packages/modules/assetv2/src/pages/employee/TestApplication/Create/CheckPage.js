@@ -1,20 +1,9 @@
 import { Card, CardHeader, CardSubHeader, CardText, CheckBox, LinkButton, Row, StatusTable, SubmitBar } from "@upyog/digit-ui-react-components";
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+
 
 import { checkForNA } from "../../../../utils";
-import Timeline from "../../../../components/ASTTimeline";
-
-const ActionButton = ({ jumpTo }) => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  function routeTo() {
-    history.push(jumpTo);
-  }
-
-  return <LinkButton label={t("CS_COMMON_CHANGE")} className="check-page-link-button" onClick={routeTo} />;
-};
 
 const CheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
@@ -26,9 +15,9 @@ const CheckPage = ({ onSubmit, value = {} }) => {
  
  
    // This call with stateTenantId (Get state-level data)
-   const stateResponseObject = Digit.Hooks.useEnabledMDMS(stateTenantId, "ASSET", [{ name: "AssetParentCategoryFields" }], {
+   const stateResponseObject = Digit.Hooks.useEnabledMDMS(stateTenantId, "ASSETV2", [{ name: "AssetParentCategoryFields" }], {
      select: (data) => {
-       const formattedData = data?.["ASSET"]?.["AssetParentCategoryFields"];
+       const formattedData = data?.["ASSETV2"]?.["AssetParentCategoryFields"];
        return formattedData;
      },
    });
