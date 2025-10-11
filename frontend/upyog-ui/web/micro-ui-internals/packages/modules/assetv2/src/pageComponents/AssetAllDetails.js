@@ -114,7 +114,14 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
     },
   });
 
-  const { data: Asset_Sub_Type } = Digit.Hooks.asset.useAssetSubType(stateTenantId, "ASSETV2", "assetCategory"); // hooks for Asset Parent Category
+  // const { data: Asset_Sub_Type } = Digit.Hooks.asset.useAssetSubType(stateTenantId, "ASSETV2", "assetCategory"); // hooks for Asset Parent Category
+
+  const { data: Asset_Sub_Type } = Digit.Hooks.useEnabledMDMS(Digit.ULBService.getStateId(), "ASSETV2", [{ name: "assetCategory" }], {
+    select: (data) => {
+      const formattedData = data?.["ASSETV2"]?.["assetCategory"];
+      return formattedData;
+    },
+  });
 
   // const { data: Asset_Parent_Sub_Type } = Digit.Hooks.asset.useAssetparentSubType(stateTenantId, "ASSETV2", "assetSubCategory");
 
@@ -126,6 +133,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
       return activeData;
     },
   });
+
 
   const { data: sourceofFinanceMDMS } = Digit.Hooks.useEnabledMDMS(Digit.ULBService.getStateId(), "ASSETV2", [{ name: "SourceFinance" }], {
     select: (data) => {
