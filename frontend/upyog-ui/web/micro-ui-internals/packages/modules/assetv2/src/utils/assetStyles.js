@@ -1,3 +1,5 @@
+import { RupeeIcon } from "@upyog/digit-ui-react-components";
+
 export const assetStyles = {
     toolTip:{
         width: "12px", 
@@ -24,6 +26,21 @@ export const assetStyles = {
         border: "1px solid rgb\(101 43 43\)", 
         borderRadius: "8px", 
         padding: "16px"
-    }
+    },
 
+    rupeeIcon:{
+        position: 'absolute',
+        left: '10px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        pointerEvents: 'none',
+        zIndex: 1,
+        color: '#505A5F',
+        fontSize: '16px'
+    },
+
+    rupeeIconPostions:{
+        position: 'relative', 
+        width: '100%'
+    }
 }
