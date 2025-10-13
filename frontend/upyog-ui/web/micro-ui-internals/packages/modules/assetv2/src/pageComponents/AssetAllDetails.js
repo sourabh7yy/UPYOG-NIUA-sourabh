@@ -10,6 +10,7 @@ import {
   UploadFile,
   Toast,
   LabelFieldPair,
+  TextArea
 } from "@upyog/digit-ui-react-components";
 import { Controller, useForm } from "react-hook-form";
 import EXIF from "exif-js";
@@ -823,6 +824,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     type: "text",
                     title: t("VALID_LAT_LONG"),
                   })}
+                  placeholder={t("AST_LAT_LONG_PLACEHOLDERS")}
                 />
                 <div
                   className="butt-icon"
@@ -973,6 +975,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 })}
                 style={{ width: "100%" }}
                 maxLength={6}
+                placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
             </div>
             <div>
@@ -1079,6 +1082,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                       title: t("PT_NAME_ERROR_MESSAGE"),
                     })}
                     style={{ width: "100%" }}
+                    placeholder={t("ENT_ALPHANUMERIC_PLACEHOLDER")}
                   />
                 </div>
               </React.Fragment>
@@ -1140,6 +1144,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
 
                 <div>
                   <div>{`${t("AST_COST_CONSTRUCTION")}`}</div>
+                  <div style={assetStyles.rupeeIconPostions}>
+              <span style={assetStyles.rupeeIcon}>
+                ₹
+              </span>
                   <TextInput
                     t={t}
                     type={"text"}
@@ -1155,8 +1163,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                       type: "text",
                       title: t("PT_NAME_ERROR_MESSAGE"),
                     })}
-                    style={{ width: "100%" }}
+                    style={{ width: "100%", paddingLeft: "35px" }}
+                    placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
                   />
+                </div>
                 </div>
               </React.Fragment>
             )}
@@ -1207,6 +1217,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   </span>
                 </div>
               </div>
+              <div style={assetStyles.rupeeIconPostions}>
+              <span style={assetStyles.rupeeIcon}>
+                ₹
+              </span>
               <TextInput
                 t={t}
                 // type={"number"}
@@ -1218,15 +1232,17 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 onChange={handleInputChange}
                 ValidationRequired={true}
                 validation = {{
-                  isRequired: true,
+                  isRequired: false,
                   // pattern: /^[0-9]*$/,
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                   
                 }}
-                style={{ width: "100%" }}
+                style={{ width: "100%", paddingLeft: "35px" }}
                 disabled={isCostFieldsDisable}
+               placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
+              </div>
             </div>
 
             <div>
@@ -1240,6 +1256,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   </span>
                 </div>
               </div>
+              <div style={assetStyles.rupeeIconPostions}>
+              <span style={assetStyles.rupeeIcon}>
+                ₹
+              </span>
               <TextInput
                 t={t}
                 type={"text"}
@@ -1251,14 +1271,16 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 onChange={handleInputChange}
                 ValidationRequired={true}
                 {...(validation = {
-                  isRequired: true,
+                  isRequired: false,
                   pattern: /^[0-9]*$/,
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%" }}
+                style={{ width: "100%",  paddingLeft: "35px" }}
+                placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
                 disabled={isCostFieldsDisable}
               />
+            </div>
             </div>
 
             <div>
@@ -1271,6 +1293,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   </span>
                 </div>
               </div>
+              <div style={assetStyles.rupeeIconPostions}>
+              <span style={assetStyles.rupeeIcon}>
+                ₹
+              </span>
               <TextInput
                 t={t}
                 type={"number"}
@@ -1281,14 +1307,16 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 value={assetDetails["bookValue"]}
                 onChange={handleInputChange}
                 {...(validation = {
-                  isRequired: true,
+                  isRequired: false,
                   // pattern: /^[0-9]*$/,
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%" }}
+                style={{ width: "100%", paddingLeft: "35px" }}
                 disabled={isCostFieldsDisable}
+                placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
+            </div>
             </div>
 
             <div>
@@ -1301,6 +1329,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   </span>
                 </div>
               </div>
+              <div style={assetStyles.rupeeIconPostions}>
+              <span style={assetStyles.rupeeIcon}>
+                ₹
+              </span>
               <TextInput
                 t={t}
                 type={"number"}
@@ -1312,13 +1344,15 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 onChange={handleInputChange}
                 ValidationRequired={true}
                 {...(validation = {
-                  isRequired: true,
+                  isRequired: false,
                   // pattern: regexPattern("number"),
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%" }}
+                style={{ width: "100%", paddingLeft: "35px" }}
+                placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
+            </div>
             </div>
 
              <div>
@@ -1331,6 +1365,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   </span>
                 </div>
               </div>
+              <div style={assetStyles.rupeeIconPostions}>
+              <span style={assetStyles.rupeeIcon}>
+                ₹
+              </span>
               <TextInput
                 t={t}
                 type={"number"}
@@ -1342,13 +1380,15 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 onChange={handleInputChange}
                 ValidationRequired={true}
                 {...(validation = {
-                  isRequired: true,
+                  isRequired: false,
                   // pattern: regexPattern("number"),
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%" }}
+                style={{ width: "100%", paddingLeft: "35px" }}
+                 placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
+            </div>
             </div>
 
             { !["LAND", "BUILDING"].includes(assettype?.code) && (
@@ -1616,6 +1656,12 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                           )}
                         />
                       ) : row.type === "num" ? (
+                      <div style={assetStyles.rupeeIconPostions}>
+                        {row.name === "improvementCost" && (
+                            <span style={assetStyles.rupeeIcon}>
+                              ₹
+                            </span>
+                        )}
                         <TextInput
                           t={t}
                           type={"number"}
@@ -1631,11 +1677,36 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                             type: row.columnType,
                             title: t("PT_NAME_ERROR_MESSAGE"),
                           })}
-                          style={{ width: "100%" }}
+                          style={{ 
+                            width: "100%",
+                            ...(row.name === "improvementCost" && { paddingLeft: "35px" })
+                          }}
                           readOnly={row.isReadOnly}
                           disabled={row.disable}
                         />
-                      ):(
+                      </div>
+                      ): row.type=== "textArea" ? (
+                        <TextArea
+                          t={t}
+                          type={"textarea"}
+                          isMandatory={row.isMandatory}
+                          optionKey="i18nKey"
+                          onKeyPress={specialCharacterValidation}
+                          name={row.name}
+                          value={assetDetails[row.name] || ""}
+                          onChange={handleInputChange}
+                          placeholder={row.placeHolder}
+                          style={{ width: "100%" }}
+                          ValidationRequired={true}
+                          {...(validation = {
+                            type: "textarea",
+                            isRequired: row.isMandatory,
+                            pattern: "^[a-zA-Z0-9 ,\\-]+$",
+                            title: t("PT_NAME_ERROR_MESSAGE"),
+                          })}
+                        />
+                      ):
+                      (
                         <TextInput
                           t={t}
                           type={row.type}
