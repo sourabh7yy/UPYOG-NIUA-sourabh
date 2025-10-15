@@ -1,4 +1,4 @@
-import { RupeeIcon } from "@upyog/digit-ui-react-components";
+
 
 export const assetStyles = {
     toolTip:{
@@ -21,10 +21,10 @@ export const assetStyles = {
     formGridStyles:{
         display: "grid", 
         gridTemplateColumns: "1fr 1fr", 
-        gap: "20px", 
+        gap: "22px", 
         marginBottom: "30px", 
         border: "1px solid rgb\(101 43 43\)", 
-        borderRadius: "8px", 
+        borderRadius: "10px", 
         padding: "16px"
     },
 

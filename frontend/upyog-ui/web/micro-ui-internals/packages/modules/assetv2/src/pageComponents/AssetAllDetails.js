@@ -72,6 +72,8 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
         }
   );
 
+  const cities = allCities?.data?.filter((city) => city.code === tenantId);
+
   const { data: fetchedLocalities } = Digit.Hooks.useBoundaryLocalities(
     tenantId,
     "revenue",
@@ -80,6 +82,12 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
     },
     t
   );
+
+  useEffect(() => {
+    if (cities&& cities.length === 0) {
+      setAddress((prev) => ({ ...prev, city: cities[0] }));
+    }
+  }, [tenantId]);
 
   let structuredLocality = [];
   fetchedLocalities &&
@@ -500,14 +508,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   <InfoBannerIcon />
                   <span
                     className="tooltiptext"
-                    style={{
-                      whiteSpace: "pre-wrap",
-                      fontSize: "small",
-                      wordWrap: "break-word",
-                      width: "300px",
-                      marginLeft: "15px",
-                      marginBottom: "-10px",
-                    }}
+                    style={assetStyles.toolTipText}
                   >
                     {`${t(`AST_WHICH_FINANCIAL_YEAR`)}`}
                   </span>
@@ -519,7 +520,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 defaultValue={financialYear}
                 rules={{ required: t("CORE_COMMON_REQUIRED_ERRMSG") }}
                 render={({ field }) => (
-                  <Dropdown selected={financialYear} select={setfinancialYear} option={financal} optionKey="i18nKey" placeholder={"Select"} t={t} />
+                  <Dropdown selected={financialYear} select={setfinancialYear} option={financal} optionKey="i18nKey" placeholder={"Select"} t={t} style={{ width: "80%" }}/>
                 )}
               />
             </div>
@@ -530,14 +531,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   <InfoBannerIcon />
                   <span
                     className="tooltiptext"
-                    style={{
-                      whiteSpace: "pre-wrap",
-                      fontSize: "small",
-                      wordWrap: "break-word",
-                      width: "300px",
-                      marginLeft: "15px",
-                      marginBottom: "-10px",
-                    }}
+                    style={assetStyles.toolTipText}
                   >
                     {`${t(`AST_PROCURED_DEPARTMENT`)}`}
                   </span>
@@ -556,6 +550,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     optionKey="i18nKey"
                     placeholder={"Select"}
                     t={t}
+                    style={{ width: "80%" }}
                   />
                 )}
               />
@@ -575,7 +570,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 defaultValue={assettype}
                 rules={{ required: t("CORE_COMMON_REQUIRED_ERRMSG") }}
                 render={(props) => (
-                  <Dropdown selected={assettype} select={setassettype} option={asset_type} optionKey="i18nKey" placeholder={"Select"} t={t} />
+                  <Dropdown selected={assettype} select={setassettype} option={asset_type} optionKey="i18nKey" placeholder={"Select"} t={t} style={{ width: "80%" }}/>
                 )}
               />
             </div>
@@ -638,6 +633,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     optionKey="i18nKey"
                     placeholder={"Select"}
                     t={t}
+                    style={{ width: "80%" }}
                   />
                 )}
               />
@@ -680,7 +676,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 name="AssetName"
                 value={AssetName}
                 onChange={setassetname}
-                style={{ width: "100%" }}
+                style={{ width: "80%" }}
                 ValidationRequired={true}
                 validation = {{
                   isRequired: true,
@@ -723,7 +719,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                           name={row.name}
                           value={assetDetails[row.name]}
                           onChange={handleInputChange}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           // max={new Date().toISOString().split("T")[0]}
                           rules={{
                             required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -746,7 +742,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                             title: t("PT_NAME_ERROR_MESSAGE"),
                             
                           }}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                         />
                         
                       ) : row.type === "dropdown" ? (
@@ -768,6 +764,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                               placeholder={"Select"}
                               isMandatory={row.isMandatory}
                               t={t}
+                              style={{ width: "80%" }}
                             />
                           )}
                         />
@@ -787,7 +784,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                             type: row.columnType,
                             title: t("PT_NAME_ERROR_MESSAGE"),
                           })}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           readOnly={row.isReadOnly}
                           disable={row.disable}
                           placeholder={row.name === "assetId" ? t("AST_AUTO_GENERATE") : ""}
@@ -816,7 +813,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   name={"location"}
                   value={assetDetails["location"] || ""}
                   onChange={handleInputChange}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1 , width: "80%"}}
                   ValidationRequired={false}
                   {...(validation = {
                     isRequired: true,
@@ -831,7 +828,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   onClick={() => fetchCurrentLocation("location")}
                   style={{
                     position: "absolute",
-                    right: "0",
+                    right: "21%",
                     top: "50%",
                     transform: "translateY(-50%)",
                     cursor: "pointer",
@@ -895,7 +892,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     type: "text",
                     title: t("VALID_LAT_LONG"),
                   })}
-                style={{ width: "100%" }}
+                style={{ width: "80%" }}
                 maxLength={6}
               />
             </div>
@@ -921,7 +918,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   type: "text",
                   title: t("ADDRESS_ONE_INVALID"),
                 }}
-                style={{ width: "100%" }}
+                style={{ width: "80%" }}
                 maxLength={6}
               />
             </div>
@@ -947,7 +944,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   type: "text",
                   title: t("ADDRESS_INVALID"),
                 }}
-                style={{ width: "100%" }}
+                style={{ width: "80%" }}
                 maxLength={6}
               />
             </div>
@@ -973,7 +970,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   type: "number",
                   title: t("VALID_LAT_LONG"),
                 })}
-                style={{ width: "100%" }}
+                style={{ width: "80%" }}
                 maxLength={6}
                 placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
@@ -998,6 +995,8 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     optionKey="code"
                     t={t}
                     placeholder={"Select"}
+                    style={{ width: "80%" }}
+                    disable={true}
                   />
                 )}
               />
@@ -1024,6 +1023,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     optionKey="i18nKey"
                     t={t}
                     placeholder={"Select"}
+                    style={{ width: "80%" }}
                   />
                 )}
               />
@@ -1055,7 +1055,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     name={"purchaseDate"}
                     value={assetDetails["purchaseDate"]}
                     onChange={handleInputChange}
-                    style={{ width: "100%" }}
+                    style={{ width: "80%" }}
                     max={new Date().toISOString().split("T")[0]}
                     rules={{
                       required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -1081,7 +1081,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                       type: "text",
                       title: t("PT_NAME_ERROR_MESSAGE"),
                     })}
-                    style={{ width: "100%" }}
+                    style={{ width: "80%" }}
                     placeholder={t("ENT_ALPHANUMERIC_PLACEHOLDER")}
                   />
                 </div>
@@ -1107,7 +1107,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     name={"estimateConstructionDate"}
                     value={assetDetails["estimateConstructionDate"]}
                     onChange={handleInputChange}
-                    style={{ width: "100%" }}
+                    style={{ width: "80%" }}
                     max={new Date().toISOString().split("T")[0]}
                     rules={{
                       required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -1133,7 +1133,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     name={"dateOfConstruction"}
                     value={assetDetails["dateOfConstruction"]}
                     onChange={handleInputChange}
-                    style={{ width: "100%" }}
+                    style={{ width: "80%" }}
                     max={new Date().toISOString().split("T")[0]}
                     rules={{
                       required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -1163,7 +1163,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                       type: "text",
                       title: t("PT_NAME_ERROR_MESSAGE"),
                     })}
-                    style={{ width: "100%", paddingLeft: "35px" }}
+                    style={{ width: "80%", paddingLeft: "35px" }}
                     placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
                   />
                 </div>
@@ -1202,6 +1202,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     option={sourcefinance}
                     optionKey="i18nKey"
                     placeholder={"Select"}
+                    style={{ width: "80%" }}
                     t={t}
                   />
                 )}
@@ -1238,7 +1239,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   title: t("PT_NAME_ERROR_MESSAGE"),
                   
                 }}
-                style={{ width: "100%", paddingLeft: "35px" }}
+                style={{ width: "80%", paddingLeft: "35px" }}
                 disabled={isCostFieldsDisable}
                placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
@@ -1276,7 +1277,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%",  paddingLeft: "35px" }}
+                style={{ width: "80%",  paddingLeft: "35px" }}
                 placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
                 disabled={isCostFieldsDisable}
               />
@@ -1312,7 +1313,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%", paddingLeft: "35px" }}
+                style={{ width: "80%", paddingLeft: "35px" }}
                 disabled={isCostFieldsDisable}
                 placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
@@ -1349,7 +1350,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%", paddingLeft: "35px" }}
+                style={{ width: "80%", paddingLeft: "35px" }}
                 placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
             </div>
@@ -1385,7 +1386,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                   type: "number",
                   title: t("PT_NAME_ERROR_MESSAGE"),
                 })}
-                style={{ width: "100%", paddingLeft: "35px" }}
+                style={{ width: "80%", paddingLeft: "35px" }}
                  placeholder={t("ENT_NUMERIC_VALUE_ONLY")}
               />
             </div>
@@ -1411,7 +1412,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                     name={"invoiceDate"}
                     value={assetDetails["invoiceDate"]}
                     onChange={handleInputChange}
-                    style={{ width: "100%" }}
+                    style={{ width: "80%" }}
                     rules={{
                       required: t("CORE_COMMON_REQUIRED_ERRMSG"),
                       validDate: (val) => (/^\d{4}-\d{2}-\d{2}$/.test(val) ? true : t("ERR_DEFAULT_INPUT_FIELD_MSG"))
@@ -1444,7 +1445,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                       type: "text",
                       title: t("PT_NAME_ERROR_MESSAGE"),
                     })}
-                    style={{ width: "100%" }}
+                    style={{ width: "80%" }}
                   />
                 </div>
               </React.Fragment>
@@ -1482,7 +1483,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                           name={row.name}
                           value={assetDetails[row.name]}
                           onChange={handleInputChange}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           // max={new Date().toISOString().split("T")[0]}
                           rules={{
                             required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -1506,6 +1507,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                               placeholder={"Select"}
                               isMandatory={row.isMandatory}
                               disable={row.disable}
+                              style={{ width: "80%" }}
                               t={t}
                             />
                           )}
@@ -1526,7 +1528,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                             type: row.columnType,
                             title: t("PT_NAME_ERROR_MESSAGE"),
                           })}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           readOnly={row.isReadOnly}
                           disabled={row.disable}
                         />
@@ -1583,7 +1585,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                             type: row.columnType,
                             title: t("PT_NAME_ERROR_MESSAGE"),
                           })}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           readOnly={row.isReadOnly}
                         />
                       )}
@@ -1628,7 +1630,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                           name={row.name}
                           value={assetDetails[row.name]}
                           onChange={handleInputChange}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           // max={new Date().toISOString().split("T")[0]}
                           rules={{
                             required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -1651,6 +1653,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                               optionKey="i18nKey"
                               placeholder={"Select"}
                               isMandatory={row.isMandatory}
+                              style={{ width: "80%" }}
                               t={t}
                             />
                           )}
@@ -1678,7 +1681,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                             title: t("PT_NAME_ERROR_MESSAGE"),
                           })}
                           style={{ 
-                            width: "100%",
+                            width: "80%",
                             ...(row.name === "improvementCost" && { paddingLeft: "35px" })
                           }}
                           readOnly={row.isReadOnly}
@@ -1696,7 +1699,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                           value={assetDetails[row.name] || ""}
                           onChange={handleInputChange}
                           placeholder={row.placeHolder}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           ValidationRequired={true}
                           {...(validation = {
                             type: "textarea",
@@ -1722,7 +1725,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                             type: row.columnType,
                             title: t("PT_NAME_ERROR_MESSAGE"),
                           })}
-                          style={{ width: "100%" }}
+                          style={{ width: "80%" }}
                           readOnly={row.isReadOnly}
                         />
                       )}
@@ -1875,7 +1878,7 @@ function DocumentUploadField({ t, document: doc, setDocuments, setError, documen
   }, [uploadedFile, selectedDocument, latitude, longitude, setDocuments]);
 
   return (
-    <div style={{ marginBottom: "24px" }}>
+    <div style={{ marginBottom: "24px", width: "80%" }}>
       {doc?.hasDropdown && (
         <LabelFieldPair>
           <CardLabel className="card-label-smaller">{t(doc.code.replaceAll(".", "_"))}</CardLabel>
@@ -1902,7 +1905,7 @@ function DocumentUploadField({ t, document: doc, setDocuments, setError, documen
               "No File Uploaded"
             )
           }
-          textStyles={{ width: "100%" }}
+          textStyles={{ width: "80%" }}
           inputStyles={{ width: "280px" }}
           accept=".pdf, .jpeg, .jpg, .png"
           buttonType="button"
