@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "idgen-service", url = "${idgen.service.host}")
+@FeignClient(name = "idgen-service", url = "${egov.idgen.host}")
 public interface IdGenClient {
 
     @PostMapping(value = "${idgen.service.endpoint}", produces = "application/json", consumes = "application/json")
