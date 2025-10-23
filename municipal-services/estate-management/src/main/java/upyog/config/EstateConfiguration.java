@@ -34,7 +34,7 @@ public class EstateConfiguration {
 
 
     //Idgen Config
-    @Value("${idgen.service.host}")
+    @Value("${egov.idgen.host}")
     private String idGenHost;
 
     @Value("${idgen.service.endpoint}")
