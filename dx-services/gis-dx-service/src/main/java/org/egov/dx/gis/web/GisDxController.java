@@ -26,7 +26,7 @@ public class GisDxController {
     /**
      * Generate GeoJSON for any municipal service
      */
-    @PostMapping("/{businessService}/_search")
+    @PostMapping("/_search/{businessService}")
     public ResponseEntity<GeoJsonResponse> search(
             @PathVariable String businessService,
             @Valid @RequestBody GeoJsonRequest request) {
