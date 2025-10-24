@@ -104,8 +104,14 @@ public class AssetService {
             }
         }
 
+        // If isInterServiceCall flag is true, skip user-based filtering and get all matching assets
+        if (Boolean.TRUE.equals(criteria.getIsInterServiceCall())) {
+            log.debug("Inter-service call detected, fetching assets without user-based filtering");
+            assets = getAssetsFromCriteria(criteria);
+            log.debug("Number of assets returned by the search query: " + assets.size());
+        }
         // If tenant ID is the only criteria or no criteria is provided
-        if ((criteria.tenantIdOnly() || criteria.isEmpty())) {
+        else if ((criteria.tenantIdOnly() || criteria.isEmpty())) {
             log.debug("Loading data of assets created by the current user");
             assets = this.getAssetCreatedForByMe(criteria, requestInfo);
             log.debug("Number of assets returned by the search query: " + assets.size());
