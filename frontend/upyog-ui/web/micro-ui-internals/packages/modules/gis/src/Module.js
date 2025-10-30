@@ -6,7 +6,7 @@ import CitizenApp from "./pages";
 import ServiceTypes from "./components/ServiceTypes";
 import MapView from "./components/MapView";
 
-
+// Object containing components to be registered in the Digit Component Registry Service for the components used in the module
 const componentsToRegister = {
     ServiceTypes,
     MapView
@@ -50,10 +50,9 @@ const componentsToRegister = {
       clearParams();
     }, []);
   
-    const links = [ // need to check the links, will be removed later if not needed
-    ];
+    
   
-    return <CitizenHomeCard header={t("WATER_TANKER_SERVICE")} links={links} Icon={() => <PTIcon className="fill-path-primary-main" />} />;
+    return <CitizenHomeCard header={t("GIS")} links={links} Icon={() => <PTIcon className="fill-path-primary-main" />} />;
   };
   
   // export the components outside of module to enable and access of module

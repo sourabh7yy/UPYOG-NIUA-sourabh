@@ -2,6 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from "react-i18next";
 import { CardLabel, SubmitBar, Dropdown } from '@upyog/digit-ui-react-components';
 
+/**
+This MapView defines the MapView component, which is responsible for rendering and managing the map interface in the GIS module.
+It integrates with mapping libraries (e.g., Leaflet, OpenLayers, or similar) to display geospatial data.
+The component provides functionalities for searching and filtering map data based on user input and show details in pop up.
+Displaying user's current location on the map.
+Rendering data points as markers with popup details.
+Allowing users to search and filter map data by application number.
+Calculating distances between user location and feature locations.
+ */
+
 const MapView = () => {
   const mapRef = useRef(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -17,8 +27,10 @@ const MapView = () => {
       return serviceType.businessService || "PT";
     }
     return "PT"; // default fallback
-  };  
+  };
 
+  //Fetches the selected business service type from sessionStorage.
+  //Used to determine which GIS API to call (Property or Asset).
   useEffect(() => {
     const fetchGISData = async () => {
       try {
@@ -30,12 +42,12 @@ const MapView = () => {
           includeBillData: true,
           businessService: businessService
         };
-  
-        const response = businessService === "PT" 
+
+        const response = businessService === "PT"
           ? await Digit.GIS.searchPT(payload)
           : await Digit.GIS.searchAsset(payload);
 
-  
+
         if (response && response.geoJsonData) {
           const validFeatures = response.geoJsonData.features.filter(features => {
             const coords = features.geometry?.coordinates;
@@ -45,8 +57,7 @@ const MapView = () => {
               !(coords[0] === 0.0 && coords[1] === 0.0)
             );
           });
-  
-          //  Transform valid data based on business service
+
           const transformedData = {
             type: "FeatureCollection",
             features: validFeatures.map(features => ({
@@ -69,19 +80,21 @@ const MapView = () => {
               }
             }))
           };
-  
+
           setGeoJsonData(transformedData);
         }
       } catch (error) {
         console.error("Error fetching GIS data:", error);
       }
     };
-  
+
     fetchGISData();
   }, []);
-  
 
-  // Options for Dropdown (from fetched data)
+
+  /**
+     * Prepares dropdown options based on fetched GIS data.
+     */
   const statusOptions = geoJsonData.features.map(feature => ({
     code: feature.properties.applicationNumber,
     value: feature.properties.applicationNumber,
@@ -91,18 +104,21 @@ const MapView = () => {
   const handleSearch = () => {
     setSearchTerm(inputValue?.value || inputValue || "");
   };
-
+  // Utility function to calculate distance between two geographic coordinates using the Haversine formula.
   const calculateDistance = (lat1, lng1, lat2, lng2) => {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLng / 2) ** 2;
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
+  /**
+   * Attempts to get the user's current location via the browser's Geolocation API.
+   */
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -119,6 +135,10 @@ const MapView = () => {
     }
   }, []);
 
+  /**
+ * Loads the Leaflet library dynamically (if not already loaded)
+ * and initializes the map once both the user location and GIS data are ready.
+ */
   useEffect(() => {
     if (!userLocation || !geoJsonData.features.length) return;
 
@@ -164,6 +184,7 @@ const MapView = () => {
 
     const markerMap = new Map();
 
+    // Plot GIS features as markers
     geoJsonData.features.forEach(feature => {
       const [lng, lat] = feature.geometry.coordinates;
       const props = feature.properties;
@@ -185,7 +206,7 @@ const MapView = () => {
       ` : `
         <div>
           <div style="margin-right: 85px;">
-            <b>${ props.assetName}</b><br>
+            <b>${props.assetName}</b><br>
             <b>Status:</b> ${props.status || "N/A"}<br>
             <b>Asset Category:</b> ${props.assetCategory || "N/A"}<br>
             <b>Asset Department:</b> ${props.assetDepartment || "N/A"}<br>
@@ -212,7 +233,7 @@ const MapView = () => {
 
   return (
     <div>
-      <div style={{ marginLeft: "10px", marginRight: "10px"}}>
+      <div style={{ marginLeft: "10px", marginRight: "10px" }}>
         <CardLabel>{t("GIS_PROPERTY_AVAILABLE")}</CardLabel>
         <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap: "16px", position: "relative", zIndex: 2000 }}>
           <Dropdown
@@ -226,7 +247,7 @@ const MapView = () => {
             optionCardStyles={{ maxHeight: "200px", overflowY: "auto" }}
             t={t}
           />
-          <div style={{marginTop:"5px", display: "flex", gap: "16px"}}>
+          <div style={{ marginTop: "5px", display: "flex", gap: "16px" }}>
             <SubmitBar label={t("ES_COMMON_SEARCH")} onSubmit={handleSearch} />
             <p className="link" style={{ cursor: "pointer" }} onClick={() => {
               setSearchTerm("");
