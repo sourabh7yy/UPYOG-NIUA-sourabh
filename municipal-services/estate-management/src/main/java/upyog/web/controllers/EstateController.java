@@ -26,6 +26,13 @@ public class EstateController {
     @Autowired
     private final ResponseInfoFactory responseInfoFactory;
 
+    /**
+     * Creates a new allotment in the estate management system.
+     * Processes allotment request and generates unique allotment ID.
+     *
+     * @param request AllotmentRequest containing allotment details and request metadata
+     * @return ResponseEntity containing created allotment details with HTTP 201 status
+     */
     @PostMapping("/allotment/v1/_create")
     public ResponseEntity<AllotmentResponse> createAllotment(
             @Valid @RequestBody AllotmentRequest request) {
@@ -36,6 +43,13 @@ public class EstateController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    /**
+     * Searches for allotments based on provided search criteria.
+     * Supports filtering by allotment ID, tenant ID, asset number, allottee details, etc.
+     *
+     * @param criteria AllotmentSearchCriteria containing search parameters and request metadata
+     * @return ResponseEntity containing list of matching allotments with HTTP 200 status
+     */
     @PostMapping("/allotment/v1/_search")
     public ResponseEntity<AllotmentResponse> searchAllotments(
             @Valid @RequestBody AllotmentSearchCriteria criteria) {
@@ -53,7 +67,6 @@ public class EstateController {
      *
      * @param request AssetRequest containing asset details and request metadata
      * @return ResponseEntity containing created asset details with HTTP 201 status
-     * @throws CustomException if asset request is invalid or reference asset not found
      */
     @PostMapping("/asset/v1/_create")
     public ResponseEntity<AssetResponse> createAsset(@Valid @RequestBody AssetRequest request) {
