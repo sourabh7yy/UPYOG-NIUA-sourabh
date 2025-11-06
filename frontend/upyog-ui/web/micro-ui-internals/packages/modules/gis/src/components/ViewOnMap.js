@@ -17,6 +17,24 @@ const CloseBtn = ({ onClick }) => (
   </div>
 );
 
+/**
+ * 
+ * Displays an interactive Leaflet map inside a modal for visualizing 
+ * an immovable asset’s location and geometry (Point or Polygon). 
+ * 
+ * The component dynamically loads the Leaflet library (if not already loaded), 
+ * initializes a map centered on the provided geometry, and adds the asset as 
+ * a styled GeoJSON layer. When the asset is clicked, a popup shows key 
+ * asset details such as application number, classification, category, 
+ * possession date, area, city, and pincode.
+ * 
+ * Props:
+ *  - closeModal: Function to close the modal.
+ *  - location: GeoJSON object representing the asset geometry.
+ *  - assetDetails: Object containing metadata displayed in the popup.
+ */
+
+
 const ViewOnMap = ({ closeModal, location,assetDetails }) => {
   const mapRef = useRef(null);
 
