@@ -16,6 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 import EXIF from "exif-js";
 import { assetStyles } from "../utils/assetStyles";
 import { validateMandatoryFields } from "../utils";
+import { MarkOnMap } from "@nudmcdgnpm/upyog-ui-module-gis";
 
 const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
   const { control } = useForm();
@@ -62,6 +63,10 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
   const [enableSubmit, setEnableSubmit] = useState(true);
   const [checkRequiredFields, setCheckRequiredFields] = useState(true);
 
+  const [geometry, setGeometry] = useState(formData.assetDetails?.geometry ||null);
+  const [showMap, setShowMap] = useState(false);
+  const [area, setArea] = useState(formData.assetDetails?.area || null);
+
   const [assetDetails, setAssetDetails] = useState(
     formData?.assetDetails
       ? formData?.assetDetails
@@ -72,7 +77,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
         }
   );
 
-  const cities = allCities?.data?.filter((city) => city.code === tenantId);
+  const cities = allCities?.filter((city) => city.code === tenantId);
 
   const { data: fetchedLocalities } = Digit.Hooks.useBoundaryLocalities(
     tenantId,
@@ -84,7 +89,7 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
   );
 
   useEffect(() => {
-    if (cities&& cities.length === 0) {
+    if (cities&& cities.length === 1) {
       setAddress((prev) => ({ ...prev, city: cities[0] }));
     }
   }, [tenantId]);
@@ -217,7 +222,6 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
       combinedData = stateResponseObject.data;
     } else {
       combinedData = []; // Or an appropriate default value for empty data
-      console.log("Both cityResponseObject and stateResponseObject data are unavailable.");
     }
     setCategoriesWiseData(combinedData);
   }, [stateResponseObject]);
@@ -841,34 +845,36 @@ const AssetAllDetails = ({ t, config, onSelect, userType, formData }) => {
                 </div>
               </div>
 
-              {/* {assetDetails?.location && (
+              {assetDetails?.location && (
             <div>
             <button style={{ color: "#a82227" }} onClick={() => setShowMap(true)}>
-                Mark Asset on Map
+               {geometry ? "Edit Marked Asset" : "Mark Asset on Map"}
             </button>
             </div>
         )}
 
-        {showMap && (
-            <MarkPropertyMap
-            onGeometrySave={(geoJson) => {
-                setGeometry(geoJson);
-                setAssetDetails((prevDetails) => ({
-                ...prevDetails,
-                geometry: geoJson,
-                }));
-            }}
-            onAreaSave={(polygonArea) => {
-                setArea(polygonArea);
-                setAssetDetails((prevDetails) => ({
-                ...prevDetails,
-                area: polygonArea,
-                }));
-            }}
-            closeModal={() => setShowMap(false)}
-            location={currentLocation}
-            />
-        )} */}
+            {showMap && (
+                <MarkOnMap
+                onGeometrySave={(geoJson) => {
+                    setGeometry(geoJson);
+                    setAssetDetails((prevDetails) => ({
+                    ...prevDetails,
+                    geometry: geoJson,
+                    }));
+                }}
+                onAreaSave={(polygonArea) => {
+                    setArea(polygonArea);
+                    setAssetDetails((prevDetails) => ({
+                    ...prevDetails,
+                    area: polygonArea,
+                    }));
+                }}
+                savedGeometry={geometry}  // Pass saved geometry
+                savedArea={area} // Pass saved area
+                closeModal={() => setShowMap(false)}
+                location={currentLocation}
+                />
+            )}
             </div>
 
             <div>
