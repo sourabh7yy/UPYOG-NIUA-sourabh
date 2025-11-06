@@ -48,6 +48,16 @@ public class Allotment {
     private LocalDate advancePaymentDate;
     @NotBlank
     private String eofficeFileNo;
+    @NotBlank
+    private String assetReferenceNo;
+    @NotBlank
+    private String propertyType;
+    @NotBlank
+    private String citizenRequestLetter;
+    @NotBlank
+    private String allotmentLetter;
+    @NotBlank
+    private String signedDeed;
 
     private AuditDetails auditDetails;
 }

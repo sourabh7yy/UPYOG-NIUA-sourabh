@@ -55,7 +55,13 @@ public class AllotmentRowmapper implements ResultSetExtractor<List<Allotment>> {
                 allotment.setMonthlyRent(getBigDecimal(rs, "monthly_rent"));
                 allotment.setAdvancePayment(getBigDecimal(rs, "advance_payment"));
                 allotment.setEofficeFileNo(rs.getString("eoffice_file_no"));
-                
+                allotment.setAssetReferenceNo(rs.getString("asset_reference_no"));
+                allotment.setPropertyType(rs.getString("property_type"));
+                allotment.setCitizenRequestLetter(rs.getString("citizen_request_letter"));
+                allotment.setAllotmentLetter(rs.getString("allotment_letter"));
+                allotment.setSignedDeed(rs.getString("signed_deed"));
+
+
                 AuditDetails auditDetails = AuditDetails.builder()
                         .createdBy(rs.getString("createdby"))
                         .createdTime(rs.getLong("createdtime"))
