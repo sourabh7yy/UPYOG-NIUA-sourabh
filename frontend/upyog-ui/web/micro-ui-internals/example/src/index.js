@@ -51,9 +51,6 @@ import { GISComponents, GISLinks, GISModule } from "@nudmcdgnpm/upyog-ui-module-
 
 // import { subFormRegistry } from "@upyog/digit-ui-libraries";
 
-import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
-
 import { pgrCustomizations, pgrComponents } from "./pgr";
 
 var Digit = window.Digit || {};
