@@ -5,11 +5,15 @@ import { useRouteMatch } from "react-router-dom";
 import CitizenApp from "./pages";
 import ServiceTypes from "./components/ServiceTypes";
 import MapView from "./components/MapView";
+import MarkOnMap from "./components/MarkOnMap";
+import ViewOnMap from "./components/ViewOnMap";
 
 // Object containing components to be registered in the Digit Component Registry Service for the components used in the module
 const componentsToRegister = {
     ServiceTypes,
-    MapView
+    MapView,
+    MarkOnMap,
+    ViewOnMap
   };
   
   // function to register the component as per standard 
@@ -62,3 +66,5 @@ const componentsToRegister = {
     GISLinks,
    
   };
+
+  export { MarkOnMap, MapView, ServiceTypes,ViewOnMap };
