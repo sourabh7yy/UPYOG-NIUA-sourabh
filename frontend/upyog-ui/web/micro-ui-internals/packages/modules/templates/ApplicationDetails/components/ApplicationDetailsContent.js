@@ -15,7 +15,7 @@ import {
   DeleteIcon,
 } from "@upyog/digit-ui-react-components";
 import { values } from "lodash";
-import React, { Fragment,useState } from "react";
+import React, { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import BPADocuments from "./BPADocuments";
@@ -36,8 +36,21 @@ import WSFeeEstimation from "./WSFeeEstimation";
 // import WSInfoLabel from "../../../ws/src/pageComponents/WSInfoLabel";
 import DocumentsPreview from "./DocumentsPreview";
 import InfoDetails from "./InfoDetails";
-import ViewBreakup from"./ViewBreakup";
-import ArrearSummary from "../../../common/src/payments/citizen/bills/routes/bill-details/arrear-summary"
+import ViewBreakup from "./ViewBreakup";
+import ArrearSummary from "../../../common/src/payments/citizen/bills/routes/bill-details/arrear-summary";
+// import ViewAssetOnMap from "./ViewAssetOnMap";
+// import MarkPropertyMap from "../../../asset/src/pageComponents/MarkPropertyMap";
+import { MarkOnMap, ViewOnMap } from "@nudmcdgnpm/upyog-ui-module-gis";
+
+// Helper function to convert "lat,lng" string to {lat:..., lng:...} object
+const coordinateFormatter = (locationString) => {
+  if (locationString && typeof locationString === "string") {
+    const [lat, lng] = locationString.split(", ").map((coord) => parseFloat(coord.trim()));
+    return { lat, lng };
+  }
+  return locationString; // return as-is if already an object
+};
+
 function ApplicationDetailsContent({
   applicationDetails,
   workflowDetails,
@@ -53,13 +66,30 @@ function ApplicationDetailsContent({
   isInfoLabel = false,
 }) {
   const { t } = useTranslation();
+  const tenantId = Digit.ULBService.getCurrentTenantId();
   let { id: applicationNo } = useParams(); // Extracts PG-1013-2025-I-001019
-  const ownersSequences = applicationDetails?.applicationData?.owners;
-  console.log("ownersSequences:- ", ownersSequences);
+  const { isLoading, isError, data: applicationDetailsofAsset, error } = Digit.Hooks.asset.useAssetApplicationDetail(t, tenantId, applicationNo);
 
   function OpenImage(imageSource, index, thumbnailsToShow) {
     window.open(thumbnailsToShow?.fullImage?.[0], "_blank");
   }
+
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const [geometry, setGeometry] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+  const [area, setArea] = useState(null);
+
+  const handleOpenMap = (geometry) => {
+    setSelectedLocation(geometry);
+    setShowMapModal(true);
+  };
+
+  const handleCloseMap = () => {
+    setShowMapModal(false);
+    setSelectedLocation(null);
+  };
 
   const [fetchBillData, updatefetchBillData] = useState({});
 
@@ -138,7 +168,7 @@ function ApplicationDetailsContent({
           },
         },
       };
-      const previousCheckpoint = timeline && timeline[index - 1] &&timeline?.[index - 1];
+      const previousCheckpoint = timeline && timeline[index - 1] && timeline?.[index - 1];
       const caption = {
         date: checkpoint?.auditDetails?.lastModified,
         name: checkpoint?.assignes?.[0]?.name,
@@ -147,8 +177,8 @@ function ApplicationDetailsContent({
           applicationData?.processInstance?.assignes?.[0]?.mobileNumber
             ? applicationData?.processInstance?.assignes?.[0]?.mobileNumber
             : checkpoint?.assignes?.[0]?.mobileNumber,
-          comment: t(checkpoint && checkpoint?.comment),
-          wfComment: previousCheckpoint ? previousCheckpoint && previousCheckpoint.wfComment : [],
+        comment: t(checkpoint && checkpoint?.comment),
+        wfComment: previousCheckpoint ? previousCheckpoint && previousCheckpoint.wfComment : [],
         thumbnailsToShow: checkpoint?.thumbnailsToShow,
       };
 
@@ -175,7 +205,7 @@ function ApplicationDetailsContent({
   };
 
   const checkLocation =
-  window.location.href.includes("employee/tl") || window.location.href.includes("employee/obps") || window.location.href.includes("employee/noc");
+    window.location.href.includes("employee/tl") || window.location.href.includes("employee/obps") || window.location.href.includes("employee/noc");
   const isNocLocation = window.location.href.includes("employee/noc");
   const isBPALocation = window.location.href.includes("employee/obps");
   const isWS = window.location.href.includes("employee/ws");
@@ -215,16 +245,16 @@ function ApplicationDetailsContent({
   };
 
   const getTextValue = (value) => {
-     // Handle time values specially
-     if (value?.isTimeValue && value?.value) {
+    // Handle time values specially
+    if (value?.isTimeValue && value?.value) {
       // Format time from "HH:MM" to "H:MM AM/PM"
       const timeString = value.value;
-      const [hours, minutes] = timeString.split(':').map(part => parseInt(part, 10));
-      
+      const [hours, minutes] = timeString.split(":").map((part) => parseInt(part, 10));
+
       if (!isNaN(hours) && !isNaN(minutes)) {
-        const period = hours >= 12 ? 'PM' : 'AM';
+        const period = hours >= 12 ? "PM" : "AM";
         const hour12 = hours % 12 || 12; // Convert 0 to 12 for 12 AM
-        const paddedMinutes = String(minutes).padStart(2, '0'); // Ensures minutes are always two digits
+        const paddedMinutes = String(minutes).padStart(2, "0"); // Ensures minutes are always two digits
         return `${hour12}:${paddedMinutes} ${period}`;
       }
       return value.value; // Return original if parsing failed
@@ -243,7 +273,6 @@ function ApplicationDetailsContent({
     }
   };
 
-
   const [showAllTimeline, setShowAllTimeline] = useState(false);
   const getClickInfoDetails1 = () => {
     if (window.location.href.includes("disconnection") || window.location.href.includes("application")) {
@@ -259,8 +288,6 @@ function ApplicationDetailsContent({
   const openFilePDF = (fileId) => {
     Digit.UploadServices.Filefetch([fileId], Digit.ULBService.getStateId())
       .then((res) => {
-        console.log("Response of file:", res);
-
         // Extract the concatenated URL string
         const concatenatedUrls = res?.data?.fileStoreIds?.[0]?.url;
 
@@ -284,7 +311,6 @@ function ApplicationDetailsContent({
         console.error("Error fetching file:", error);
       });
   };
-
 
   return (
     <Card style={{ position: "relative" }} className={"employeeCard-override"}>
@@ -323,10 +349,12 @@ function ApplicationDetailsContent({
             {/* Here Render the table for adjustment amount details detail.isTable is true for that table*/}
 
             {detail?.isTable && (
-              <table style={{ tableLayout: "fixed", width: "100%", borderCollapse: "collapse", borderCollapse: "collapse", border: "1px solid black"}}>
+              <table
+                style={{ tableLayout: "fixed", width: "100%", borderCollapse: "collapse", borderCollapse: "collapse", border: "1px solid black" }}
+              >
                 <tr style={{ textAlign: "left" }}>
                   {detail?.headers.map((header) => (
-                    <th style={{ padding: "10px", paddingLeft: "5px", border: "1px solid black"}}>{t(header)}</th>
+                    <th style={{ padding: "10px", paddingLeft: "5px", border: "1px solid black" }}>{t(header)}</th>
                   ))}
                 </tr>
 
@@ -341,7 +369,6 @@ function ApplicationDetailsContent({
                   // }
                   return (
                     <tr>
-                      
                       {row.map((element, idx) =>
                         Array.isArray(element) && element.length > 1 && detail.isMaintenance === true ? (
                           <td style={{ paddingTop: "20px", textAlign: "left", border: "1px solid black", verticalAlign: "middle" }} key={idx}>
@@ -359,8 +386,7 @@ function ApplicationDetailsContent({
                             </div>
                           </td>
                         ) : (
-                          <td key={idx} style={{ paddingTop: "20px", textAlign: "left" , border: "1px solid black", verticalAlign: "middle"}}>
-                            {console.log("Comming Maintainaince data row:- ", element.data)}
+                          <td key={idx} style={{ paddingTop: "20px", textAlign: "left", border: "1px solid black", verticalAlign: "middle" }}>
                             {element && element.editButton === true ? (
                               <span style={{ display: "inline-flex", gap: "10px", alignItems: "center" }}>
                                 <Link
@@ -369,7 +395,10 @@ function ApplicationDetailsContent({
                                     state: { data: element.data },
                                   }}
                                 >
-                                  <button> <EditIcon /> </button>
+                                  <button>
+                                    {" "}
+                                    <EditIcon />{" "}
+                                  </button>
                                 </Link>
                               </span>
                             ) : (
@@ -387,6 +416,56 @@ function ApplicationDetailsContent({
               {detail?.title &&
                 !detail?.title.includes("NOC") &&
                 detail?.values?.map((value, index) => {
+                  if (value?.isViewOnMap) {
+                    return (
+                      <Row
+                        key={t(value.title)}
+                        label={t(value.title)}
+                        text={
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            {/* Show the original value */}
+                            <span>{getTextValue(value)}</span>
+                            {applicationDetailsofAsset?.applicationData?.applicationData?.additionalDetails?.geometry ? (
+                              <button
+                                style={{
+                                  backgroundColor: "#a82227",
+                                  color: "white",
+                                  border: "none",
+                                  borderRadius: "4px",
+                                  padding: "4px 10px",
+                                  cursor: "pointer",
+                                  fontSize: "0.85rem",
+                                }}
+                                onClick={() =>
+                                  handleOpenMap(applicationDetailsofAsset?.applicationData?.applicationData?.additionalDetails?.geometry)
+                                }
+                              >
+                                {t("View on Map")}
+                              </button>
+                            ) : (
+                              <button
+                                style={{
+                                  backgroundColor: "#a82227",
+                                  color: "white",
+                                  border: "none",
+                                  borderRadius: "4px",
+                                  padding: "4px 10px",
+                                  cursor: "pointer",
+                                  fontSize: "0.85rem",
+                                }}
+                                onClick={() => setShowMap(true)}
+                              >
+                                {t("Mark on Map")}
+                              </button>
+                            )}
+                          </div>
+                        }
+                        last={index === detail?.values?.length - 1}
+                        className="border-none"
+                        rowContainerStyle={getRowStyles()}
+                      />
+                    );
+                  }
                   if (value.map === true && value.value !== "N/A") {
                     return (
                       <Row
@@ -604,6 +683,26 @@ function ApplicationDetailsContent({
                 )}
               </div>
             </Fragment>
+          )}
+
+          {showMapModal && (
+            <ViewOnMap
+              closeModal={handleCloseMap}
+              location={selectedLocation} // pass lat/lng or ID
+              assetDetails={applicationDetailsofAsset?.applicationData?.applicationData}
+            />
+          )}
+          {showMap && (
+            <MarkOnMap
+              onGeometrySave={(geoJson) => {
+                setGeometry(geoJson);
+              }}
+              onAreaSave={(polygonArea) => {
+                setArea(polygonArea);
+              }}
+              closeModal={() => setShowMap(false)}
+              location={coordinateFormatter(applicationDetailsofAsset?.applicationData?.applicationData?.location)}
+            />
           )}
         </React.Fragment>
       )}
