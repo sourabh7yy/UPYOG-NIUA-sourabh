@@ -38,8 +38,9 @@ const ServiceTypes = ({ config = {} }) => {
     if (serviceType) {
       sessionStorage.setItem('selectedServiceType', JSON.stringify(serviceType));
     }
-    const nextStep =  "mapview";
-    history.push(`/upyog-ui/citizen/gis/${nextStep}`);
+    const nextStep = "mapview";
+    const userType = Digit.UserService.getUser()?.info?.type === "EMPLOYEE" ? "employee" : "citizen";
+    history.push(`/upyog-ui/${userType}/gis/${nextStep}`);
   }, [config, history, serviceType]);
 
   useEffect(() => {

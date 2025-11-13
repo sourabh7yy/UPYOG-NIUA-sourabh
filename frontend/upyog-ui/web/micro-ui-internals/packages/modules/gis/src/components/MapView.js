@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from "react-i18next";
-import { CardLabel, SubmitBar, Dropdown } from '@upyog/digit-ui-react-components';
+import { CardLabel, SubmitBar, Dropdown, BackButton } from '@upyog/digit-ui-react-components';
 
 /**
 This MapView defines the MapView component, which is responsible for rendering and managing the map interface in the GIS module.
@@ -17,9 +17,15 @@ const MapView = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [selectedFinancialYear, setSelectedFinancialYear] = useState({ code: '2024-25', value: { fromDate: 1712006400000, toDate: 1743542399000 }, i18nKey: '2024-25' });
   const [geoJsonData, setGeoJsonData] = useState({ type: "FeatureCollection", features: [] });
   const { t } = useTranslation();
-  
+
+  const financialYearOptions = [
+    { code: '2024-25', value: { fromDate: 1712006400000, toDate: 1743542399000 }, i18nKey: '2024-25' },
+    { code: '2025-26', value: { fromDate: 1743542400000, toDate: 1775078399000 }, i18nKey: '2025-26' }
+  ];
+
   const getBusinessService = () => {
     const selectedServiceType = sessionStorage.getItem('selectedServiceType');
     if (selectedServiceType) {
@@ -35,10 +41,11 @@ const MapView = () => {
     const fetchGISData = async () => {
       try {
         const businessService = getBusinessService();
+        const dateRange = selectedFinancialYear?.value || { fromDate: 1743445800000, toDate: 1774981799000 };
         const payload = {
           tenantId: "pg.citya",
-          fromDate: 1743445800000,
-          toDate: 1774981799000,
+          fromDate: dateRange.fromDate,
+          toDate: dateRange.toDate,
           includeBillData: true,
           businessService: businessService
         };
@@ -89,7 +96,7 @@ const MapView = () => {
     };
 
     fetchGISData();
-  }, []);
+  }, [selectedFinancialYear]);
 
 
   /**
@@ -172,6 +179,15 @@ const MapView = () => {
     const map = window.L.map(mapRef.current).setView([userLocation.lat, userLocation.lng], 12);
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    // Fix Leaflet default marker icons
+    delete window.L.Icon.Default.prototype._getIconUrl;
+    window.L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    });
+
+
     const userIcon = window.L.divIcon({
       html: '<div style="font-size: 24px; color: blue;">⦿</div>',
       iconSize: [40, 40],
@@ -232,29 +248,49 @@ const MapView = () => {
   };
 
   return (
-    <div>
+    <div style={{ overflow: "hidden", height: "100vh" }}>
       <div style={{ marginLeft: "10px", marginRight: "10px" }}>
-        <CardLabel>{t("GIS_PROPERTY_AVAILABLE")}</CardLabel>
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap: "16px", position: "relative", zIndex: 2000 }}>
-          <Dropdown
-            className="form-field"
-            selected={inputValue}
-            select={setInputValue}
-            option={statusOptions}
-            placeholder={t("Select Property")}
-            optionKey="i18nKey"
-            style={{ width: "100%", position: "relative", zIndex: 2001 }}
-            optionCardStyles={{ maxHeight: "200px", overflowY: "auto" }}
-            t={t}
-          />
-          <div style={{ marginTop: "5px", display: "flex", gap: "16px" }}>
-            <SubmitBar label={t("ES_COMMON_SEARCH")} onSubmit={handleSearch} />
-            <p className="link" style={{ cursor: "pointer" }} onClick={() => {
-              setSearchTerm("");
-              setInputValue("");
-            }}>
-              {t("ES_COMMON_CLEAR_ALL")}
-            </p>
+        <BackButton />
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", position: "relative", zIndex: 2000 }}>
+          <div style={{ width: "200px" }}>
+            <CardLabel>Financial Year</CardLabel>
+            <Dropdown
+              className="form-field"
+              selected={selectedFinancialYear}
+              select={setSelectedFinancialYear}
+              option={financialYearOptions}
+              placeholder={t("Select Financial Year")}
+              optionKey="i18nKey"
+              style={{ width: "100%", position: "relative", zIndex: 2002 }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+            <div style={{ width: "200px" }}>
+              <CardLabel>{t("GIS_PROPERTY_AVAILABLE")}</CardLabel>
+              <Dropdown
+                className="form-field"
+                selected={inputValue}
+                select={setInputValue}
+                option={statusOptions}
+                placeholder={t("Select Property")}
+                optionKey="i18nKey"
+                style={{ width: "100%", position: "relative", zIndex: 2001 }}
+                optionCardStyles={{ maxHeight: "200px", overflowY: "auto" }}
+                t={t}
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <CardLabel style={{ visibility: "hidden" }}>Actions</CardLabel>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <SubmitBar label={t("ES_COMMON_SEARCH")} onSubmit={handleSearch} />
+                <p className="link" style={{ cursor: "pointer" }} onClick={() => {
+                  setSearchTerm("");
+                  setInputValue("");
+                }}>
+                  {t("ES_COMMON_CLEAR_ALL")}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
