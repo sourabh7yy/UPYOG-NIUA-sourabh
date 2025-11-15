@@ -62,9 +62,9 @@ public class EstateController {
 
     @PostMapping("/allotment/v1/_search")
     public ResponseEntity<AllotmentResponse> searchAllotments(
-            @Valid @RequestBody AllotmentSearchRequest request) { // ✅ Change
+            @Valid @RequestBody AllotmentSearchRequest request) {
         log.info("Searching allotments with criteria: {}", request.getCriteria());
-        AllotmentResponse response = estateService.searchAllotments(request.getCriteria()); // ✅ Change
+        AllotmentResponse response = estateService.searchAllotments(request.getCriteria());
         ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true); // ✅ Change
         response.setResponseInfo(responseInfo);
         return ResponseEntity.ok(response);
