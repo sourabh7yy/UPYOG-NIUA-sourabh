@@ -150,7 +150,6 @@ public class EstateServiceImpl implements EstateService {
             }
         }
 
-        //Allotment id is getting generated here
         enrichmentService.enrichAllotmentRequest(request);
         
         // Create demand for the allotment

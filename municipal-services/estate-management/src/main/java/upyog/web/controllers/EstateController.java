@@ -50,22 +50,12 @@ public class EstateController {
      * @param criteria AllotmentSearchCriteria containing search parameters and request metadata
      * @return ResponseEntity containing list of matching allotments with HTTP 200 status
      */
-//    @PostMapping("/allotment/v1/_search")
-//    public ResponseEntity<AllotmentResponse> searchAllotments(
-//            @Valid @RequestBody AllotmentSearchCriteria criteria) {
-//        log.info("Searching allotments with criteria: {}", criteria);
-//        AllotmentResponse response = estateService.searchAllotments(criteria);
-//        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(criteria.getRequestInfo(), true);
-//        response.setResponseInfo(responseInfo);
-//        return ResponseEntity.ok(response);
-//    }
-
     @PostMapping("/allotment/v1/_search")
     public ResponseEntity<AllotmentResponse> searchAllotments(
             @Valid @RequestBody AllotmentSearchRequest request) {
         log.info("Searching allotments with criteria: {}", request.getCriteria());
         AllotmentResponse response = estateService.searchAllotments(request.getCriteria());
-        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true); // ✅ Change
+        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
         response.setResponseInfo(responseInfo);
         return ResponseEntity.ok(response);
     }

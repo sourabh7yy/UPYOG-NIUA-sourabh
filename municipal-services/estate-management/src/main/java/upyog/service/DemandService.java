@@ -41,7 +41,7 @@ public class DemandService {
 
     public List<Demand> createDemand(AllotmentRequest allotmentRequest, Object mdmsData, boolean generateDemand) {
         String tenantId = allotmentRequest.getAllotments().get(0).getTenantId();
-        String consumerCode = allotmentRequest.getAllotments().get(0).getAssetNo(); // Ye allotmentNo nahi, allotmentId hai
+        String consumerCode = allotmentRequest.getAllotments().get(0).getAssetNo();
         Allotment allotment = allotmentRequest.getAllotments().get(0);
         User user = allotmentRequest.getRequestInfo().getUserInfo();
         log.info("user-details::"+ user);
@@ -80,8 +80,8 @@ public class DemandService {
                 .demandDetails(demandDetails)
                 .payer(owner)
                 .tenantId(tenantId)
-                .taxPeriodFrom(convertToTimestamp(agreementStartDate)) // Agreement start date
-                .taxPeriodTo(convertToTimestamp(agreementEndDate))     // Agreement end date
+                .taxPeriodFrom(convertToTimestamp(agreementStartDate))
+                .taxPeriodTo(convertToTimestamp(agreementEndDate))
                 .consumerType(config.getModuleName())
                 .businessService(config.getBusinessServiceName())
                 .additionalDetails(null)
