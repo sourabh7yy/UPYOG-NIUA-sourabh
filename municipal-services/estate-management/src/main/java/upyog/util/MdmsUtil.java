@@ -3,6 +3,7 @@ package upyog.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import upyog.client.MdmsClient;
 import upyog.config.EstateConfiguration;
+import upyog.repository.ServiceRequestRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.egov.common.contract.request.RequestInfo;
@@ -26,6 +27,52 @@ public class MdmsUtil {
 
     @Autowired
     private EstateConfiguration configs;
+    
+    @Autowired
+    private ServiceRequestRepository serviceRequestRepository;
+    
+    public Object mDMSCall(RequestInfo requestInfo, String tenantId) {
+        MdmsCriteriaReq mdmsCriteriaReq = getMDMSRequest(requestInfo, tenantId);
+        Object result = serviceRequestRepository.fetchResult(getMdmsSearchUrl(), mdmsCriteriaReq);
+        return result;
+    }
+    
+    public StringBuilder getMdmsSearchUrl() {
+        return new StringBuilder().append(configs.getMdmsHost()).append(configs.getMdmsEndPoint());
+    }
+    
+    public MdmsCriteriaReq getMDMSRequest(RequestInfo requestInfo, String tenantId) {
+        List<ModuleDetail> moduleRequest = getEstateModuleRequest();
+        
+        List<ModuleDetail> moduleDetails = new ArrayList<>();
+        moduleDetails.addAll(moduleRequest);
+
+        MdmsCriteria mdmsCriteria = MdmsCriteria.builder()
+                .moduleDetails(moduleDetails)
+                .tenantId(tenantId.split("\\.")[0])
+                .build();
+
+        MdmsCriteriaReq mdmsCriteriaReq = MdmsCriteriaReq.builder()
+                .mdmsCriteria(mdmsCriteria)
+                .requestInfo(requestInfo)
+                .build();
+        return mdmsCriteriaReq;
+    }
+    
+    public List<ModuleDetail> getEstateModuleRequest() {
+        List<MasterDetail> estateMasterDetails = new ArrayList<>();
+
+        estateMasterDetails.add(MasterDetail.builder()
+                .name("EstateCalculationType")
+                .build());
+
+        ModuleDetail moduleDetail = ModuleDetail.builder()
+                .masterDetails(estateMasterDetails)
+                .moduleName("Estate")
+                .build();
+
+        return Arrays.asList(moduleDetail);
+    }
 
     public Map<String, Map<String, JSONArray>> fetchMdmsData(RequestInfo requestInfo, String tenantId, String moduleName,
                                                              List<String> masterNameList) {

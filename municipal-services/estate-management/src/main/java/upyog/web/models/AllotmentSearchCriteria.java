@@ -9,8 +9,8 @@ import org.egov.common.contract.request.RequestInfo;
 @AllArgsConstructor
 public class AllotmentSearchCriteria {
     
-    @JsonProperty("RequestInfo")
-    private RequestInfo requestInfo;
+    //@JsonProperty("RequestInfo")
+   // private RequestInfo requestInfo;
     
     private String assetNo;
     private String alloteeName;

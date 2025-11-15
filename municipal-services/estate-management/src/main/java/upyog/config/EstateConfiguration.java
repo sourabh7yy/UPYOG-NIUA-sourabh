@@ -92,9 +92,22 @@ public class EstateConfiguration {
     @Value("${save-estate-management-asset-topic}")
     private String estateAssetSaveTopic;
 
+    @Value("${update-estate-management-asset-topic}")
+    private String estateAssetUpdateTopic;
+
     // save allotment topic
     @Value("${save-estate-management-allotment-topic}")
     private String estateAllotmentSaveTopic;
+
+
+    // EST Business Service Config
+    @Value("${est.module.name}")
+    private String moduleName;
+
+    @Value("${est.business.service.name}")
+    private String businessServiceName;
+
+
 
     // Asset Service Config
     @Value("${egov.asset.service.host}")
@@ -102,4 +115,14 @@ public class EstateConfiguration {
 
     @Value("${egov.asset.service.search.endpoint}")
     private String assetServiceSearchEndpoint;
+
+    // Billing Service Config
+    @Value("${egov.billingservice.host}")
+    private String billingHost;
+
+    @Value("${egov.demand.create.endpoint}")
+    private String demandCreateEndpoint;
+
+    @Value("${egov.demand.update.endpoint}")
+    private String demandUpdateEndpoint;
 }
