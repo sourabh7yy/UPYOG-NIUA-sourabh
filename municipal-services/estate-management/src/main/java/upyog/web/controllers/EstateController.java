@@ -52,13 +52,32 @@ public class EstateController {
      */
     @PostMapping("/allotment/v1/_search")
     public ResponseEntity<AllotmentResponse> searchAllotments(
-            @Valid @RequestBody AllotmentSearchCriteria criteria) {
-        log.info("Searching allotments with criteria: {}", criteria);
-        AllotmentResponse response = estateService.searchAllotments(criteria);
-        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(criteria.getRequestInfo(), true);
+            @Valid @RequestBody AllotmentSearchRequest request) {
+        log.info("Searching allotments with criteria: {}", request.getCriteria());
+        AllotmentResponse response = estateService.searchAllotments(request.getCriteria());
+        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(request.getRequestInfo(), true);
         response.setResponseInfo(responseInfo);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/asset/v1/_update")
+    public ResponseEntity<AssetResponse> updateAsset(@Valid @RequestBody AssetRequest request){
+        log.info("Received asset update request for tenant: {}",
+                request.getAssets() != null && !request.getAssets().isEmpty()
+                        ? request.getAssets().get(0).getTenantId() : "unknown");
+        Asset asset = estateService.updateAsset(request);
+        ResponseInfo responseInfo = responseInfoFactory.createResponseInfoFromRequestInfo(
+                request.getRequestInfo(), true);
+        AssetResponse assetResponse = AssetResponse.builder()
+                .assets(List.of(asset))
+                .responseInfo(responseInfo)
+                .build();
+        log.info("Asset updated successfully with estate number: {}", asset.getEstateNo());
+        return ResponseEntity.ok(assetResponse);
+    }
+
+
+
 
     /**
      * Creates a new asset in the estate management system.
@@ -107,4 +126,7 @@ public class EstateController {
                 response.getAssets() != null ? response.getAssets().size() : 0);
         return ResponseEntity.ok(response);
     }
+
+//    @PostMapping("/advancePayment")
+//    public ResponseEntity<PaymentResponse>
 }
