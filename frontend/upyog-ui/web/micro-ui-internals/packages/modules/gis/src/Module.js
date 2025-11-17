@@ -3,17 +3,23 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouteMatch } from "react-router-dom";
 import CitizenApp from "./pages";
+import EmployeeApp from "./pages/employee";
 import ServiceTypes from "./components/ServiceTypes";
 import MapView from "./components/MapView";
 import MarkOnMap from "./components/MarkOnMap";
 import ViewOnMap from "./components/ViewOnMap";
+import GISCard from "./components/GISCard";
+import ViewOnMapAsset from "./components/ViewOnMapAsset";
 
 // Object containing components to be registered in the Digit Component Registry Service for the components used in the module
 const componentsToRegister = {
     ServiceTypes,
     MapView,
+    ViewOnMapAsset,
     MarkOnMap,
-    ViewOnMap
+    ViewOnMap,
+    GISCard,
+    EmployeeApp
   };
   
   // function to register the component as per standard 
@@ -61,7 +67,7 @@ const componentsToRegister = {
   
   // export the components outside of module to enable and access of module
   export const GISComponents = {
-    // GISCard,
+    GISCard,
     GISModule,
     GISLinks,
    

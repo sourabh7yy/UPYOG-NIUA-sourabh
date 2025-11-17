@@ -354,6 +354,13 @@ const wtAccess = () => {
   const WT_ACCESS = userRoles?.filter((role) => wtRoles?.includes(role));
   return WT_ACCESS?.length > 0;
 };
+const gisAccess = () => {
+  const userInfo = Digit.UserService.getUser();
+  const userRoles = userInfo?.info?.roles?.map((roleData) => roleData?.code);
+  const gisRoles = ["GIS_CEMP"];
+  const GIS_ACCESS = userRoles?.filter((role) => gisRoles?.includes(role));
+  return GIS_ACCESS?.length > 0;
+};
 // Checks if the user has access to MT services based on their roles, this is adding role for employee side
 const mtAccess = () => {
   const userInfo = Digit.UserService.getUser();
@@ -426,5 +433,6 @@ export default {
   mtAccess,
   tpAccess,
   vendorAccess,
+  gisAccess,
   ...privacy,
 };
