@@ -172,30 +172,11 @@ const ViewOnMapAsset = ({ closeModal, applicationNumber }) => {
     }
   };
 
-  // Load Leaflet library and initialize map when GeoJSON data is available
+  // Initialize map when GeoJSON data is available
   useEffect(() => {
-    if (!geoJsonData) return;
-
-    const loadLeaflet = () => {
-      if (!window.L) {
-        // Dynamically load Leaflet CSS
-        const link = document.createElement("link");
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-        link.rel = "stylesheet";
-        document.head.appendChild(link);
-
-        // Dynamically load Leaflet JavaScript
-        const script = document.createElement("script");
-        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-        script.onload = () => setTimeout(initMap, 100); // Initialize map after script loads
-        document.head.appendChild(script);
-      } else {
-        // Leaflet already loaded, initialize map
-        setTimeout(initMap, 100);
-      }
-    };
-
-    loadLeaflet();
+    if (geoJsonData && window.L) {
+      setTimeout(initMap, 100);
+    }
   }, [geoJsonData]);
 
   // Render modal with map or loading/error states

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from "react-i18next";
 import { CardLabel, SubmitBar, Dropdown, BackButton } from '@upyog/digit-ui-react-components';
+import { financialYearOptions, MAP_TILE_URL, createMapIcons, LEAFLET_DEFAULT_ICON_OPTIONS } from '../utils';
 
 /**
 This MapView defines the MapView component, which is responsible for rendering and managing the map interface in the GIS module.
@@ -20,11 +21,6 @@ const MapView = () => {
   const [selectedFinancialYear, setSelectedFinancialYear] = useState({ code: '2024-25', value: { fromDate: 1712006400000, toDate: 1743542399000 }, i18nKey: '2024-25' });
   const [geoJsonData, setGeoJsonData] = useState({ type: "FeatureCollection", features: [] });
   const { t } = useTranslation();
-
-  const financialYearOptions = [
-    { code: '2024-25', value: { fromDate: 1712006400000, toDate: 1743542399000 }, i18nKey: '2024-25' },
-    { code: '2025-26', value: { fromDate: 1743542400000, toDate: 1775078399000 }, i18nKey: '2025-26' }
-  ];
 
   const getBusinessService = () => {
     const selectedServiceType = sessionStorage.getItem('selectedServiceType');
@@ -177,56 +173,24 @@ const MapView = () => {
     }
 
     const map = window.L.map(mapRef.current).setView([userLocation.lat, userLocation.lng], 12);
-    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    window.L.tileLayer(MAP_TILE_URL).addTo(map);
 
     // Fix Leaflet default marker icons
     delete window.L.Icon.Default.prototype._getIconUrl;
-    window.L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-    });
+    window.L.Icon.Default.mergeOptions(LEAFLET_DEFAULT_ICON_OPTIONS);
 
 
-    const userIcon = window.L.divIcon({
-      html: '<div style="font-size: 24px; color: blue;">⦿</div>',
-      iconSize: [40, 40],
-      className: 'user-location-marker'
-    });
+    const iconConfigs = createMapIcons();
+    const userIcon = window.L.divIcon(iconConfigs.userIcon);
+    const paidIcon = new window.L.Icon(iconConfigs.paidIcon);
+    const unpaidIcon = new window.L.Icon(iconConfigs.unpaidIcon);
+    const defaultIcon = new window.L.Icon(iconConfigs.defaultIcon);
 
     window.L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
       .addTo(map)
       .bindPopup('<b>Your Location</b>');
 
     const markerMap = new Map();
-
-    // Create colored marker icons for PT payment status
-    const paidIcon = new window.L.Icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
-
-    const unpaidIcon = new window.L.Icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
-
-    const defaultIcon = new window.L.Icon({
-      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
 
     const businessService = getBusinessService();
 
