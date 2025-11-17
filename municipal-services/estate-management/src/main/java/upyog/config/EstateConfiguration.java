@@ -107,7 +107,6 @@ public class EstateConfiguration {
     private String businessServiceName;
 
 
-
     // Asset Service Config
     @Value("${egov.asset.service.host}")
     private String assetServiceHost;
