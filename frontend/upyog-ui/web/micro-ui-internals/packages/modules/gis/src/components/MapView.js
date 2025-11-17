@@ -200,14 +200,50 @@ const MapView = () => {
 
     const markerMap = new Map();
 
+    // Create colored marker icons for PT payment status
+    const paidIcon = new window.L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    const unpaidIcon = new window.L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    const defaultIcon = new window.L.Icon({
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    const businessService = getBusinessService();
+
     // Plot GIS features as markers
     geoJsonData.features.forEach(feature => {
       const [lng, lat] = feature.geometry.coordinates;
       const props = feature.properties;
       const distance = calculateDistance(userLocation.lat, userLocation.lng, lat, lng);
-      const marker = window.L.marker([lat, lng]).addTo(map);
-
-      const businessService = getBusinessService();
+      
+      let markerIcon;
+      if (businessService === "PT" && props.paymentStatus) {
+        markerIcon = props.paymentStatus === "PAID" ? paidIcon : unpaidIcon;
+      } else {
+        markerIcon = defaultIcon;
+      }
+      
+      const marker = window.L.marker([lat, lng], { icon: markerIcon }).addTo(map);
       const popupContent = businessService === "PT" ? `
         <div>
           <div style="margin-right: 85px;">
