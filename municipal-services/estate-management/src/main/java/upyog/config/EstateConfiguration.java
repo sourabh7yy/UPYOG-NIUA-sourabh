@@ -62,7 +62,6 @@ public class EstateConfiguration {
     @Value("${egov.mdms.search.endpoint}")
     private String mdmsEndPoint;
 
-
     //HRMS
     @Value("${egov.hrms.host}")
     private String hrmsHost;
@@ -106,7 +105,6 @@ public class EstateConfiguration {
 
     @Value("${est.business.service.name}")
     private String businessServiceName;
-
 
 
     // Asset Service Config

@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "mdms-service", url = "${mdms.service.host}${mdms.service.endpoint}")
+@FeignClient(name = "mdms-service", url = "${egov.mdms.host}${egov.mdms.search.endpoint}")
 public interface MdmsClient {
 
     @PostMapping()
