@@ -56,12 +56,11 @@ public class EstateConfiguration {
 
 
     //MDMS
-    @Value("${egov.mdms.host}")
+    @Value("${mdms.service.host}")
     private String mdmsHost;
 
-    @Value("${egov.mdms.search.endpoint}")
+    @Value("${mdms.service.endpoint}")
     private String mdmsEndPoint;
-
 
     //HRMS
     @Value("${egov.hrms.host}")
