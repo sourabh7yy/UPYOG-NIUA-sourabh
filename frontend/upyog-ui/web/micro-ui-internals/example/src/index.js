@@ -169,7 +169,7 @@ const initDigitUI = () => {
   ASSETV2Module,
   GISLinks,
   GISModule,
-  ...GISComponents,
+  ...GISComponents
   });
 
   initFSMComponents();
