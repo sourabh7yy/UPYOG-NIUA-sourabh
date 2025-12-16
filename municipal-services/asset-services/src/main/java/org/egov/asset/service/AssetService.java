@@ -24,6 +24,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
+
+
 @Service
 @Slf4j
 public class AssetService {
@@ -45,6 +50,9 @@ public class AssetService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * Validates and creates a new Asset record in the system.
@@ -129,7 +137,13 @@ public class AssetService {
                     .map(this::convertToAssetSearchDTO)
                     .collect(Collectors.toList());
         }
+        //
+//        return assets.stream()
+//                .map(asset -> modelMapper.map(asset, AssetDTO.class))
+//                .collect(Collectors.toList());
     }
+
+
 
     /**
      * Converts an Asset entity to an AssetSearchDTO object.
@@ -137,11 +151,35 @@ public class AssetService {
      * @param asset The Asset entity to be converted.
      * @return The AssetSearchDTO object.
      */
+//    private AssetSearchDTO convertToAssetSearchDTO(Asset asset) {
+//        AssetSearchDTO assetSearchDTO = modelMapper.map(asset, AssetSearchDTO.class);
+//        if (asset.getAssetAssignment() != null) {
+//            assetSearchDTO.setAssetAssignment(modelMapper.map(asset.getAssetAssignment(), AssetAssignmentDTO.class));
+//        }
+//        return assetSearchDTO;
+//    }
     private AssetSearchDTO convertToAssetSearchDTO(Asset asset) {
-        AssetSearchDTO assetSearchDTO = modelMapper.map(asset, AssetSearchDTO.class);
+
+        AssetSearchDTO assetSearchDTO =
+                modelMapper.map(asset, AssetSearchDTO.class);
+
+        // Assignment mapping
         if (asset.getAssetAssignment() != null) {
-            assetSearchDTO.setAssetAssignment(modelMapper.map(asset.getAssetAssignment(), AssetAssignmentDTO.class));
+            assetSearchDTO.setAssetAssignment(
+                    modelMapper.map(
+                            asset.getAssetAssignment(),
+                            AssetAssignmentDTO.class
+                    )
+            );
         }
+
+        // IMPORTANT FIX: Object → JsonNode
+        if (asset.getAdditionalDetails() != null) {
+            assetSearchDTO.setAdditionalDetails(
+                    objectMapper.valueToTree(asset.getAdditionalDetails())
+            );
+        }
+
         return assetSearchDTO;
     }
 
