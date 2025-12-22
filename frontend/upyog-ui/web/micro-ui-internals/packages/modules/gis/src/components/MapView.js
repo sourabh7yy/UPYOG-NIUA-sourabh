@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from "react-i18next";
 import { CardLabel, SubmitBar, Dropdown, BackButton } from '@upyog/digit-ui-react-components';
-import { financialYearOptions, paymentStatusOptions, usageCategoryOptions, assetClassificationOptions, MAP_TILE_URL, createMapIcons, LEAFLET_DEFAULT_ICON_OPTIONS } from '../utils';
+import { MAP_TILE_URL, createMapIcons, LEAFLET_DEFAULT_ICON_OPTIONS } from '../utils';
 
 /**
 This MapView defines the MapView component, which is responsible for rendering and managing the map interface in the GIS module.
@@ -25,10 +25,25 @@ const MapView = () => {
   const [geoJsonData, setGeoJsonData] = useState({ type: "FeatureCollection", features: [] });
   const { t } = useTranslation();
 
-  // Fetch GIS base layer link using custom MDMS hook
-  const { data: gisLink } = Digit.Hooks.useCustomMDMS("pg", "GIS", [{ name: "BaseLayer" }], {
-    select: (data) => data?.["GIS"]?.["BaseLayer"] || [],
+ 
+  const { data: gisMdmsData } = Digit.Hooks.useCustomMDMS(Digit.ULBService.getStateId(), "GIS", [{ name: "assetClassificationOptions" }, { name: "BaseLayer" },
+  { name: "financialYear" }, { name: "paymentStatusOptions" }, { name: "BaseLayer" }, { name: "usageCategoryOptions" }], {
+    select: (data) => data || {},
   });
+  // Extracting necessary GIS configuration data from the fetched MDMS data.
+  const gisLink = gisMdmsData?.GIS?.BaseLayer || [];
+  const assetClassificationOptions =
+    gisMdmsData?.GIS?.assetClassificationOptions || [];
+
+  const financialYearOptions =
+    gisMdmsData?.GIS?.financialYear || [];
+
+  const paymentStatusOptions =
+    gisMdmsData?.GIS?.paymentStatusOptions || [];
+
+  const usageCategoryOptions =
+    gisMdmsData?.GIS?.usageCategoryOptions || [];
+
   const getBusinessService = () => {
     const selectedServiceType = sessionStorage.getItem('selectedServiceType');
     if (selectedServiceType) {
