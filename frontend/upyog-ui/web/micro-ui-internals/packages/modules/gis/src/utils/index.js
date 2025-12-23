@@ -1,7 +1,6 @@
 // Determines if the back button should be hidden based on the current URL matching screen paths in the config array.
 // Returns true to hide the back button if a match is found; otherwise, returns false.
 
-export const MAP_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export const LEAFLET_DEFAULT_ICON_OPTIONS = {
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
