@@ -121,6 +121,7 @@ const MapView = () => {
               geometry: features.geometry,
               properties: businessService === "PT" ? {
                 applicationNumber: features.properties.applicationNumber,
+                propertyId: features.properties.applicationNumber,
                 propertyType: features.properties.propertyType,
                 status: features.properties.status,
                 paymentStatus: features.properties.paymentStatus,
@@ -269,6 +270,7 @@ const MapView = () => {
         <div>
           <div style="margin-right: 85px;">
             <b>${props.propertyType}</b><br>
+            <b>Property ID:</b> ${props.applicationNumber}</br>
             <b>Status:</b> ${props.status || "N/A"}<br>
             <b>Payment:</b> ${props.paymentStatus || "N/A"}<br>
             <b>Land Area:</b> ${props.landArea || "N/A"}<br>
