@@ -47,6 +47,7 @@ import { WTModule, WTLinks, WTComponents } from "@upyog/upyog-ui-module-wt";
 import { VENDORComponents, VENDORLinks, VENDORModule } from "@upyog/upyog-ui-module-vendor";
 import { PGRAIComponents, PGRAILinks, PGRAIModule } from "@upyog/upyog-ui-module-pgrai";
 import { GISComponents, GISLinks, GISModule } from "@nudmcdgnpm/upyog-ui-module-gis";
+import { ESTComponents, ESTLinks, ESTModule } from "@upyog/upyog-ui-module-est";
 // import * as comps from "@upyog/digit-ui-react-components";
 
 // import { subFormRegistry } from "@upyog/digit-ui-libraries";
@@ -90,6 +91,7 @@ const enabledModules = [
   "MT",
   "PGRAI",
   "TP",
+  "EST",
   "ASSETV2",
   "GIS"
 ];
@@ -161,6 +163,9 @@ const initDigitUI = () => {
   VENDORModule,
   VENDORLinks,
   ...VENDORComponents,
+    ESTModule,
+  ESTLinks,
+  ...ESTComponents,
   PGRAIModule,
   PGRAILinks,
   ...PGRAIComponents,
