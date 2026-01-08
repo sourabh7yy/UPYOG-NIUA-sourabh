@@ -57,6 +57,7 @@ import { VENDORComponents, VENDORLinks, VENDORModule } from "@upyog/upyog-ui-mod
 import { PGRAIComponents, PGRAILinks, PGRAIModule } from "@upyog/upyog-ui-module-pgrai";
 import { ASSETV2Components, ASSETV2Links, ASSETV2Module } from "@nudmcdgnpm/upyog-ui-module-asset-v2";
 import { GISComponents, GISLinks, GISModule } from "@nudmcdgnpm/upyog-ui-module-gis";
+import { ESTComponents, ESTLinks, ESTModule } from "@upyog/upyog-ui-module-est";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 
@@ -98,6 +99,7 @@ const enabledModules = [
   "PGRAI",
   "TP",
   "ASSETV2",
+   "EST",
   "GIS"
 ];
 window.Digit.ComponentRegistryService.setupRegistry({
@@ -145,7 +147,10 @@ window.Digit.ComponentRegistryService.setupRegistry({
   ASSETV2Module,
    GISLinks,
     GISModule,
-    ...GISComponents
+    ...GISComponents,
+    ESTModule,
+    ESTLinks,
+    ...ESTComponents,
 });
 
 initPGRComponents();
