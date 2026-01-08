@@ -1,34 +1,95 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   TextInput,
   SubmitBar,
-  CardLabelError,
   SearchForm,
   SearchField,
   Table,
   Card,
   Loader,
-  CardText,
   Header,
-  BreadCrumb,
   Dropdown,
 } from "@upyog/digit-ui-react-components";
-import { Link, useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
-const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, setShowToast }) => {
+const ESTSearchApplication = ({
+  tenantId,
+  isLoading,
+  t,
+  onSubmit,
+  data,
+  count,
+  setShowToast,
+}) => {
   const history = useHistory();
-  const isMobile = window.Digit.Utils.browser.isMobile();
+
+  const [selectedAssetType, setSelectedAssetType] = useState(null); // assetParentCategory
+  const [selectedLocality, setSelectedLocality] = useState(null);   // localityCode
   const [properties, setProperties] = useState([]);
+
   const { register, handleSubmit, setValue, getValues, reset } = useForm({
     defaultValues: {
       offset: 0,
       limit: 10,
       sortBy: "createdDate",
       sortOrder: "DESC",
-    }, 
+      estateNo: "",
+    },
   });
 
+  // 🔹 Asset Parent Category (LAND / BUILDING)
+  const { data: assetTypeData } = Digit.Hooks.useCustomMDMS(
+    Digit.ULBService.getStateId(),
+    "ASSET",
+    [{ name: "assetParentCategory" }],
+    {
+      select: (data) => {
+        const formattedData = data?.ASSET?.assetParentCategory || [];
+        return formattedData
+          .filter((item) => item.active)
+          .map((item) => ({
+            code: item.code,
+            name: item.name,
+          }));
+      },
+    }
+  );
+
+  const assetTypeOptions =
+    assetTypeData?.map((item) => ({
+      code: item.code,
+      i18nKey: item.name,
+      label: item.name,
+    })) || [];
+
+  // 🔹 Locality options (boundary) – like create page
+  const { data: fetchedLocalities } = Digit.Hooks.useBoundaryLocalities(
+    tenantId,
+    "revenue",
+    { enabled: !!tenantId },
+    t
+  );
+
+  const localityOptions =
+    fetchedLocalities?.map((loc) => ({
+      ...loc,
+      code: loc.code,
+      i18nKey: loc.name || loc.i18nKey || loc.label,
+      label: loc.name || loc.label || loc.code,
+    })) || [];
+
+  // 🔹 Submit handler: send clean payload to parent
+  const handleFormSubmit = (formData) => {
+    const searchData = {
+      ...formData,
+      assetParentCategory: selectedAssetType?.code || undefined,
+      localityCode: selectedLocality?.code || undefined,
+    };
+
+    console.log("Search data being sent:", searchData);
+    onSubmit(searchData);
+  };
 
   useEffect(() => {
     register("offset", 0);
@@ -37,35 +98,58 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
     register("sortOrder", "DESC");
   }, [register]);
 
+  // 🔹 Apply frontend filtering (type + locality) over API data
   useEffect(() => {
-    if (Array.isArray(data)) {
-      setProperties(data);
+    if (!Array.isArray(data)) return;
+
+    let result = data;
+
+    // Filter by asset type (LAND/BUILDING)
+    if (selectedAssetType?.code) {
+      const selectedCode = selectedAssetType.code.toUpperCase();
+      result = result.filter((asset) => {
+        const type = (asset.assetType || asset.assetParentCategory || "").toUpperCase();
+        return type === selectedCode;
+      });
     }
-  }, [data]);
+
+    // Filter by locality code
+    if (selectedLocality?.code) {
+      const locCode = selectedLocality.code.toUpperCase();
+      result = result.filter((asset) => {
+        const assetLocCode = (
+          asset.localityCode ||
+          asset.locality?.code ||
+          asset.locality
+        );
+        return assetLocCode && assetLocCode.toUpperCase() === locCode;
+      });
+    }
+
+    setProperties(result);
+  }, [data, selectedAssetType, selectedLocality]);
 
   const GetCell = (value) => <span className="cell-text">{value || "N/A"}</span>;
 
   const handleAllotAsset = (asset) => {
-    history.push("/upyog-ui/employee/est/assignassets/info",{ assetData: asset });
+    history.push("/upyog-ui/employee/est/assignassets/info", { assetData: asset });
   };
-  
+
   const columns = useMemo(
     () => [
       {
         Header: "Asset Number",
         accessor: "estateNo",
         disableSortBy: true,
-        Cell: ({ row }) => {
-          return (
-            <div>
-              <span className="link">
-                <Link to={`property-details/${row.original["esateNo"]}`}>
-                  {row.original["estateNo"]}
-                </Link>
-              </span>
-            </div>
-          );
-        },
+        Cell: ({ row }) => (
+          <div>
+            <span className="link">
+              <Link to={`application-details/${row.original["estateNo"]}`}>
+                {row.original["estateNo"]}
+              </Link>
+            </span>
+          </div>
+        ),
       },
       {
         Header: "Asset Ref",
@@ -79,7 +163,7 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
       },
       {
         Header: "Locality",
-        Cell: ({ row }) => GetCell(t(row.original["locality"])),
+        Cell: ({ row }) => GetCell(row.original["locality"]),
         disableSortBy: true,
       },
       {
@@ -89,7 +173,8 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
       },
       {
         Header: "Dimensions",
-        Cell: ({ row }) => GetCell(`${row.original["dimensionLength"]} x ${row.original["dimensionWidth"]}`),
+        Cell: ({ row }) =>
+          GetCell(`${row.original["dimensionLength"]} x ${row.original["dimensionWidth"]}`),
         disableSortBy: true,
       },
       {
@@ -121,7 +206,7 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
                 padding: "6px 10px",
                 borderRadius: "4px",
                 cursor: isAllotted ? "not-allowed" : "pointer",
-                fontSize: "12px"
+                fontSize: "12px",
               }}
               disabled={isAllotted}
             >
@@ -135,54 +220,70 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
     []
   );
 
-  const onSort = useCallback((args) => {
-    if (args.length === 0) return;
-    setValue("sortBy", args.id);
-    setValue("sortOrder", args.desc ? "DESC" : "ASC");
-  }, []);
+  const onSort = useCallback(
+    (args) => {
+      if (args.length === 0) return;
+      setValue("sortBy", args.id);
+      setValue("sortOrder", args.desc ? "DESC" : "ASC");
+    },
+    [setValue]
+  );
 
   function onPageSizeChange(e) {
     setValue("limit", Number(e.target.value));
-    handleSubmit(onSubmit)();
+    handleSubmit(handleFormSubmit)();
   }
 
   function nextPage() {
     setValue("offset", getValues("offset") + getValues("limit"));
-    handleSubmit(onSubmit)();
+    handleSubmit(handleFormSubmit)();
   }
 
   function previousPage() {
     setValue("offset", getValues("offset") - getValues("limit"));
-    handleSubmit(onSubmit)();
+    handleSubmit(handleFormSubmit)();
   }
 
   return (
     <React.Fragment>
       <div>
         <Header>{t("EST_SEARCH_APPLICATIONS")}</Header>
-        <SearchForm onSubmit={onSubmit} handleSubmit={handleSubmit}>
+
+        <SearchForm onSubmit={handleFormSubmit} handleSubmit={handleSubmit}>
+          {/* Asset Number */}
           <SearchField>
             <label>{t("EST_SEARCH_ASSET_NUMBER")}</label>
             <TextInput name="estateNo" inputRef={register({})} />
           </SearchField>
-          
+
+          {/* Locality dropdown */}
           <SearchField>
-            <label>{t("EST_ASSET_TYPE")}</label>
+            <label>{t("EST_LOCALITY")}</label>
             <Dropdown
-              name="assetType"
-              inputRef={register({})}
-              option={[
-                { code: "All", name: "All" },
-                { code: "RESIDENTIAL", name: "Residential" },
-                { code: "COMMERCIAL", name: "Commercial" },
-              ]}
-              optionKey="name"
-              selected={{ name: "All" }}
-              select={() => {}}
-              placeholder={t("EST_SELECT_ASSET_TYPE")}
+              option={localityOptions}
+              optionKey="i18nKey"
+              selected={selectedLocality}
+              select={setSelectedLocality}
+              placeholder={t("EST_SELECT_LOCALITY")}
+              t={t}
+              optionCardStyles={{ overflowY: "auto", maxHeight: "300px" }}
             />
           </SearchField>
 
+          {/* Asset Type (parent category) */}
+          <SearchField>
+            <label>{t("EST_ASSET_TYPE")}</label>
+            <Dropdown
+              option={assetTypeOptions}
+              optionKey="i18nKey"
+              selected={selectedAssetType}
+              select={setSelectedAssetType}
+              placeholder={t("EST_SELECT_ASSET_TYPE")}
+              t={t}
+            />
+          </SearchField>
+
+          {/* Submit + Clear */}
           <SearchField className="submit">
             <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
             <p
@@ -190,26 +291,27 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
               onClick={() => {
                 reset({
                   estateNo: "",
-                  assetType: "",
                 });
+                setSelectedAssetType(null);
+                setSelectedLocality(null);
                 setShowToast(null);
               }}
             >
-              {t(`ES_COMMON_CLEAR_ALL`)}
+              {t("ES_COMMON_CLEAR_ALL")}
             </p>
           </SearchField>
         </SearchForm>
 
+        {/* Results */}
         {!isLoading && data?.display ? (
           <Card style={{ marginTop: 20, textAlign: "center" }}>
             {t(data.display)
               .split("\\n")
               .map((text, index) => (
-                <p key={index} >
-                  {text}
-                </p>
+                <p key={index}>{text}</p>
               ))}
-              <button
+
+            <button
               onClick={() => history.push("/upyog-ui/employee/est/create-asset")}
               style={{
                 backgroundColor: "#007bff",
@@ -218,7 +320,7 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
                 padding: "10px 10px",
                 borderRadius: "4px",
                 cursor: "pointer",
-                marginTop: "10px"
+                marginTop: "10px",
               }}
             >
               {t("EST_CREATE_ASSET")}
@@ -231,7 +333,7 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
               data={properties}
               totalRecords={count}
               columns={columns}
-              getCellProps={(cellInfo) => ({
+              getCellProps={() => ({
                 style: {
                   minWidth: "100px",
                   padding: "8px 6px",
@@ -247,7 +349,12 @@ const ESTSearchApplication = ({ tenantId, isLoading, t, onSubmit, data, count, s
               pageSizeLimit={getValues("limit")}
               onSort={onSort}
               disableSort={false}
-              sortParams={[{ id: getValues("sortBy"), desc: getValues("sortOrder") === "DESC" ? true : false }]}
+              sortParams={[
+                {
+                  id: getValues("sortBy"),
+                  desc: getValues("sortOrder") === "DESC",
+                },
+              ]}
             />
           </div>
         ) : (

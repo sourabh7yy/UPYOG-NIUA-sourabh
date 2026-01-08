@@ -14,7 +14,7 @@ const InboxLinks = () => {
       <span className="logo">
         <PropertyHouse />
       </span>{" "}
-      <span className="text">{t("ASSET_SERVICE")}</span>
+      <span className="text">{t("ESTATE_SERVICE")}</span>
     </div>
   );
 

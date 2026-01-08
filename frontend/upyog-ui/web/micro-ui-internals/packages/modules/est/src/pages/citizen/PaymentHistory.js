@@ -20,6 +20,16 @@ export const ESTPaymentHistory = () => {
   const [appliedFromDate, setAppliedFromDate] = useState("");
   const [appliedToDate, setAppliedToDate] = useState("");
 
+  const { data: paymentStatusData } = Digit.Hooks.useCustomMDMS(
+  Digit.ULBService.getStateId(),
+  "Estate", 
+  [{ name: "PaymentStatus" }],
+  {
+    select: (data) => data?.Estate?.PaymentStatus || [],
+  }
+);
+
+
   useEffect(() => {
     fetchPaymentHistory();
   }, []);

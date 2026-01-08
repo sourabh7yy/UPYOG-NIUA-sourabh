@@ -27,6 +27,10 @@ const ESTCard = () => {
       label: t("EST_MANAGE_PROPERTIES"),
       link: `/upyog-ui/employee/est/manage-properties`,
     },
+    {
+    label: t("EST_ACTIONS"),   
+    link: `/upyog-ui/employee/est/actions`,
+  },
   ];
 
   const propsForModuleCard = {

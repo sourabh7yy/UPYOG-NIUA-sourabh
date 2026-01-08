@@ -20,6 +20,8 @@ import ESTAssignAssetsCheckPage from "./pages/employee/Create/ESTAssignAssetsChe
 import ESTDesktopInbox from "./components/ESTDesktopInbox";
 import { TableConfig } from "./config/Create/inbox-table-config";
 import InboxFilter from "./components/inbox/NewInboxFilter";
+import ESTApplicationDetails from "./pages/citizen/ESTApplicationDetails";
+
 
 const componentsToRegister = {
   MyApplications,
@@ -36,6 +38,7 @@ const componentsToRegister = {
   ESTDesktopInbox,
   TableConfig,
   ESTAssignAssetsCheckPage,
+  ESTApplicationDetails,
 };
 
 const addComponentsToRegistry = () => {
@@ -87,10 +90,9 @@ export const ESTLinks = ({ matchPath, userType }) => {
 };
 
 export const ESTComponents = {
-  ESTCard,
   ESTModule,
-  ESTLinks,
-  // ESTDesktopInbox: ESTDesktopInbox,
+  ESTLinks, 
+  ESTCard,
   EST_INBOX_FILTER: (props) => <InboxFilter {...props} />,
-  ESTInboxTableConfig: TableConfig,
+  ESTInboxTableConfig: TableConfig
 };

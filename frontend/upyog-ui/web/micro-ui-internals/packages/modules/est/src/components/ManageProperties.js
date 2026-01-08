@@ -23,6 +23,16 @@ const ManageProperties = ({ t }) => {
     enabled: true,
   });
 
+ const handleEditAsset = (asset) => {
+  console.log("CLICKED EDIT, SENDING ASSET → ", asset);
+
+  sessionStorage.setItem("EST_EDIT_DATA", JSON.stringify(asset));
+
+  console.log("SESSION STORED VALUE → ", sessionStorage.getItem("EST_EDIT_DATA"));
+
+  history.push("/upyog-ui/employee/est/create-asset/newRegistration?edit=true");
+};
+
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const { register, handleSubmit, reset } = useForm();
@@ -200,6 +210,7 @@ const ManageProperties = ({ t }) => {
         Cell: ({ row }) => {
           const isAllotted = row.original["assetStatus"] === "Allotted";
           return (
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
             <button
               onClick={() => !isAllotted && handleAllotAsset(row.original)}
               style={{
@@ -215,6 +226,23 @@ const ManageProperties = ({ t }) => {
             >
               Allot Asset
             </button>
+            <button
+  onClick={() => handleEditAsset(row.original)}
+  style={{
+    backgroundColor: "#a23c59",
+    color: "white",
+    border: "none",
+    padding: "6px 10px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "12px"
+  }}
+>
+  Edit
+</button>
+
+            </div>
+            
           );
         },
         disableSortBy: true,
@@ -223,7 +251,7 @@ const ManageProperties = ({ t }) => {
     [properties]
   );
 
-  if (isLoading) return <Loader />;
+ if (isLoading) return <Loader />;
 
   return (
     <div>
@@ -249,7 +277,6 @@ const ManageProperties = ({ t }) => {
           <label>{t("EST_ASSET_STATUS")}</label>
          <Dropdown
   name="assetStatus"
-  inputRef={register({})}
   option={assetStatusOptions}
   optionKey="i18nKey"  // Changed from "name" to "i18nKey"
   selected={{ i18nKey: "ES_COMMON_ALL" }}
@@ -261,7 +288,6 @@ const ManageProperties = ({ t }) => {
           <label>{t("EST_ASSET_TYPE")}</label>
           <Dropdown
   name="assetType"
-  inputRef={register({})}
   option={assetTypeOptions}
   optionKey="i18nKey"  // Changed from "name" to "i18nKey"
   selected={{ i18nKey: "ES_COMMON_ALL" }}

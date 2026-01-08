@@ -82,6 +82,7 @@ const { control } = useForm();
 
 useEffect(() => {
  
+  console.log("Edit Data:", editData); // Add this line to see what data is being passed
   if (isEditMode && editData) {
     setBuildingName(editData.buildingName || "");
     setBuildingNo(editData.buildingNo || "");
@@ -108,6 +109,7 @@ useEffect(() => {
 }, [isEditMode, editData, structuredLocality]);
 
 
+// Add this new useEffect after the existing ones
 useEffect(() => {
   if (isEditMode && editData && editData.locality && structuredLocality?.length > 0) {
     const matchedLocality = structuredLocality.find(
@@ -187,6 +189,7 @@ useEffect(() => {
       updateMutation.mutate(updatePayload, {
         onSuccess: () => {
           
+          console.log("Asset updated successfully");
         },
         onError: (error) => {
           console.error("Update failed:", error);

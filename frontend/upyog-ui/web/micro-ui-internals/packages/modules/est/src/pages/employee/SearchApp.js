@@ -4,89 +4,92 @@ import { useTranslation } from "react-i18next";
 import ESTSearchApplication from "../../components/ESTSearchApplication";
 
 const SearchApp = ({ path }) => {
-    const { t } = useTranslation();
-    const tenantId = Digit.ULBService.getCurrentTenantId();
-    const [payload, setPayload] = useState({});
-    const [showToast, setShowToast] = useState(null);
-    const [hasSearched, setHasSearched] = useState(false);
-    
+  const { t } = useTranslation();
+  const tenantId = Digit.ULBService.getCurrentTenantId();
+  const [payload, setPayload] = useState({});
+  const [showToast, setShowToast] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
-    function onSubmit(_data) {
-        setHasSearched(true);
-        
-        const data = { ..._data };
-        let searchCriteria = {};
-        
-        Object.keys(data).forEach(key => {
-            if (data[key]) {
-                searchCriteria[key] = typeof data[key] === "object" ? data[key].code : data[key];
-            }
-        });
+  function onSubmit(_data) {
+    setHasSearched(true);
 
-        if (Object.entries(searchCriteria).length > 0) {
-            searchCriteria.tenantId = tenantId;
-            setPayload(searchCriteria);
-        } else {
-            setShowToast({ error: true, label: "Please enter search criteria" });
-        }
-    }
+    const data = { ..._data };
+    const searchCriteria = {};
 
-    // Using a custom hook to fetch EST asset search results based on the payload
-    // and tenantId.
-    // The query is enabled only when there is a valid payload.
-
-    const { isLoading, isSuccess, data, error } = Digit.Hooks.estate.useESTAssetSearch({
-        tenantId,
-        filters: {"AssetSearchCriteria": { "estateNo": payload.estateNo}},
-    }, {
-        enabled: !!(payload && Object.keys(payload).length > 0),
+    // flatten any dropdown objects to their code
+    Object.keys(data).forEach((key) => {
+      const val = data[key];
+      if (val !== undefined && val !== null && val !== "") {
+        searchCriteria[key] = typeof val === "object" ? val.code : val;
+      }
     });
 
-    const searchResult = data?.Assets || [];
-    const count = searchResult.length;
+    if (Object.keys(searchCriteria).length > 0) {
+      setPayload(searchCriteria);
+    } else {
+      setShowToast({ error: true, label: "Please enter search criteria" });
+    }
+  }
 
-    return (
-        <React.Fragment>
-            <ESTSearchApplication
-                t={t}
-                isLoading={isLoading}
-                tenantId={tenantId}
-                setShowToast={setShowToast}
-                onSubmit={onSubmit}
-                data={
-                     hasSearched && isSuccess && !isLoading
-                     ? searchResult?.length > 0
-                     ? searchResult
-            : { display: "ES_COMMON_NO_DATA" }
-        : ""
-}
-                count={count}
-            />
+  // 🔹 Call estate search with explicit mapping of filters
+  const { isLoading, isSuccess, data, error } = Digit.Hooks.estate.useESTAssetSearch(
+    {
+      tenantId,
+      filters: {
+         AssetSearchCriteria: {
+         estateNo: payload.estateNo,
+         assetParentCategory: payload.assetParentCategory,
+         assetStatus: payload.assetStatus,
+         localityCode: payload.localityCode, 
+         },
+      },
+    },
+    {
+      enabled: !!(payload && Object.keys(payload).length > 0),
+    }
+  );
 
-            {showToast && (
-                <Toast
-                    error={showToast.error}
-                    warning={showToast.warning}
-                    label={t(showToast.label)}
-                    isDeleteBtn={true}
-                    onClose={() => {
-                        setShowToast(null);
-                    }}
-                />
-            )}
+  const searchResult = data?.Assets || [];
+  const count = searchResult.length;
 
-            {error && (
-                <Toast
-                    error={true}
-                    label={`Search failed: ${error.message || "Unknown error"}`}
-                    isDeleteBtn={true}
-                    onClose={() => {
-                        // Handle error close if needed
-                    }}
-                />
-            )}
-        </React.Fragment>
-    );
+  return (
+    <React.Fragment>
+      <ESTSearchApplication
+        t={t}
+        isLoading={isLoading}
+        tenantId={tenantId}
+        setShowToast={setShowToast}
+        onSubmit={onSubmit}
+        data={
+          hasSearched && isSuccess && !isLoading
+            ? searchResult?.length > 0
+              ? searchResult
+              : { display: "ES_COMMON_NO_DATA" }
+            : ""
+        }
+        count={count}
+      />
+
+      {showToast && (
+        <Toast
+          error={showToast.error}
+          warning={showToast.warning}
+          label={t(showToast.label)}
+          isDeleteBtn={true}
+          onClose={() => setShowToast(null)}
+        />
+      )}
+
+      {error && (
+        <Toast
+          error={true}
+          label={`Search failed: ${error.message || "Unknown error"}`}
+          isDeleteBtn={true}
+          onClose={() => {}}
+        />
+      )}
+    </React.Fragment>
+  );
 };
 
 export default SearchApp;

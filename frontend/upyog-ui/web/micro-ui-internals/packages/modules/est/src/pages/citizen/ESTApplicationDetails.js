@@ -1,4 +1,4 @@
-import { Card, CardSubHeader, Header, Loader, Row, StatusTable, SubmitBar } from "@upyog/digit-ui-react-components";
+import { Card, CardSubHeader, Header, Loader, Row, StatusTable, SubmitBar, ActionBar } from "@upyog/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
@@ -8,64 +8,120 @@ const ESTApplicationDetails = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { assetNo, tenantId } = useParams();
-  
+  const [allotmentData, setAllotmentData] = useState(null);
   const passedData = history.location?.state?.applicationData;
   const [data, setData] = useState(passedData || null);
   const [isLoading, setIsLoading] = useState(!passedData);
   const [billData, setBillData] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState("CHECKING");
+  const isMountedRef = React.useRef(true);
+
+  const [userType, setUserType] = useState("citizen");
 
   useEffect(() => {
-    if (!passedData) {
-      fetchAllotmentDetails();
-    }
-    fetchBillData();
-  }, [assetNo, tenantId, passedData]);
+  const currentPath = history.location.pathname;
+  if (currentPath.includes('/employee/')) {
+    setUserType("employee");
+  } else {
+    setUserType("citizen");
+  }
+}, [history.location.pathname]);
 
-  const fetchAllotmentDetails = async () => {
-    setIsLoading(true);
-    try {
-      const response = await Digit.ESTService.assetSearch({
-        tenantId,
-        filters: {
-          AssetSearchCriteria: {
-            tenantId,
-            estateNo: assetNo
-          }
-        }
-      });
-      setData(response?.Assets?.[0] || null);
-    } catch (error) {
-      console.error("Error fetching asset details:", error);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+  const fetchData = async () => {
+    if (!passedData && isMountedRef.current) {
+      await fetchAssetDetails();
+    }
+    if (isMountedRef.current) {
+      await fetchBillData();
+      await fetchAllotmentDetails();
     }
   };
+  
+  fetchData();
+  
+  return () => {
+    isMountedRef.current = false;
+  };
+}, [assetNo, tenantId, passedData]);
 
-  const fetchBillData = async () => {
-    try {
-      const result = await Digit.PaymentService.fetchBill(tenantId, { 
-        businessService: "est-services", 
-        consumerCode: assetNo 
-      });
+
+ const fetchAssetDetails = async () => {
+  if (!isMountedRef.current) return;
+  setIsLoading(true);
+  try {
+    const response = await Digit.ESTService.assetSearch({
+      tenantId,
+      filters: {
+        AssetSearchCriteria: {
+          tenantId,
+          estateNo: assetNo
+        }
+      }
+    });
+    if (isMountedRef.current) {
+      setData(response?.Assets?.[0] || null);
+    }
+  } catch (error) {
+    console.error("Error fetching asset details:", error);
+  } finally {
+    if (isMountedRef.current) {
+      setIsLoading(false);
+    }
+  }
+};
+
+const fetchAllotmentDetails = async () => {
+  if (!isMountedRef.current) return;
+  try {
+    const response = await Digit.ESTService.allotmentSearch({
+      tenantId,
+      filters: {
+        tenantId,
+        assetNo: assetNo
+      }
+    });
+    if (isMountedRef.current) {
+      setAllotmentData(response?.Allotments?.[0] || null);
+    }
+  } catch (error) {
+    console.error("Error fetching allotment details:", error);
+  }
+};
+
+const fetchBillData = async () => {
+  if (!isMountedRef.current) return;
+  try {
+    const result = await Digit.PaymentService.fetchBill(tenantId, { 
+      businessService: "est-services", 
+      consumerCode: assetNo 
+    });
+    if (isMountedRef.current) {
       setBillData(result);
-      
       if (result?.Bill?.[0]?.totalAmount > 0) {
         setPaymentStatus("PENDING");
       } else {
         setPaymentStatus("PAID");
       }
-    } catch (error) {
-      console.error("Error fetching bill data:", error);
+    }
+  } catch (error) {
+    console.error("Error fetching bill data:", error);
+    if (isMountedRef.current) {
       setPaymentStatus("UNKNOWN");
     }
-  };
+  }
+};
+
 
   const handleMakePayment = () => {
     history.push({
       pathname: `/upyog-ui/citizen/payment/my-bills/est-services/${data?.estateNo}`,
     });
   };
+  const handleTakeAction = () => {
+  console.log("Take action clicked for asset:", assetNo);
+};
+
 
   if (isLoading) {
     return <Loader />;
@@ -94,6 +150,15 @@ const ESTApplicationDetails = () => {
         </div>
         
         <Card>
+  <CardSubHeader style={{ fontSize: "24px" }}>{t("EST_ALLOTMENT_DETAILS")}</CardSubHeader>
+  <StatusTable>
+    <Row className="border-none" label={t("EST_ALLOTTEE_NAME")} text={allotmentData?.alloteeName || t("CS_NA")} />
+    <Row className="border-none" label={t("EST_PHONE_NUMBER")} text={allotmentData?.mobileNo || t("CS_NA")} />
+    <Row className="border-none" label={t("EST_MONTHLY_RENT")} text={
+      allotmentData?.monthlyRent ? `₹${allotmentData.monthlyRent}` : t("CS_NA")
+    } />
+    <Row className="border-none" label={t("EST_STATUS")} text={allotmentData?.status || "ACTIVE"} />
+  </StatusTable>
           <CardSubHeader style={{ fontSize: "24px" }}>{t("EST_BASIC_DETAILS")}</CardSubHeader>
           <StatusTable>
             <Row className="border-none" label={t("EST_ASSET_ID")} text={data?.assetId} />
@@ -154,6 +219,14 @@ const ESTApplicationDetails = () => {
             userType="citizen"
           />
         </Card>
+        {userType === "employee" && (
+  <ActionBar>
+    <SubmitBar 
+      label={t("ES_COMMON_TAKE_ACTION")} 
+      onSubmit={handleTakeAction}
+    />
+  </ActionBar>
+)}
       </div>
     </React.Fragment>
   );

@@ -67,26 +67,25 @@ const ESTRegCreate = ({ parentRoute }) => {
       queryClient.invalidateQueries("EST_NEW_REGISTRATION_CREATES");
     }
 
-  const svcreate = async () => {
+  const estcreate = async () => {
   history.replace(`${match.path}/acknowledgement`);
 };
 
 
   function handleSelect(key, data, skipStep, index, isAddMultiple = false) {
   
-  if (key === "owners") {
-    let owners = params.owners || [];
-    owners[index] = data;
-    setParams({ ...params, ...{ [key]: [...owners] } });
-  } else if (key === "units") {
-    let units = params.units || [];
-    units = data;
-    setParams({ ...params, units });
-  } else {
-    setParams({ ...params, [key]: data });
+  // if (key === "owners") {
+  //   let owners = params.owners || [];
+  //   owners[index] = data;
+  //   setParams({ ...params, ...{ [key]: [...owners] } });
+  // } else if (key === "units") {
+  //   let units = params.units || [];
+  //   units = data;
+  //   setParams({ ...params, units });
+  // } else {
 
-  }
-  
+  // }
+  setParams({ ...params, [key]: data });
   goNext(skipStep, index, isAddMultiple, key);
 }
   const handleSkip = () => {};
@@ -137,7 +136,7 @@ const ESTRegCreate = ({ parentRoute }) => {
       })}
 
       <Route path={`${match.path}/check`}>
-        <ESTRegCheckPage onSubmit={svcreate} value={params} />
+        <ESTRegCheckPage onSubmit={estcreate} value={params} />
       </Route>
       <Route path={`${match.path}/acknowledgement`}>
         <ESTAcknowledgement data={params} onSuccess={onSuccess}/>
