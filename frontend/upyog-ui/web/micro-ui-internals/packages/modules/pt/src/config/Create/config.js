@@ -286,7 +286,7 @@ export const newConfig =[
               },
               "key": "units",
               "withoutLabel": true,
-              "nextStep": "map",
+              "nextStep": "pincode",
               "hideInEmployee": true
           },
           {

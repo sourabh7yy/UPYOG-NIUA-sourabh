@@ -1,4 +1,4 @@
-import { CardLabel, CardLabelError, FormStep, LabelFieldPair, TextInput } from "@upyog/digit-ui-react-components";
+import { CardLabel, CardLabelError, FormStep, LabelFieldPair, TextInput, LocationIcon } from "@upyog/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Timeline from "../components/TLTimeline";
@@ -12,6 +12,9 @@ const PTSelectPincode = ({ t, config, onSelect, formData = {}, userType, registe
     if (presentInModifyApplication && userType === "employee") return formData?.originalData?.address?.pincode || "";
     return formData?.address?.pincode || "";
   });
+  // location and geolocation states
+  const [locationText, setLocationText] = useState("");
+  const [geoLocation, setGeoLocation] = useState(formData?.address?.geoLocation || {});
 
   let isEditProperty = formData?.isEditProperty || false;
   if (formData?.isUpdateProperty) isEditProperty = true;
@@ -32,6 +35,43 @@ const PTSelectPincode = ({ t, config, onSelect, formData = {}, userType, registe
   ];
   const [pincodeServicability, setPincodeServicability] = useState(null);
   const [error, setLocalError] = useState("");
+
+  //  Get location
+  const fetchCurrentLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const location = { latitude, longitude };
+          const locationString = `${latitude}, ${longitude}`;
+          setGeoLocation(location);
+          setLocationText(locationString);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          alert("Unable to retrieve your location. Please check your browser settings.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  };
+
+  // Parse manually entered coordinates
+  const handleLocationTextChange = (e) => {
+    const value = e.target.value;
+    setLocationText(value);
+    
+    // Try to parse lat,long format
+    const coords = value.split(',');
+    if (coords.length === 2) {
+      const lat = parseFloat(coords[0].trim());
+      const lng = parseFloat(coords[1].trim());
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setGeoLocation({ latitude: lat, longitude: lng });
+      }
+    }
+  };
 
   useEffect(() => {
     if (formData?.address?.pincode) {
@@ -57,8 +97,8 @@ const PTSelectPincode = ({ t, config, onSelect, formData = {}, userType, registe
 
   const goNext = async (data) => {
     const foundValue = tenants?.find((obj) => obj.pincode?.find((item) => item == data?.pincode));
-    if (foundValue) {
-      onSelect(config.key, { pincode });
+    if (foundValue || locationText) {
+      onSelect(config.key, { pincode, geoLocation });
     } else {
       setPincodeServicability("PT_COMMON_PINCODE_NOT_SERVICABLE");
     }
@@ -83,6 +123,37 @@ const PTSelectPincode = ({ t, config, onSelect, formData = {}, userType, registe
   return (
     <React.Fragment>
     {window.location.href.includes("/citizen") ? <Timeline currentStep={1}/> : null}
+    
+    {/* Location Input with Fetch Button */}
+    <div style={{ marginBottom: "20px" }}>
+      <div style={{ position: "relative", width: "50%" }}>
+        <TextInput
+          t={t}
+          type="text"
+          name="currentLocation"
+          value={locationText}
+          onChange={handleLocationTextChange}
+          placeholder="Click location icon to fetch current location"
+          style={{ paddingRight: "40px" }}
+        />
+        <div
+          className="butt-icon"
+          onClick={fetchCurrentLocation}
+          style={{
+            position: "absolute",
+            left: "333px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            padding: "5px"
+          }}
+        >
+          <LocationIcon styles={{ width: "16px", border: "none" }} className="fill-path-primary-main" />
+        </div>
+      </div>
+    </div>
     <FormStep
       t={t}
       config={{ ...config, inputs }}
@@ -91,7 +162,7 @@ const PTSelectPincode = ({ t, config, onSelect, formData = {}, userType, registe
       onChange={onChange}
       onSkip={onSkip}
       forcedError={t(pincodeServicability)}
-      isDisabled={!pincode || isEditProperty}
+      isDisabled={!pincode && !locationText || isEditProperty}
     ></FormStep>
             </React.Fragment>
   );
