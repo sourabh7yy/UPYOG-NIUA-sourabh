@@ -121,7 +121,8 @@ module.exports = function (app) {
     "/gis-dx-service/gis-dx/v1/_search/ASSET",
     "/individual/v1/_search",
     "/bpa-services/v1/preapprovedplan/_search",
-    "/bpa-calculator/_estimate"
+    "/bpa-calculator/_estimate",
+    "/estate-management/estate"
   ].forEach((location) => app.use(location, createProxy));
   ["/pb-egov-assets"].forEach((location) => app.use(location, assetsProxy));
 };
