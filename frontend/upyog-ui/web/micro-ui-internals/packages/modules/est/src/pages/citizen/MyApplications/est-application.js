@@ -3,6 +3,9 @@ import { Card, KeyNote, SubmitBar } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
+// Estate Application Component
+// This component displays the details of an estate application and provides options to view the summary or make a payment.
+
 const EstateApplication = ({ application, tenantId }) => {
   const { t } = useTranslation();
   const history = useHistory();

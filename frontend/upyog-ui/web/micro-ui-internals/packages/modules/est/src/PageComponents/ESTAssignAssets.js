@@ -9,10 +9,29 @@ import {
   UploadFile,
   DatePicker,
   FormStep,
-  SubmitBar,
 } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import { calculateDuration } from "../utils";
+
+const getLocalityText = (asset, t) => {
+  if (!asset) return "";
+  const locObj = asset.locality || asset.address?.locality;
+  if (typeof locObj === "string") {
+    if (locObj.startsWith("TENANT_") || locObj.startsWith("EST_")) return t(locObj);
+    return locObj;
+  }
+  if (locObj && typeof locObj === "object") {
+    if (locObj.i18nKey) return t(locObj.i18nKey);
+    return locObj.label || locObj.name || locObj.code || "";
+  }
+  const candidates = [asset.localityName, asset.localityCode, asset.serviceType];
+  const raw = candidates.find((v) => v !== undefined && v !== null && v !== "");
+  if (!raw) return "";
+  if (typeof raw === "string" && (raw.startsWith("TENANT_") || raw.startsWith("EST_"))) {
+    return t(raw);
+  }
+  return raw;
+};
 
 const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) => {
   const { t: hookT } = useTranslation();
@@ -25,7 +44,6 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     return isNaN(d.getTime()) ? null : d.getTime();
   };
 
-  // helper to sanitize input (digits-only or general regex removal) and enforce max length
   const sanitizeAndSet = (field, value, { maxLength = null, regex = null } = {}) => {
     let v = value ?? "";
     if (typeof v !== "string") v = String(v);
@@ -34,11 +52,10 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     setData((prev) => ({ ...prev, [field]: v }));
   };
 
-  // state (kept key names similar to original)
   const [data, setData] = useState({
     assetNo: formData?.assetData?.estateNo || "",
     assetRefNumber: formData?.assetData?.refAssetNo || "",
-    propertyType: formData?.AllotmentData?.propertyType || "",
+    allotmentType: formData?.AllotmentData?.allotmentType || "",
     allotteeName: formData?.AllotmentData?.allotteeName || "",
     phoneNumber: formData?.AllotmentData?.phoneNumber || "",
     altPhoneNumber: formData?.AllotmentData?.altPhoneNumber || "",
@@ -57,24 +74,6 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     allotmentLetter: formData?.AllotmentData?.allotmentLetter || null,
     signedDeed: formData?.AllotmentData?.signedDeed || null,
   });
-
-  const { data: Asset_Type } = Digit.Hooks.useEnabledMDMS(
-    tenantId,
-    "ASSET",
-    [{ name: "assetParentCategory" }],
-    {
-      select: (data) => {
-        const formatted = data?.ASSET?.assetParentCategory || [];
-        return formatted
-          .filter((item) => item.active)
-          .map((i) => ({
-            i18nKey: `ASSET_TYPE_${i.code}`,
-            code: i.code,
-            label: i.name,
-          }));
-      },
-    }
-  );
 
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -113,7 +112,6 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
 
   const handleFileDelete = (fieldName) => handleChange(fieldName, null);
 
-  // ---------- Validations ----------
   const phoneValidation = {
     required: true,
     pattern: "^[0-9]{10}$",
@@ -132,8 +130,36 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     title: t("EST_INVALID_AMOUNT"),
   };
 
+  const { data: allotmentTypeMdms } = Digit.Hooks.useCustomMDMS(
+    Digit.ULBService.getStateId(),
+    "Estate",
+    [{ name: "AllotmentType" }],
+    {
+      select: (data) => {
+        const list = data?.Estate?.AllotmentType || [];
+        return list
+          .filter((item) => item.active)
+          .map((item) => ({
+            code: item.code,
+            label: item.name,
+            i18nKey: item.name || item.code,
+          }));
+      },
+    }
+  );
+
+  const fallbackAllotmentTypes = [
+    { code: "RENT", label: "Rent", i18nKey: "Rent" },
+    { code: "LEASE", label: "Lease", i18nKey: "Lease" },
+  ];
+
+  const allotmentTypeOptions =
+    (Array.isArray(allotmentTypeMdms) && allotmentTypeMdms.length > 0)
+      ? allotmentTypeMdms
+      : fallbackAllotmentTypes;
+
   const isFormInvalid =
-    !data.propertyType ||
+    !data.allotmentType ||
     !data.allotteeName ||
     !data.phoneNumber ||
     !data.email ||
@@ -161,7 +187,6 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     setShowToast(true);
   };
 
-  // Reusable required label like in NewRegistration
   const RequiredLabel = ({ label, unit }) => (
     <CardLabel>
       {t(label)} {unit && <span style={{ fontSize: "0.9em", marginLeft: "6px" }}>{unit}</span>}{" "}
@@ -169,36 +194,32 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     </CardLabel>
   );
 
-  // inputs now 70% width (to match NewRegistration)
   const fullWidthStyle = { width: "70%", marginBottom: "16px" };
+
+  const asset = formData?.assetData || {};
+  const localityText = getLocalityText(asset, t);
 
   return (
     <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={isFormInvalid}>
       <Header>{t("EST_COMMMON_ASSIGN_ASSETS")}</Header>
 
       <Card style={{ padding: "16px" }}>
-        {/* ---------- Asset Info ---------- */}
         <h2 style={{ color: "#333", marginBottom: "16px", fontSize: "20px", fontWeight: "bold" }}>
           {t("EST_ASSET_DETAILS")}
         </h2>
 
-        {/* Asset Number */}
         <CardLabel>{t("EST_ASSET_NUMBER")}</CardLabel>
         <TextInput t={t} value={data.assetNo} readOnly style={fullWidthStyle} />
 
-        {/* Asset Reference Number */}
         <CardLabel>{t("EST_ASSET_REFERENCE_NUMBER")}</CardLabel>
         <TextInput t={t} value={data.assetRefNumber} readOnly style={fullWidthStyle} />
 
-        {/* Building Name */}
         <CardLabel>{t("EST_BUILDING_NAME")}</CardLabel>
         <TextInput t={t} value={formData?.assetData?.buildingName} readOnly style={fullWidthStyle} />
 
-        {/* Locality */}
         <CardLabel>{t("EST_LOCALITY")}</CardLabel>
-        <TextInput t={t} value={formData?.assetData?.locality} readOnly style={fullWidthStyle} />
+        <TextInput t={t} value={localityText} readOnly style={fullWidthStyle} />
 
-        {/* Total Area */}
         <CardLabel>{t("EST_TOTAL_AREA")}</CardLabel>
         <TextInput
           t={t}
@@ -207,11 +228,9 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
           style={fullWidthStyle}
         />
 
-        {/* Floor */}
         <CardLabel>{t("EST_FLOOR")}</CardLabel>
         <TextInput t={t} value={formData?.assetData?.floor} readOnly style={fullWidthStyle} />
 
-        {/* Rate */}
         <CardLabel>{t("EST_RATE")}</CardLabel>
         <TextInput
           t={t}
@@ -220,42 +239,51 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
           style={fullWidthStyle}
         />
 
-        {/* ---------- Personal Details ---------- */}
         <h2 style={{ marginTop: "20px", color: "#333", marginBottom: "16px", fontSize: "20px", fontWeight: "bold" }}>
           {t("EST_PERSONAL_DETAILS_OF_ALLOTTEE")}
         </h2>
 
-        {/* Property Type */}
-        <RequiredLabel label="EST_PROPERTY_TYPE" />
-        <Dropdown
-          option={Asset_Type || []}
-          optionKey="label"
-          selected={Asset_Type?.find((o) => o.code === data.propertyType) || null}
-          select={(o) => handleChange("propertyType", o.code)}
-          placeholder={t("EST_SELECT_PROPERTY_TYPE")}
+       <RequiredLabel label="EST_ALLOTMENT_TYPE" />
+<div style={{ display: "flex", gap: "20px", marginBottom: "16px" }}>
+  <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+    <input
+      type="radio"
+      name="allotmentType"
+      value="RENT"
+      checked={data.allotmentType === "RENT"}
+      onChange={() => handleChange("allotmentType", "RENT")}
+      style={{ marginRight: "8px" }}
+    />
+    Rent
+  </label>
+  <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+    <input
+      type="radio"
+      name="allotmentType"
+      value="LEASE"
+      checked={data.allotmentType === "LEASE"}
+      onChange={() => handleChange("allotmentType", "LEASE")}
+      style={{ marginRight: "8px" }}
+    />
+    Lease
+  </label>
+</div>
+
+
+        <RequiredLabel label="EST_ALLOTTEE_NAME" />
+        <TextInput
           t={t}
+          placeholder={t("EST_ENTER_ALLOTTEE_NAME")}
+          value={data.allotteeName}
+          onChange={(e) =>
+            handleChange("allotteeName", e.target.value.replace(/[^A-Za-z ]/g, ""))
+          }
+          required
+          minLength={3}
+          title={t("EST_INVALID_ALLOTTEE_NAME")}
           style={fullWidthStyle}
         />
 
-        {/* Allottee Name */}
-        <RequiredLabel label="EST_ALLOTTEE_NAME" />
-      <TextInput
-        t={t}
-        placeholder={t("EST_ENTER_ALLOTTEE_NAME")}
-        value={data.allotteeName}
-        onChange={(e) =>
-          handleChange(
-            "allotteeName",
-            e.target.value.replace(/[^A-Za-z ]/g, "")   // 🔥 removes numbers & special chars live
-          )
-        }
-        required
-        minLength={3}
-        title={t("EST_INVALID_ALLOTTEE_NAME")}
-        style={fullWidthStyle}
-      />
-
-        {/* Phone (primary) - digits only, max 10 */}
         <RequiredLabel label="EST_PHONE_NUMBER" />
         <TextInput
           t={t}
@@ -269,7 +297,6 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
           style={fullWidthStyle}
         />
 
-        {/* Alternate Phone - digits only, max 10 */}
         <CardLabel>{t("EST_ALTERNATE_PHONE_NUMBER")}</CardLabel>
         <TextInput
           t={t}
@@ -282,7 +309,6 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
           style={fullWidthStyle}
         />
 
-        {/* Email */}
         <RequiredLabel label="EST_EMAIL_ID" />
         <TextInput
           t={t}
@@ -293,32 +319,26 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
           style={fullWidthStyle}
         />
 
-        {/* ---------- Allotment Details ---------- */}
         <h2 style={{ marginTop: "20px", color: "#333", marginBottom: "16px", fontSize: "20px", fontWeight: "bold" }}>
           {t("EST_ALLOTMENT_INVOICE_DETAILS")}
         </h2>
 
-        {/* Agreement Start Date */}
         <RequiredLabel label="EST_AGREEMENT_START_DATE" />
         <DatePicker
           date={data.startDate}
           onChange={(d) => {
             handleChange("startDate", d);
-            handleChange("duration", calculateDuration(d, data.endDate));
-            // make sure duration string stored as well
             const newDuration = calculateDuration(d, data.endDate);
             handleChange("duration", newDuration);
           }}
           style={fullWidthStyle}
         />
 
-        {/* Agreement End Date */}
         <RequiredLabel label="EST_AGREEMENT_END_DATE" />
         <DatePicker
           date={data.endDate}
           onChange={(d) => {
             handleChange("endDate", d);
-            handleChange("duration", calculateDuration(data.startDate, d));
             const newDuration = calculateDuration(data.startDate, d);
             handleChange("duration", newDuration);
           }}
@@ -332,40 +352,47 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
           value={data.duration}
           readOnly
           disabled
-          style={{ ...fullWidthStyle, pointerEvents: "none", cursor: "default", backgroundColor: "transparent" }}
+          style={{
+            ...fullWidthStyle,
+            pointerEvents: "none",
+            cursor: "default",
+            backgroundColor: "transparent",
+          }}
         />
 
-        {/* Rate per sqft */}
         <RequiredLabel label="EST_RATE_PER_SQFT" unit="(Per sq ft)" />
         <TextInput
           t={t}
           value={data.rate}
-          onChange={(e) => sanitizeAndSet("rate", e.target.value, { maxLength: 12, regex: /[^0-9.]/g })}
+          onChange={(e) =>
+            sanitizeAndSet("rate", e.target.value, { maxLength: 12, regex: /[^0-9.]/g })
+          }
           {...numberValidation}
           style={fullWidthStyle}
         />
 
-        {/* Monthly Rent */}
         <RequiredLabel label="EST_MONTHLY_RENT_IN_INR" />
         <TextInput
           t={t}
           value={data.monthlyRent}
-          onChange={(e) => sanitizeAndSet("monthlyRent", e.target.value, { maxLength: 12, regex: /[^0-9.]/g })}
+          onChange={(e) =>
+            sanitizeAndSet("monthlyRent", e.target.value, { maxLength: 12, regex: /[^0-9.]/g })
+          }
           {...numberValidation}
           style={fullWidthStyle}
         />
 
-        {/* Advance Payment */}
         <RequiredLabel label="EST_ADVANCE_PAYMENT_IN_INR" />
         <TextInput
           t={t}
           value={data.advancePayment}
-          onChange={(e) => sanitizeAndSet("advancePayment", e.target.value, { maxLength: 12, regex: /[^0-9.]/g })}
+          onChange={(e) =>
+            sanitizeAndSet("advancePayment", e.target.value, { maxLength: 12, regex: /[^0-9.]/g })
+          }
           {...numberValidation}
           style={fullWidthStyle}
         />
 
-        {/* Advance Payment Date */}
         <CardLabel>{t("EST_ADVANCE_PAYMENT_DATE")}</CardLabel>
         <DatePicker
           date={data.advancePaymentDate}
@@ -373,15 +400,14 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
           style={fullWidthStyle}
         />
 
-        {/* ---------- Document Upload ---------- */}
         <h2 style={{ marginTop: "20px", color: "#333", marginBottom: "16px", fontSize: "20px", fontWeight: "bold" }}>
           {t("EST_DOCUMENT_UPLOAD")}
         </h2>
 
-        <CardLabel>{t("EST_EOFFICE_FILE_NO")}</CardLabel>
+        <CardLabel>{t("FILE_REFERENCE_NUMBER")}</CardLabel>
         <TextInput
           t={t}
-          placeholder={t("EST_ENTER_EOFFICE_FILE_NO")}
+          placeholder={t("EST_ENTER_FILE_NO")}
           value={data.eOfficeFileNo}
           onChange={(e) => handleChange("eOfficeFileNo", e.target.value)}
           style={fullWidthStyle}
@@ -408,19 +434,7 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
             accept=".png,.jpg,.jpeg,.pdf"
           />
         </div>
-
-        <CardLabel>{t("EST_SIGNED_DEED")}</CardLabel>
-        <div style={fullWidthStyle}>
-          <UploadFile
-            onUpload={(e) => handleFileUpload(e.target.files[0], "signedDeed")}
-            onDelete={() => handleFileDelete("signedDeed")}
-            id="signedDeed"
-            message={data.signedDeed ? t("CS_ACTION_FILEUPLOADED") : t("CS_ACTION_NO_FILEUPLOADED")}
-            accept=".png,.jpg,.jpeg,.pdf"
-          />
-        </div>
-
-       
+        
       </Card>
 
       {showToast && (
