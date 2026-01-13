@@ -15,6 +15,7 @@ const ESTManageProperties = () => {
 //  4. Allotte Asset: Allows users to view allottee details by navigating to the "property-allottee-details" route.
 // Each link is styled for better visibility and user experience.
 
+
   return (
     <React.Fragment>
       <div>

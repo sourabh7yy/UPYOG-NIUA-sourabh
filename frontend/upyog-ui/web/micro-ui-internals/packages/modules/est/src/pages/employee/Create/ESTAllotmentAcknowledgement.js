@@ -1,4 +1,6 @@
+// React core imports
 import React, { useEffect, useRef, useState } from "react";
+// DIGIT UI components used for acknowledgement UI
 import {
   Banner,
   Card,
@@ -8,8 +10,12 @@ import {
   SubmitBar,
   Loader,
 } from "@upyog/digit-ui-react-components";
+// Translation hook
 import { useTranslation } from "react-i18next";
+// Router link for navigation
 import { Link } from "react-router-dom";
+
+// Utility functions to prepare PDF and API payloads
 import getESTAllotmentAcknowledgementData from "../../../utils/getESTAllotmentAcknowledgementData";
 import { createAllotmentData, estPayloadData } from "../../../utils";
 
@@ -19,8 +25,11 @@ const rowContainerStyle = {
   padding: "4px 0px",
   justifyContent: "space-between",
 };
-
-/* ---------------- Banner ---------------- */
+/**
+ * BannerPicker
+ * ---------------------------------------------------------
+ * Displays success or failure banner after allotment
+ */
 
 const BannerPicker = ({ t, isSuccess, data }) => {
   const applicationNumber = data?.Allotments?.[0]?.assetNo || "";
@@ -40,7 +49,20 @@ const BannerPicker = ({ t, isSuccess, data }) => {
   );
 };
 
-/* ---------------- Main Component ---------------- */
+
+/* =========================================================
+   Main Acknowledgement Component
+   ========================================================= */
+
+/**
+ * ESTAllotmentAcknowledgement
+ * ---------------------------------------------------------
+ * This component:
+ * - Calls final allotment API
+ * - Shows success/failure banner
+ * - Allows PDF acknowledgement download
+ * - Redirects user to home
+ * */
 
 const ESTAllotmentAcknowledgement = ({ data = {}, onSuccess }) => {
   const { t } = useTranslation();
@@ -70,6 +92,7 @@ const ESTAllotmentAcknowledgement = ({ data = {}, onSuccess }) => {
     if (hasRun.current) return;
     if (!data?.AssignAssetsData) return;
 
+  // Prevents API call from running multiple times
     hasRun.current = true;
 
     const allotmentPayload = createAllotmentData(data);
@@ -117,7 +140,13 @@ const ESTAllotmentAcknowledgement = ({ data = {}, onSuccess }) => {
     });
   }, [data, tenantId]);
 
-  /* ---------------- PDF ---------------- */
+   /* =========================================================
+     PDF Download Handler
+     ========================================================= */
+
+  /**
+   * Generates and downloads acknowledgement PDF
+   */
 
   const handleDownloadPdf = async () => {
     try {
@@ -139,7 +168,11 @@ const ESTAllotmentAcknowledgement = ({ data = {}, onSuccess }) => {
     }
   };
 
-  /* ---------------- UI ---------------- */
+   /* =========================================================
+     UI Rendering
+     ========================================================= */
+
+  // Show loader while API is in progress
 
   if (finalMutation.isLoading) {
     return <Loader />;

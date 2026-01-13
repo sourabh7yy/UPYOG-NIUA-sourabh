@@ -1,4 +1,7 @@
+// React aur required hooks import
 import React, { useState, useEffect, useRef } from "react";
+
+// DIGIT UI ke reusable components
 import {
   Header,
   Card,
@@ -8,11 +11,30 @@ import {
   FormStep,
   SubmitBar,
 } from "@upyog/digit-ui-react-components";
+// i18n translation hook
 import { useTranslation } from "react-i18next";
+
+// react-hook-form ke helpers (Dropdown ke controlled handling ke liye)
 import { useForm, Controller } from "react-hook-form";
+
+// React Router hook to read navigation state (edit mode data)
 import { useLocation } from "react-router-dom";
 
+/**
+ * NewRegistration Component
+ * ------------------------------------------------
+ * This component is responsible for:
+ * - Creating a new Estate Asset
+ * - Editing an existing Estate Asset
+ *
+ * The behavior is controlled by:
+ * - `isEditMode` flag from route state
+ * - `editData` passed via navigation
+ */
+
 const NewRegistration = ({ parentRoute, t: propT, onSelect, onSkip, formData = {}, config }) => {
+
+// Translation handler (prop-based or hook-based fallback)
   const { t: hookT } = useTranslation();
   const t = propT || hookT;
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -25,11 +47,16 @@ const NewRegistration = ({ parentRoute, t: propT, onSelect, onSkip, formData = {
 
   const location = useLocation();
   const editData = location.state?.assetData;
+
+    // Read routing state for edit flow
   const isEditMode = location.state?.isEdit;
  
+   // Current tenant (ULB) id
   const tenantId = Digit.ULBService.getCurrentTenantId();
+  // Session storage hook to persist draft form data (if needed)
   const [_formData, setFormData, _clear] = Digit.Hooks.useSessionStorage("EST_CREATE_DATA", null);
 
+ // Track component mount status (useful for async safety)
   const isMounted = useRef(true);
   useEffect(() => {
     return () => {
@@ -37,6 +64,11 @@ const NewRegistration = ({ parentRoute, t: propT, onSelect, onSkip, formData = {
     };
   }, []);
 
+
+  /**
+   * Fetch Asset Types from MDMS
+   * Only active asset categories are shown in the dropdown
+   */
   const { data: Asset_Type } = Digit.Hooks.useEnabledMDMS(
     Digit.ULBService.getStateId(),
     "ASSET",
@@ -53,7 +85,7 @@ const NewRegistration = ({ parentRoute, t: propT, onSelect, onSkip, formData = {
       },
     }
   );
-
+  // Fetch all cities / ULBs
   const allCities = Digit.Hooks.estate.useTenants();
   const cityList = allCities?.data || allCities || [];
 
@@ -70,16 +102,21 @@ const [dimensionWidth, setDimensionWidth] = useState("");
 const [rate, setRate] = useState("");
 const [assetRef, setAssetRef] = useState("");
 const [assetType, setAssetType] = useState("");
-
+  // react-hook-form controller instance
 const { control } = useForm();
 
+/**
+   * Fetch localities based on selected city
+   */
   const { data: fetchedLocalities } = Digit.Hooks.useBoundaryLocalities(
     selectedCity?.code,
     "revenue",
     { enabled: !!selectedCity },
     t
   );
-
+/**
+   * Format locality data for Dropdown usage
+   */
   const structuredLocality =
     fetchedLocalities?.map((locality) => ({
       ...locality,
@@ -87,6 +124,11 @@ const { control } = useForm();
       label: locality.name || locality.i18nKey || locality.label,
     })) || [];
 
+
+     /**
+   * Populate form fields in Edit Mode
+   * Runs when edit data or locality list is available
+   */
 useEffect(() => {
  
   console.log("Edit Data:", editData); // Add this line to see what data is being passed
@@ -115,8 +157,9 @@ useEffect(() => {
   }
 }, [isEditMode, editData, structuredLocality]);
 
-
-// Add this new useEffect after the existing ones
+ /**
+   * Automatically select the city based on tenant ID
+   */
 useEffect(() => {
   if (isEditMode && editData && editData.locality && structuredLocality?.length > 0) {
     const matchedLocality = structuredLocality.find(
@@ -128,7 +171,10 @@ useEffect(() => {
   }
 }, [isEditMode, editData, structuredLocality]);
 
-
+ /**
+   * Form validation:
+   * If any required field is missing, form is invalid
+   */
 useEffect(() => {
   if (Array.isArray(cityList) && tenantId) {
     const matchedCity = cityList.find((city) => city.code === tenantId);
@@ -154,6 +200,11 @@ useEffect(() => {
     !rate ||
     !assetType;
 
+     /**
+   * Generic input sanitizer
+   * - Removes invalid characters
+   * - Enforces max length
+   */
   const sanitizeAndSet = (value, setter, { maxLength = null, regex = null } = {}) => {
     let v = value ?? "";
     if (regex) v = v.replace(regex, "");
@@ -161,6 +212,12 @@ useEffect(() => {
     setter(v);
   };
 
+
+   /**
+   * Submit handler:
+   * - Prepares payload
+   * - Handles create or update flow
+   */
   const goNext = () => {
     if (isFormInvalid) return;
 
@@ -183,7 +240,7 @@ useEffect(() => {
       assetRef: assetRef || "",
       assetType,
     };
-
+    // Update flow
     if (isEditMode) {
       const updatePayload = {
         Asset: {
@@ -202,11 +259,14 @@ useEffect(() => {
           console.error("Update failed:", error);
         }
       });
+          // Create flow
     } else {
       onSelect(config?.key, { Assetdata: payload }, false);
     }
   };
-
+/**
+   * Label component for required fields
+   */
   const RequiredLabel = ({ label, unit }) => (
     <CardLabel>
       {t(label)}{" "}
@@ -214,23 +274,8 @@ useEffect(() => {
       <span style={{ color: "red" }}>*</span>
     </CardLabel>
   );
-
-  const fullWidthStyle = { 
-    width: isMobile ? "100%" : "70%", 
-    marginBottom: "16px" 
-  };
-
-  const cardStyle = {
-    padding: isMobile ? "12px" : "16px"
-  };
-
-  const dimensionContainerStyle = {
-    ...fullWidthStyle,
-    display: "flex",
-    flexDirection: isMobile ? "column" : "row",
-    gap: isMobile ? "8px" : "16px",
-    alignItems: "flex-start",
-  };
+// Standard input width styling
+  const fullWidthStyle = { width: "70%", marginBottom: "16px" };
 
   return (
     <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={isFormInvalid}>

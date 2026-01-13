@@ -1,4 +1,6 @@
+// React and hooks
 import React, { useState } from "react";
+// UI components from DIGIT UI library
 import {
   Card,
   CardHeader,
@@ -10,8 +12,17 @@ import {
   CheckBox,
   EditIcon,
 } from "@upyog/digit-ui-react-components";
+// i18n for translations
 import { useTranslation } from "react-i18next";
+// React Router for navigation
 import { useHistory } from "react-router-dom";
+
+/**
+ * ActionButton
+ * -------------
+ * Displays an edit icon aligned to the right.
+ * On click, it navigates the user to the provided route.
+ */
 
 const ActionButton = ({ jumpTo }) => {
   const history = useHistory();
@@ -33,7 +44,14 @@ const ActionButton = ({ jumpTo }) => {
   );
 };
 
-// very small, predictable helper
+/**
+ * getLocalityText
+ * ----------------
+ * Safely resolves the locality value from asset data.
+ * - Tries multiple possible fields
+ * - Ignores empty, null, or invalid values like "Nill"
+ * - Translates the value if it looks like an i18n key
+ */
 const getLocalityText = (asset, t) => {
   if (!asset) return t("NA");
 
@@ -42,6 +60,8 @@ const getLocalityText = (asset, t) => {
     asset.localityName,   // if we stored name separately
     asset.serviceType,    // earlier we used this as locality code
   ];
+
+  // Pick the first valid value
 
   const raw = candidates.find(
     (v) => v !== undefined && v !== null && v !== "" && v !== "Nill"
@@ -58,9 +78,20 @@ const getLocalityText = (asset, t) => {
   return raw || t("NA");
 };
 
+/**
+ * ESTRegCheckPage
+ * ----------------
+ * Final review page for EST asset registration.
+ * Displays all entered asset details in read-only mode.
+ * Submission is allowed only after user agrees to declaration.
+ */
+
 const ESTRegCheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
+    // Tracks whether the user has accepted the declaration
   const [agree, setAgree] = useState(false);
+
+   // Normalize asset data structure (supports multiple shapes)
 
   const Assetdata = value?.Assetdata?.Assetdata || value?.Assetdata || {};
 

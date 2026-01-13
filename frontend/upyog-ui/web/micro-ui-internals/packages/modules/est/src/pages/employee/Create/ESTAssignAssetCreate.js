@@ -1,25 +1,61 @@
+// React core imports
 import React ,{Children, Fragment}from "react";
+// Translation hook
 import { useTranslation } from "react-i18next";
+
+// React Query for cache handling
 import { useQueryClient } from "react-query";
+// React Router utilities
 import { Redirect, Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";
+// Form configuration for Assign Asset flow
 import { Config } from "../../../config/Create/AssignAssetConfig";
-
+/**
+ * ESTAssignAssetCreate
+ * ---------------------------------------------------------
+ * This component controls the complete Assign Asset flow:
+ * - Multi-step form navigation
+ * - Session storage handling
+ * - Route-based rendering
+ * - Final acknowledgement handling
+ */
 const ESTAssignAssetCreate = ({ parentRoute }) => {
-
+  // React Query client for cache invalidation
   const queryClient = useQueryClient();
+    // Base route match
   const match = useRouteMatch();
+   // Translation function
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  
+  // Navigation handler
   const history = useHistory();
+    // State ID (currently unused but available)
   const stateId = Digit.ULBService.getStateId();
+  
+  // Dynamic route configuration holder
   let config = [];
+  /**
+   * Session storage to persist form data across steps
+   * Key: EST_ASSIGN_ASSETS
+   */
   const [params, setParams, clearParams] = Digit.Hooks.useSessionStorage("EST_ASSIGN_ASSETS", {});
+
+  /**
+   * goNext
+   * -----------------------------------------------------
+   * Handles navigation logic between form steps
+   * Supports:
+   * - Normal flow
+   * - Skip flow
+   * - Multiple-entry steps (owners, units, etc.)
+   */
 
   const goNext = (skipStep, index, isAddMultiple, key) => {  
     let currentPath = pathname.split("/").pop(),
       lastchar = currentPath.charAt(currentPath.length - 1),
       isMultiple = false,
       nextPage;
+        // Detect numeric routes for multiple entries
     if (Number(parseInt(currentPath)) || currentPath == "0" || currentPath == "-1") {
       if (currentPath == "-1" || currentPath == "-2") {
         currentPath = pathname.slice(0, -3);
@@ -33,22 +69,28 @@ const ESTAssignAssetCreate = ({ parentRoute }) => {
     } else {
       isMultiple = false;
     }
+      // Check if route ends with a number
     if (!isNaN(lastchar)) {
       isMultiple = true;
     }
+      // Get next step from config
     let { nextStep = {} } = config.find((routeObj) => routeObj.route === currentPath);
 
-
+      // Decide navigation method
     let redirectWithHistory = history.push;
     if (skipStep) {
       redirectWithHistory = history.replace;
     }
+    // Override next step for multiple add flow
     if (isAddMultiple) {
       nextStep = key;
     }
+    
+    // Redirect to check page if flow ends
     if (nextStep === null) {
       return redirectWithHistory(`${match.path}/check`);
     }
+        // Build next page URL
     if (!isNaN(nextStep.split("/").pop())) {
       nextPage = `${match.path}/${nextStep}`;
     }
@@ -59,16 +101,32 @@ const ESTAssignAssetCreate = ({ parentRoute }) => {
     redirectWithHistory(nextPage);
   };
 
-  // to clear formdata if the data is present before coming to first page of form
+   /**
+   * Clear stored form data if user revisits
+   * the first step without back navigation
+   */
   if(params && Object.keys(params).length>0 && window.location.href.includes("/info") && sessionStorage.getItem("docReqScreenByBack") !== "true")
     {
       clearParams();
       queryClient.invalidateQueries("EST_ASSIGN_ASSETS");
     }
 
+  /**
+   * Triggered after final check page submission
+   */
   const estcreate = async () => {
     history.replace(`${match.path}/acknowledgement`);
   };
+
+    /**
+   * handleSelect
+   * -----------------------------------------------------
+   * Stores step data into session storage
+   * Handles special cases:
+   * - owners (array-based)
+   * - units (list replacement)
+   * - general form sections
+   */
 
   function handleSelect(key, data, skipStep, index, isAddMultiple = false) {
     if (key === "owners") {
@@ -96,7 +154,11 @@ const ESTAssignAssetCreate = ({ parentRoute }) => {
     queryClient.invalidateQueries("EST_ASSIGN_ASSETS");
 
   };
-  
+
+    /**
+   * Build route configuration from AssignAssetConfig
+   * Filters out citizen-hidden screens
+   */
   let commonFields = Config;
 
 
@@ -104,11 +166,19 @@ const ESTAssignAssetCreate = ({ parentRoute }) => {
     config = config.concat(obj.body.filter((a) => !a.hideInCitizen));
   });
   
+    // Default route
   config.indexRoute = "info";
-
+  
+  // Load dynamic components
   const ESTAssignAssetsCheckPage = Digit?.ComponentRegistryService?.getComponent("ESTAssignAssetsCheckPage");
   const ESTAllotmentAcknowledgement = Digit?.ComponentRegistryService?.getComponent("ESTAllotmentAcknowledgement");
   
+
+    /**
+   * Route Rendering
+   * -----------------------------------------------------
+   * Dynamically renders each step using configuration
+   */
   return (
     <Switch>
       {config.map((routeObj, index) => {

@@ -1,4 +1,7 @@
+// React aur required hooks import
 import React, { useState } from "react";
+
+// DIGIT UI ke reusable components import
 import {
   Header,
   Card,
@@ -10,7 +13,10 @@ import {
   DatePicker,
   FormStep,
 } from "@upyog/digit-ui-react-components";
+// i18n translation hook
 import { useTranslation } from "react-i18next";
+
+// Agreement duration calculate karne ka helper
 import { calculateDuration } from "../utils";
 
 const getLocalityText = (asset, t) => {
@@ -34,10 +40,16 @@ const getLocalityText = (asset, t) => {
 };
 
 const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) => {
+
+  // Translation hook (fallback support)
   const { t: hookT } = useTranslation();
   const t = propT || hookT;
   const tenantId = Digit.ULBService.getStateId();
 
+  /**
+   * Date ko epoch (milliseconds) mein convert karta hai
+   * Invalid date ke case mein null return karta hai
+   */
   const toEpoch = (value) => {
     if (!value) return null;
     const d = value instanceof Date ? value : new Date(value);
@@ -52,6 +64,11 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     setData((prev) => ({ ...prev, [field]: v }));
   };
 
+ 
+  /**
+   * Main form state
+   * Existing formData se values prefill hoti hain
+   */
   const [data, setData] = useState({
     assetNo: formData?.assetData?.estateNo || "",
     assetRefNumber: formData?.assetData?.refAssetNo || "",
@@ -75,14 +92,45 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     signedDeed: formData?.AllotmentData?.signedDeed || null,
   });
 
+   /**
+   * MDMS se Asset Property Types fetch karta hai
+   * Sirf active categories dropdown mein dikhengi
+   */
+
+  const { data: Asset_Type } = Digit.Hooks.useEnabledMDMS(
+    tenantId,
+    "ASSET",
+    [{ name: "assetParentCategory" }],
+    {
+      select: (data) => {
+        const formatted = data?.ASSET?.assetParentCategory || [];
+        return formatted
+          .filter((item) => item.active)
+          .map((i) => ({
+            i18nKey: `ASSET_TYPE_${i.code}`,
+            code: i.code,
+            label: i.name,
+          }));
+      },
+    }
+  );
+  // Toast (success / error) state
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastError, setToastError] = useState(false);
-
+ /**
+   * Generic state updater
+   */
   const handleChange = (field, value) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
+   /**
+   * File upload handler
+   * - size validation (5MB)
+   * - filestore upload
+   * - response se fileStoreId save
+   */
   const handleFileUpload = async (file, fieldName) => {
     if (!file) return;
     if (file.size >= 5242880) {
@@ -109,27 +157,35 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
       setShowToast(true);
     }
   };
-
+/**
+   * Uploaded document remove karne ke liye
+   */
   const handleFileDelete = (fieldName) => handleChange(fieldName, null);
 
+ // ---------- Validation Rules ----------
+
+   // 10 digit phone number
   const phoneValidation = {
     required: true,
     pattern: "^[0-9]{10}$",
     title: t("EST_INVALID_PHONE_NUMBER"),
   };
-
+  // Valid email format
   const emailValidation = {
     required: true,
     pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
     title: t("EST_INVALID_EMAIL_ID"),
   };
-
+ // Numeric amount with optional decimals
   const numberValidation = {
     required: true,
     pattern: "^[0-9]+(\\.[0-9]{1,2})?$",
     title: t("EST_INVALID_AMOUNT"),
   };
-
+/**
+   * Form disable condition
+   * Agar mandatory fields empty hain
+   */
   const { data: allotmentTypeMdms } = Digit.Hooks.useCustomMDMS(
     Digit.ULBService.getStateId(),
     "Estate",
@@ -169,6 +225,12 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     !data.monthlyRent ||
     !data.advancePayment;
 
+     /**
+   * Next step submit handler
+   * - Dates ko epoch mein convert
+   * - Amount fields ko number mein convert
+   * - Parent ko data bhejna
+   */
   const goNext = () => {
     const prepared = {
       ...data,
@@ -187,6 +249,10 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     setShowToast(true);
   };
 
+  /**
+   * Reusable label component
+   * Required (*) indicator ke saath
+   */
   const RequiredLabel = ({ label, unit }) => (
     <CardLabel>
       {t(label)} {unit && <span style={{ fontSize: "0.9em", marginLeft: "6px" }}>{unit}</span>}{" "}
@@ -443,5 +509,4 @@ const ESTAssignAssets = ({ t: propT, onSelect, onSkip, formData = {}, config }) 
     </FormStep>
   );
 };
-
 export default ESTAssignAssets;
