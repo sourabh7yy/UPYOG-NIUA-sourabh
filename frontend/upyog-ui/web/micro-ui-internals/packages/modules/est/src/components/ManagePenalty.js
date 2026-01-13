@@ -10,6 +10,9 @@ import {
 } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 
+// Manage Penalty Component
+// This component allows users to manage penalties by specifying amount type, amount, applicable ULBs, comments, and uploading relevant documents.
+
 const ManagePenalty = ({ t: propT }) => {
   const { t: hookT } = useTranslation();
   const t = propT || hookT;

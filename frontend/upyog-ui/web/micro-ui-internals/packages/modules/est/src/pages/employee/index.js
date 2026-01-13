@@ -1,5 +1,5 @@
 import { PrivateRoute, BreadCrumb, AppContainer, BackButton } from "@upyog/digit-ui-react-components";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Switch, useLocation } from "react-router-dom";
 import { ESTLinks } from "../../Module";
@@ -20,8 +20,14 @@ import ManagePenalty from "../../components/ManagePenalty";
 const EmployeeApp = ({ path, url, userType }) => {
   const { t } = useTranslation();
   const location = useLocation();
-  const isMobile = window.Digit.Utils.browser.isMobile();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const ESTApplicationDetails = Digit?.ComponentRegistryService?.getComponent("ESTApplicationDetails");
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const inboxInitialState = {
     pageOffset: 0,
@@ -84,7 +90,14 @@ const EmployeeApp = ({ path, url, userType }) => {
 
     return (
       <BreadCrumb
-        style={isMobile ? { display: "flex" } : { margin: "0 0 4px", color: "#000000" }}
+        style={isMobile ? { 
+          display: "flex", 
+          fontSize: "12px", 
+          padding: "5px" 
+        } : { 
+          margin: "0 0 4px", 
+          color: "#000000" 
+        }}
         spanStyle={{ maxWidth: "min-content" }}
         crumbs={crumbs}
       />
@@ -96,8 +109,12 @@ const EmployeeApp = ({ path, url, userType }) => {
     <Switch>
       <AppContainer>
         <React.Fragment>
-          <div className="ground-container">
-            <div style={{ marginLeft: "-4px", display: "flex", alignItems: "center" }}>
+          <div className="ground-container" style={{ padding: isMobile ? '10px' : '20px' }}>
+            <div style={{ 
+              marginLeft: isMobile ? "0" : "-4px", 
+              display: "flex", 
+              alignItems: "center" 
+            }}>
               <ESTBreadCrumbs location={location} />
             </div>
 

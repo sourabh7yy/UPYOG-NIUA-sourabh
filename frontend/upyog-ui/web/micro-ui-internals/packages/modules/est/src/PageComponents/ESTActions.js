@@ -6,6 +6,9 @@ import {
 } from "@upyog/digit-ui-react-components";
 import { useHistory, Link } from "react-router-dom";
 
+// EST Actions Component
+// This component provides navigation links for managing EST-related actions such as rebates, interest, and penalties.
+
 const ESTActions = () => {
     const { t } = useTranslation();
     const history = useHistory();

@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeModuleCard, PropertyHouse } from "@upyog/digit-ui-react-components";
 import { useHistory } from "react-router-dom";
 
+// EST Card Component
+// This component renders a module card for Estate Management with navigation links to various EST functionalities.
+
 const ESTCard = () => {
   const { t } = useTranslation();
   const history = useHistory();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const EST_CEMP = Digit.UserService.hasAccess(["EST_CEMP"]) || false;
 
@@ -36,7 +46,11 @@ const ESTCard = () => {
   const propsForModuleCard = {
     Icon: <PropertyHouse />,
     moduleName: (
-      <div style={{ width: "200px", wordWrap: "break-word" }}>
+      <div style={{ 
+        width: isMobile ? "150px" : "200px", 
+        wordWrap: "break-word",
+        fontSize: isMobile ? "14px" : "16px"
+      }}>
         {t("ESTATE_MANAGEMENT")}
       </div>
     ),
@@ -45,7 +59,10 @@ const ESTCard = () => {
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ 
+      width: "100%",
+      padding: isMobile ? "10px" : "20px"
+    }}>
       <EmployeeModuleCard {...propsForModuleCard} />
     </div>
   );

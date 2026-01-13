@@ -13,11 +13,21 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
+// EST Property Allottee Details Component
+// This component allows users to search and view details of property allottees with filtering options based on asset number, allottee name, and allotment status.
+
 const ESTPropertyAllotteeDetails = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const [selectedStatus, setSelectedStatus] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,44 +150,72 @@ const clearFilters = (event) => {
   if (loading) return <Loader />;
 
   return (
-    <div>
-      <Header>{t("EST_COMMON_ALLOTTEE_DETAILS")}</Header>
+    <div style={{ padding: isMobile ? '10px' : '20px' }}>
+      <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>{t("EST_COMMON_ALLOTTEE_DETAILS")}</Header>
       
-      <Card className="card-search-heading">
-        <span style={{color:"#505A5F"}}>{t("Provide at least one parameter to search for allottee details")}</span>
+      <Card className="card-search-heading" style={{ padding: isMobile ? '10px' : '16px', marginBottom: '15px' }}>
+        <span style={{color:"#505A5F", fontSize: isMobile ? '14px' : '16px'}}>{t("Provide at least one parameter to search for allottee details")}</span>
       </Card>
       
-      <Card>
+      <Card style={{ padding: isMobile ? '10px' : '16px' }}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", alignItems: "end" }}>
-            <SearchField>
-              <label>{t("EST_ASSET_NUMBER")}</label>
-              <TextInput name="assetNumber" inputRef={register("assetNumber")}/>
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", 
+            gap: isMobile ? "12px" : "16px", 
+            alignItems: "end" 
+          }}>
+            <SearchField style={{ marginBottom: isMobile ? '10px' : '0' }}>
+              <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_NUMBER")}</label>
+              <TextInput 
+                name="assetNumber" 
+                inputRef={register("assetNumber")}
+                style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }}
+              />
             </SearchField>
 
-            <SearchField>
-              <label>{t("EST_ALLOTTEE_NAME")}</label>
-              <TextInput name="alloteeName" inputRef={register("alloteeName")}/>
+            <SearchField style={{ marginBottom: isMobile ? '10px' : '0' }}>
+              <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ALLOTTEE_NAME")}</label>
+              <TextInput 
+                name="alloteeName" 
+                inputRef={register("alloteeName")}
+                style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }}
+              />
             </SearchField>
-            <SearchField>
-  <label>{t("EST_ALLOTMENT_STATUS")}</label>
-  <Dropdown
-    option={allotmentStatusData?.map(item => ({
-      code: item.code,
-      i18nKey: item.name,
-      value: item.code
-    })) || []}
-    optionKey="i18nKey"
-    selected={selectedStatus}
-    select={setSelectedStatus}
-    placeholder={t("EST_SELECT_STATUS")}
-    t={t}
-  />
-</SearchField>
+            
+            <SearchField style={{ marginBottom: isMobile ? '10px' : '0' }}>
+              <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ALLOTMENT_STATUS")}</label>
+              <Dropdown
+                option={allotmentStatusData?.map(item => ({
+                  code: item.code,
+                  i18nKey: item.name,
+                  value: item.code
+                })) || []}
+                optionKey="i18nKey"
+                selected={selectedStatus}
+                select={setSelectedStatus}
+                placeholder={t("EST_SELECT_STATUS")}
+                t={t}
+                style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
+              />
+            </SearchField>
 
-            <SearchField>
-              <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
-              <p style={{ marginTop: "10px", cursor: "pointer" }} onClick={clearFilters}>
+            <SearchField style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center' }}>
+              <SubmitBar 
+                label={t("ES_COMMON_SEARCH")} 
+                submit 
+                style={{ width: isMobile ? '100%' : 'auto', padding: isMobile ? '12px' : '10px', fontSize: isMobile ? '14px' : '16px' }}
+              />
+              <p 
+                style={{ 
+                  marginTop: isMobile ? "10px" : "0", 
+                  cursor: "pointer",
+                  width: isMobile ? '100%' : 'auto',
+                  textAlign: isMobile ? 'center' : 'left',
+                  fontSize: isMobile ? '14px' : '16px'
+                }} 
+                onClick={clearFilters}
+              >
                 {t("ES_COMMON_CLEAR_ALL")}
               </p>
             </SearchField>
@@ -185,24 +223,31 @@ const clearFilters = (event) => {
         </form>
       </Card>
 
-      <Table
-        t={t}
-        data={filteredData}
-        columns={columns}
-        totalRecords={filteredData.length}
-        isPaginationRequired={true}
-        pageSizeLimit={10}
-        manualPagination={false}
-        disableSort={true}
-        getCellProps={() => ({
-          style: {
-            padding: "20px 18px",
-            fontSize: "16px",
-            textAlign: "left",
-            borderBottom: "1px solid #e0e0e0",
-          },
-        })}
-      />
+      <div style={{ 
+        overflowX: "auto", 
+        marginTop: "20px",
+        WebkitOverflowScrolling: "touch",
+        padding: isMobile ? '5px' : '10px'
+      }}>
+        <Table
+          t={t}
+          data={filteredData}
+          columns={columns}
+          totalRecords={filteredData.length}
+          isPaginationRequired={true}
+          pageSizeLimit={10}
+          manualPagination={false}
+          disableSort={true}
+          getCellProps={() => ({
+            style: {
+              padding: isMobile ? "10px 8px" : "20px 18px",
+              fontSize: isMobile ? "12px" : "16px",
+              textAlign: "left",
+              borderBottom: "1px solid #e0e0e0",
+            },
+          })}
+        />
+      </div>
     </div>
   );
 };

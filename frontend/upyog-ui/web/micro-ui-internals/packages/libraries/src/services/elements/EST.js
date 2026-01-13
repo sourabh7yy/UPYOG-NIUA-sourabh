@@ -1,6 +1,12 @@
 import Urls from "../atoms/urls";
 import { Request } from "../atoms/Utils/Request";
 
+// EST Service for managing EST-related API calls
+// This service provides methods to create, search, and update EST assets and applications.
+
+
+// Create EST Asset API Call
+// This method creates a new EST asset in the system.
 export const ESTService = {
   create: (details, tenantId) =>
     Request({
@@ -14,6 +20,9 @@ export const ESTService = {
       auth: true,
     }),
 
+    // Create allotment
+    // This method creates a new allotment in the EST system.
+
     allotmentcreate: (details, tenantId) =>
   Request({
     url: Urls.est.allotment,
@@ -26,6 +35,9 @@ export const ESTService = {
     auth: true,
   }),
 
+  // Search EST Assets
+  // This method searches for EST assets based on provided filters.
+
   search: ({ tenantId, filters, auth }) =>
     Request({
       url: Urls.est.search,
@@ -37,6 +49,8 @@ export const ESTService = {
       params: { tenantId },
     }),
 
+// Update EST Asset API Call
+// This method updates an existing EST asset in the system.
 
   update: (details, tenantId) =>
     Request({
@@ -50,6 +64,9 @@ export const ESTService = {
       auth: true,
     }),
 
+// Asset Search API Call
+// This method searches for EST assets based on provided filters.
+
   assetSearch: ({ tenantId, filters }) =>
   Request({
     url: Urls.est.search,
@@ -62,6 +79,8 @@ export const ESTService = {
   }),
 
 
+// Application Search API Call
+// This method searches for EST applications based on provided filters.
 
   applicationSearch: ({ tenantId, filters, auth }) =>
     Request({
@@ -72,6 +91,8 @@ export const ESTService = {
       userService: auth === false ? auth : true,
       params: { tenantId, ...filters },
     }),
+// Allotment Search API Call
+// This method searches for EST allotments based on provided filters.
 
     allotmentSearch: ({ tenantId, filters }) =>
   Request({

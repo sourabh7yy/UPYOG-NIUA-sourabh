@@ -27,6 +27,8 @@ const ESTSearchApplication = ({
   const [selectedAssetType, setSelectedAssetType] = useState(null); // assetParentCategory
   const [selectedLocality, setSelectedLocality] = useState(null);   // localityCode
   const [properties, setProperties] = useState([]);
+  const [isCleared, setIsCleared] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const { register, handleSubmit, setValue, getValues, reset } = useForm({
     defaultValues: {
@@ -81,6 +83,7 @@ const ESTSearchApplication = ({
 
   // 🔹 Submit handler: send clean payload to parent
   const handleFormSubmit = (formData) => {
+    setIsCleared(false); // Reset cleared state when searching
     const searchData = {
       ...formData,
       assetParentCategory: selectedAssetType?.code || undefined,
@@ -98,9 +101,15 @@ const ESTSearchApplication = ({
     register("sortOrder", "DESC");
   }, [register]);
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // 🔹 Apply frontend filtering (type + locality) over API data
   useEffect(() => {
-    if (!Array.isArray(data)) return;
+    if (!Array.isArray(data) || isCleared) return;
 
     let result = data;
 
@@ -126,8 +135,13 @@ const ESTSearchApplication = ({
       });
     }
 
-    setProperties(result);
-  }, [data, selectedAssetType, selectedLocality]);
+    // Apply pagination to show only 10 items per page
+    const offset = getValues("offset") || 0;
+    const limit = getValues("limit") || 10;
+    const paginatedResult = result.slice(offset, offset + limit);
+
+    setProperties(paginatedResult);
+  }, [data, selectedAssetType, selectedLocality, getValues("offset"), getValues("limit"), isCleared]);
 
   const GetCell = (value) => <span className="cell-text">{value || "N/A"}</span>;
 
@@ -203,10 +217,11 @@ const ESTSearchApplication = ({
                 backgroundColor: isAllotted ? "#ccc" : "#007bff",
                 color: "white",
                 border: "none",
-                padding: "6px 10px",
+                padding: isMobile ? "3px 6px" : "6px 10px",
                 borderRadius: "4px",
                 cursor: isAllotted ? "not-allowed" : "pointer",
-                fontSize: "12px",
+                fontSize: isMobile ? "9px" : "12px",
+                minWidth: isMobile ? "50px" : "auto",
               }}
               disabled={isAllotted}
             >
@@ -246,19 +261,19 @@ const ESTSearchApplication = ({
 
   return (
     <React.Fragment>
-      <div>
-        <Header>{t("EST_SEARCH_APPLICATIONS")}</Header>
+      <div style={{ padding: isMobile ? '10px' : '20px' }}>
+        <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>{t("EST_SEARCH_APPLICATIONS")}</Header>
 
         <SearchForm onSubmit={handleFormSubmit} handleSubmit={handleSubmit}>
           {/* Asset Number */}
-          <SearchField>
-            <label>{t("EST_SEARCH_ASSET_NUMBER")}</label>
-            <TextInput name="estateNo" inputRef={register({})} />
+          <SearchField style={{ marginBottom: isMobile ? '10px' : '15px' }}>
+            <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_SEARCH_ASSET_NUMBER")}</label>
+            <TextInput name="estateNo" inputRef={register({})} style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }} />
           </SearchField>
 
           {/* Locality dropdown */}
-          <SearchField>
-            <label>{t("EST_LOCALITY")}</label>
+          <SearchField style={{ marginBottom: isMobile ? '10px' : '15px' }}>
+            <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_LOCALITY")}</label>
             <Dropdown
               option={localityOptions}
               optionKey="i18nKey"
@@ -267,12 +282,13 @@ const ESTSearchApplication = ({
               placeholder={t("EST_SELECT_LOCALITY")}
               t={t}
               optionCardStyles={{ overflowY: "auto", maxHeight: "300px" }}
+              style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
             />
           </SearchField>
 
           {/* Asset Type (parent category) */}
-          <SearchField>
-            <label>{t("EST_ASSET_TYPE")}</label>
+          <SearchField style={{ marginBottom: isMobile ? '10px' : '15px' }}>
+            <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_TYPE")}</label>
             <Dropdown
               option={assetTypeOptions}
               optionKey="i18nKey"
@@ -280,21 +296,34 @@ const ESTSearchApplication = ({
               select={setSelectedAssetType}
               placeholder={t("EST_SELECT_ASSET_TYPE")}
               t={t}
+              style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
             />
           </SearchField>
 
           {/* Submit + Clear */}
-          <SearchField className="submit">
-            <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
+          <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center' }}>
+            <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', padding: isMobile ? '12px' : '10px', fontSize: isMobile ? '14px' : '16px' }} />
             <p
-              style={{ marginTop: "10px", cursor: "pointer" }}
+              style={{ 
+                marginTop: isMobile ? "10px" : "0", 
+                cursor: "pointer", 
+                width: isMobile ? '100%' : 'auto',
+                textAlign: isMobile ? 'center' : 'left',
+                fontSize: isMobile ? '14px' : '16px'
+              }}
               onClick={() => {
                 reset({
                   estateNo: "",
+                  offset: 0,
+                  limit: 10,
+                  sortBy: "createdDate",
+                  sortOrder: "DESC"
                 });
                 setSelectedAssetType(null);
                 setSelectedLocality(null);
                 setShowToast(null);
+                setProperties([]);
+                setIsCleared(true);
               }}
             >
               {t("ES_COMMON_CLEAR_ALL")}
@@ -327,7 +356,13 @@ const ESTSearchApplication = ({
             </button>
           </Card>
         ) : !isLoading && Array.isArray(data) && data.length > 0 ? (
-          <div style={{ overflowX: "auto", width: "100%", marginTop: "20px" }}>
+          <div style={{ 
+            overflowX: "auto", 
+            width: "100%", 
+            marginTop: "20px",
+            WebkitOverflowScrolling: "touch",
+            padding: isMobile ? '5px' : '10px'
+          }}>
             <Table
               t={t}
               data={properties}
@@ -335,9 +370,9 @@ const ESTSearchApplication = ({
               columns={columns}
               getCellProps={() => ({
                 style: {
-                  minWidth: "100px",
-                  padding: "8px 6px",
-                  fontSize: "12px",
+                  minWidth: isMobile ? "70px" : "100px",
+                  padding: isMobile ? "4px 2px" : "8px 6px",
+                  fontSize: isMobile ? "10px" : "12px",
                   textAlign: "center",
                   whiteSpace: "nowrap",
                 },

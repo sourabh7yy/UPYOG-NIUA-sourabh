@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import { useHistory, useParams } from "react-router-dom";
 import ViewTimeline from "../../components/ViewTimeline";
 
+// EST Application Details Component
+// This component displays detailed information about a specific EST application, including allotment details, asset information, payment status, and a timeline of the application process. It also provides action options for employees.
+
 const ESTApplicationDetails = () => {
   const { t } = useTranslation();
   const history = useHistory();

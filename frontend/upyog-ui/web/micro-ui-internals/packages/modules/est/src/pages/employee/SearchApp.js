@@ -3,6 +3,11 @@ import { Toast } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import ESTSearchApplication from "../../components/ESTSearchApplication";
 
+// EST Search Application Component
+// This component provides a search interface for estate assets, allowing users to filter results 
+// based on various criteria such as estate number, asset category, status, and locality. It displays the search 
+// results and handles loading and error states.
+
 const SearchApp = ({ path }) => {
   const { t } = useTranslation();
   const tenantId = Digit.ULBService.getCurrentTenantId();

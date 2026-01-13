@@ -15,6 +15,13 @@ import { useLocation } from "react-router-dom";
 const NewRegistration = ({ parentRoute, t: propT, onSelect, onSkip, formData = {}, config }) => {
   const { t: hookT } = useTranslation();
   const t = propT || hookT;
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const location = useLocation();
   const editData = location.state?.assetData;
@@ -208,13 +215,30 @@ useEffect(() => {
     </CardLabel>
   );
 
-  const fullWidthStyle = { width: "70%", marginBottom: "16px" };
+  const fullWidthStyle = { 
+    width: isMobile ? "100%" : "70%", 
+    marginBottom: "16px" 
+  };
+
+  const cardStyle = {
+    padding: isMobile ? "12px" : "16px"
+  };
+
+  const dimensionContainerStyle = {
+    ...fullWidthStyle,
+    display: "flex",
+    flexDirection: isMobile ? "column" : "row",
+    gap: isMobile ? "8px" : "16px",
+    alignItems: "flex-start",
+  };
 
   return (
     <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={isFormInvalid}>
-      <Header>{isEditMode ? t("EST_UPDATE_ASSET") : t("EST_COMMON_NEW_REGISTRATION")}</Header>
+      <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>
+        {isEditMode ? t("EST_UPDATE_ASSET") : t("EST_COMMON_NEW_REGISTRATION")}
+      </Header>
 
-      <Card style={{ padding: "16px" }}>
+      <Card style={cardStyle}>
         <RequiredLabel label="EST_BUILDING_NAME" />
         <TextInput
           name="buildingName"
@@ -345,16 +369,9 @@ useEffect(() => {
         />
 
         <RequiredLabel label="EST_DIMENSION" unit="( In sq.ft)" />
-        <div
-          style={{
-            ...fullWidthStyle,
-            display: "flex",
-            gap: "16px",
-            alignItems: "flex-start",
-          }}
-        >
+        <div style={dimensionContainerStyle}>
           <div style={{ flex: 1 }}>
-            <CardLabel>{t("EST_LENGTH")}</CardLabel>
+            <CardLabel style={{ fontSize: isMobile ? '14px' : '16px' }}>{t("EST_LENGTH")}</CardLabel>
             <TextInput
               name="dimensionLength"
               placeholder={t("EST_LENGTH")}
@@ -373,7 +390,7 @@ useEffect(() => {
           </div>
 
           <div style={{ flex: 1 }}>
-            <CardLabel>{t("EST_WIDTH")}</CardLabel>
+            <CardLabel style={{ fontSize: isMobile ? '14px' : '16px' }}>{t("EST_WIDTH")}</CardLabel>
             <TextInput
               name="dimensionWidth"
               placeholder={t("EST_WIDTH")}

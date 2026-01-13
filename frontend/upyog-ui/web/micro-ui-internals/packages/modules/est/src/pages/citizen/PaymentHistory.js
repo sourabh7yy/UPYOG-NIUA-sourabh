@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Header, Loader, TextInput, SubmitBar, Card, Table, DatePicker } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 
+// EST Payment History Component
+// This component displays the payment history for estate allotments associated with the logged-in user. It includes filtering options based on asset number and date range.
+
 export const ESTPaymentHistory = () => {
   const { t } = useTranslation();
   const tenantId = Digit.ULBService.getCitizenCurrentTenant(true) || Digit.ULBService.getCurrentTenantId();
