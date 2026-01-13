@@ -1,13 +1,7 @@
-// React core imports
 import React, { useEffect } from "react";
-// i18n translation hook
 import { useTranslation } from "react-i18next";
-
-// React Query client for cache invalidation
 import { useQueryClient } from "react-query";
-// React Router utilities for routing and navigation
 import { Redirect, Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";
-// Configuration for Assign Asset workflow steps
 import { Config } from "../../../config/Create/AssignAssetConfig";
 
 /**

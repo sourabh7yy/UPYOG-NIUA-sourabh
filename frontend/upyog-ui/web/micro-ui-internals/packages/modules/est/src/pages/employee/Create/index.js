@@ -1,9 +1,6 @@
-// React core imports
 import React ,{Children, Fragment}from "react";
-// Translation hook
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "react-query";
-// React Router utilities
 import { Redirect, Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { Config } from "../../../config/Create/config";
 

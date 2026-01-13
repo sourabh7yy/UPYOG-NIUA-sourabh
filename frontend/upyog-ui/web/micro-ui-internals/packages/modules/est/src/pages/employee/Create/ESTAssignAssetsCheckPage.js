@@ -1,7 +1,4 @@
-// ESTAssignAssetsCheckPage.jsx
-// React core imports
 import React, { useEffect, useState,Fragment } from "react";
-// DIGIT UI components used for summary and confirmation screen
 import {
   Card,
   CardHeader,
@@ -13,15 +10,8 @@ import {
   CheckBox,
   EditIcon,
 } from "@upyog/digit-ui-react-components";
-// Translation hook
 import { useTranslation } from "react-i18next";
-// Router hook for navigation
 import { useHistory } from "react-router-dom";
-
-// Utility functions
-// - checkForNA: safely handles empty values
-// - ESTDocumnetPreview: document preview component
-// - formatEpochDate: converts epoch date to readable format
 import { checkForNA, ESTDocumnetPreview, formatEpochDate } from "../../../utils"; // ensure path is correct
 
 /* =========================================================

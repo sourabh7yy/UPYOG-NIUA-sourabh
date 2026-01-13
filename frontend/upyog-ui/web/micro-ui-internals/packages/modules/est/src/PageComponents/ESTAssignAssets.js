@@ -1,7 +1,4 @@
-// React aur required hooks import
 import React, { useState } from "react";
-
-// DIGIT UI ke reusable components import
 import {
   Header,
   Card,
@@ -13,10 +10,7 @@ import {
   DatePicker,
   FormStep,
 } from "@upyog/digit-ui-react-components";
-// i18n translation hook
 import { useTranslation } from "react-i18next";
-
-// Agreement duration calculate karne ka helper
 import { calculateDuration } from "../utils";
 
 const getLocalityText = (asset, t) => {

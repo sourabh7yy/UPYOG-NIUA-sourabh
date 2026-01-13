@@ -1,6 +1,4 @@
-// React core imports
 import React, { useEffect, useRef, useState } from "react";
-// DIGIT UI components used for acknowledgement UI
 import {
   Banner,
   Card,
@@ -10,12 +8,8 @@ import {
   SubmitBar,
   Loader,
 } from "@upyog/digit-ui-react-components";
-// Translation hook
 import { useTranslation } from "react-i18next";
-// Router link for navigation
 import { Link } from "react-router-dom";
-
-// Utility functions to prepare PDF and API payloads
 import getESTAllotmentAcknowledgementData from "../../../utils/getESTAllotmentAcknowledgementData";
 import { createAllotmentData, estPayloadData } from "../../../utils";
 

@@ -1,5 +1,4 @@
 
-// Utility helpers used for safe data handling and formatting
 import {
   pick,
   filterEmpty,

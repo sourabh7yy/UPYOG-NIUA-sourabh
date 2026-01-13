@@ -1,7 +1,4 @@
-// React aur required hooks import
 import React, { useState, useEffect, useRef } from "react";
-
-// DIGIT UI ke reusable components
 import {
   Header,
   Card,
@@ -11,13 +8,8 @@ import {
   FormStep,
   SubmitBar,
 } from "@upyog/digit-ui-react-components";
-// i18n translation hook
 import { useTranslation } from "react-i18next";
-
-// react-hook-form ke helpers (Dropdown ke controlled handling ke liye)
 import { useForm, Controller } from "react-hook-form";
-
-// React Router hook to read navigation state (edit mode data)
 import { useLocation } from "react-router-dom";
 
 /**

@@ -1,13 +1,7 @@
-// React core imports
 import React ,{Children, Fragment}from "react";
-// Translation hook
 import { useTranslation } from "react-i18next";
-
-// React Query for cache handling
 import { useQueryClient } from "react-query";
-// React Router utilities
 import { Redirect, Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";
-// Form configuration for Assign Asset flow
 import { Config } from "../../../config/Create/AssignAssetConfig";
 /**
  * ESTAssignAssetCreate

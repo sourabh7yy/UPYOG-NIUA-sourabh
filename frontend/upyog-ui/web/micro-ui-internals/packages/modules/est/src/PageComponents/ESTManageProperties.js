@@ -7,6 +7,7 @@ const ESTManageProperties = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
+  
 //  This is for the page to navigate to different sections related to property management in the EST module.
 //  It provides links to the following sections:
 //  1. Manage Property: Allows users to manage properties by navigating to the "manage-properties-table" route.

@@ -1,6 +1,4 @@
-// React and hooks
 import React, { useState } from "react";
-// UI components from DIGIT UI library
 import {
   Card,
   CardHeader,
@@ -12,9 +10,7 @@ import {
   CheckBox,
   EditIcon,
 } from "@upyog/digit-ui-react-components";
-// i18n for translations
 import { useTranslation } from "react-i18next";
-// React Router for navigation
 import { useHistory } from "react-router-dom";
 
 /**

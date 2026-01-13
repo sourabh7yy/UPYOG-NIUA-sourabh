@@ -1,5 +1,3 @@
-
-// DIGIT UI ke card related components import
 import {
   Card,
   CardHeader,
@@ -7,16 +5,14 @@ import {
   CardText,
   SubmitBar,
 } from "@upyog/digit-ui-react-components";
-
-// React import
 import React from "react";
 
 /**
  * ESTAssignAstRequiredDoc Component
  * --------------------------------
- * Ye ek informational step hai jo user ko batata hai:
- * - Asset allotment ke liye kaun-kaun se documents mandatory hain
- * - Ye page sirf info ke liye hai (yahan koi input nahi liya jata)
+ * This is an informational step that informs the user:
+ * - Which documents are mandatory for asset allotment
+ * - This page is for information only (no user input is collected here)
  */
 
 const ESTAssignAstRequiredDoc = ({ t, config, onSelect, userType, formData }) => {
