@@ -135,6 +135,14 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     /* localise */
     if (schema && schema?.definition) {
       Digit.Utils.workbench.updateTitleToLocalisationCodeForObject(schema?.definition, schema?.code);
+      const properties = schema?.definition?.properties;
+        if (properties) {
+          Object.keys(properties).forEach(key => {
+            if (Array.isArray(properties[key].type)) {
+              properties[key].type = properties[key].type[0]; // Use first type
+            }
+          });
+        }
       setFormSchema(schema);
       /* logic to search for the reference data from the mdms data api */
 
