@@ -4,6 +4,9 @@ import React, { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+// View Timeline Component
+// This component displays the timeline of an EST application, showing various checkpoints and allowing citizens to make payments if applicable.
+
 const Caption = ({ data }) => {
   const { date, name, mobileNumber, comment, source } = data;
 

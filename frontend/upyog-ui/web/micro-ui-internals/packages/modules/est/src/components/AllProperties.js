@@ -12,8 +12,18 @@ import {
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
+// All Properties Component
+// This component displays all properties with filtering options based on asset number, building name, asset status, and asset type.
+
 const AllProperties = ({ t }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const { isLoading, isSuccess, data: apiData } = Digit.Hooks.estate.useESTAssetSearch({
     tenantId,
@@ -148,46 +158,54 @@ const AllProperties = ({ t }) => {
   if (isLoading) return <Loader />;
 
   return (
-    <div>
-      <Header>All Properties</Header>
+    <div style={{ padding: isMobile ? '10px' : '20px' }}>
+      <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>All Properties</Header>
 
-      <SearchForm onSubmit={onFilterSubmit} handleSubmit={handleSubmit}>
-        <SearchField>
-          <label>{t("EST_ASSET_NUMBER")}</label>
-          <TextInput name="assetNumber" inputRef={register({})} />
+      <SearchForm onSubmit={onFilterSubmit} handleSubmit={handleSubmit} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '10px' : '15px', flexWrap: 'wrap' }}>
+        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_NUMBER")}</label>
+          <TextInput name="assetNumber" inputRef={register({})} style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }} />
         </SearchField>
 
-        <SearchField>
-          <label>{t("EST_BUILDING_NAME")}</label>
-          <TextInput name="buildingName" inputRef={register({})} />
+        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_BUILDING_NAME")}</label>
+          <TextInput name="buildingName" inputRef={register({})} style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }} />
         </SearchField>
 
-        <SearchField>
-          <label>{t("EST_ASSET_STATUS")}</label>
+        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_STATUS")}</label>
           <Dropdown
             name="assetStatus"
             inputRef={register({})}
             option={assetStatusOptions}
             optionKey="name"
             selected={{ name: "All" }}
+            style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
           />
         </SearchField>
 
-        <SearchField>
-          <label>{t("EST_ASSET_TYPE")}</label>
+        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_TYPE")}</label>
           <Dropdown
             name="assetType"
             inputRef={register({})}
             option={assetTypeOptions}
             optionKey="name"
             selected={{ name: "All" }}
+            style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
           />
         </SearchField>
 
-        <SearchField className="submit">
-          <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
+        <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', padding: isMobile ? '12px' : '10px', fontSize: isMobile ? '14px' : '16px' }} />
           <p
-            style={{ marginTop: "10px", cursor: "pointer" }}
+            style={{ 
+              marginTop: isMobile ? "10px" : "0", 
+              cursor: "pointer",
+              width: isMobile ? '100%' : 'auto',
+              textAlign: isMobile ? 'center' : 'left',
+              fontSize: isMobile ? '14px' : '16px'
+            }}
             onClick={clearFilters}
           >
             {t("ES_COMMON_CLEAR_ALL")}
@@ -195,7 +213,13 @@ const AllProperties = ({ t }) => {
         </SearchField>
       </SearchForm>
 
-      <div style={{ overflowX: "auto", width: "100%", marginTop: "20px" }}>
+      <div style={{ 
+        overflowX: "auto", 
+        width: "100%", 
+        marginTop: "20px",
+        WebkitOverflowScrolling: "touch",
+        padding: isMobile ? '5px' : '10px'
+      }}>
         <Table
           t={t}
           data={filteredProperties}
@@ -206,9 +230,9 @@ const AllProperties = ({ t }) => {
           pageSizeLimit={10}
           getCellProps={(cellInfo) => ({
             style: {
-              minWidth: "100px",
-              padding: "8px 6px",
-              fontSize: "12px",
+              minWidth: isMobile ? "70px" : "100px",
+              padding: isMobile ? "4px 2px" : "8px 6px",
+              fontSize: isMobile ? "10px" : "12px",
               textAlign: "center",
               whiteSpace: "nowrap",
             },

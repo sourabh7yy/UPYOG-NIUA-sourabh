@@ -56,14 +56,14 @@ export const estPayloadData = (data) => {
     Assets: [
       {
         assetStatus: "1",
-        assetType: assetData?.assetType || assetData?.category || "",
-        buildingName: assetData?.buildingName || assetData?.name || "",
-        buildingNo: assetData?.buildingNo || "",
+        assetType: assetData?.assetType || "",
+        buildingName: assetData?.buildingName || "",
+        buildingNo: assetData?.buildingNo || "",  
         dimensionLength: Number(assetData?.dimensionLength) || 0,
         dimensionWidth: Number(assetData?.dimensionWidth) || 0,
-        floor: Number(assetData?.floor) || Number(assetData?.buildingFloor) || 0,
-        locality: assetData?.locality || "",
-        localityCode: assetData?.localityCode || "",
+        floor: Number(assetData?.buildingFloor) || 0,
+        locality:assetData?.localityName || assetData?.locality || assetData?.serviceType?.i18nKey || "",
+        localityCode: assetData?.localityCode || (typeof assetData?.serviceType === "string" ? assetData?.serviceType : assetData?.serviceType?.code) || "",
         rate: Number(assetData?.rate) || 0,
         tenantId,
         totalFloorArea: Number(assetData?.totalFloorArea) || 0,
@@ -163,7 +163,7 @@ export const CompareTwoObjects = (ob1, ob2) => {
 
 
 export const checkForNA = (value = "") => {
-  return checkForNotNull(value) ? value : "EWASTE_NA";
+  return checkForNotNull(value) ? value : "EST_NA";
 };
 
 

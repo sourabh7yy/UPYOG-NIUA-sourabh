@@ -22,7 +22,7 @@ const ESTManageProperties = () => {
       {/* Card Section */}
       <Card style={{ padding: "16px 24px" }}>
         <div
-          style={{
+            style={{
             display: "flex",
             gap: "40px", // space between links
             alignItems: "center",
@@ -80,10 +80,3 @@ const ESTManageProperties = () => {
 };
 
 export default ESTManageProperties;
-
-
-
-
-
-
-

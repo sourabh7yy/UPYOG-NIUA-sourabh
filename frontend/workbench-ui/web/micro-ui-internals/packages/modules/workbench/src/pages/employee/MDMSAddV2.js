@@ -135,6 +135,17 @@ const MDMSAdd = ({ defaultFormData, updatesToUISchema, screenType = "add", onVie
     /* localise */
     if (schema && schema?.definition) {
       Digit.Utils.workbench.updateTitleToLocalisationCodeForObject(schema?.definition, schema?.code);
+      // Due to schema merging/mutation in dynamic MDMS processing, some fields may end up with an array of types,
+      // which breaks widget resolution ("No widget for type number,string").
+      // As a safeguard, we normalize such fields to a single type by picking the first declared type.
+      const properties = schema?.definition?.properties;
+        if (properties) {
+          Object.keys(properties).forEach(key => {
+            if (Array.isArray(properties[key].type)) {
+              properties[key].type = properties[key].type[0]; // Use first type
+            }
+          });
+        }
       setFormSchema(schema);
       /* logic to search for the reference data from the mdms data api */
 

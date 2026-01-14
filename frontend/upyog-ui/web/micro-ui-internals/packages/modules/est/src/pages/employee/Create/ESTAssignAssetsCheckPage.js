@@ -1,5 +1,4 @@
-// ESTAssignAssetsCheckPage.jsx
-import React, { useEffect, useState,Fragment } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -23,10 +22,22 @@ const ActionButton = ({ jumpTo }) => {
 const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
   const [agree, setAgree] = useState(false);
-  const [previewDocs, setPreviewDocs] = useState([]); 
+  const [previewDocs, setPreviewDocs] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
 
   const AssignAssetsData = value?.AssignAssetsData?.AllotmentData || {};
+
+  //  helper to show Rent / Lease nicely
+  const getAllotmentTypeLabel = () => {
+    const code = AssignAssetsData?.allotmentType;
+    if (!code) return t("NA");
+
+    if (code === "RENT")  return t("EST_ALLOTMENT_TYPE_RENT")  || "Rent";
+    if (code === "LEASE") return t("EST_ALLOTMENT_TYPE_LEASE") || "Lease";
+
+    // fallback – if some other code comes in future
+    return code;
+  };
 
   const handleFileOpen = (fileId) => {
     if (!fileId) return;
@@ -47,7 +58,7 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
     const docFields = [
       { key: "citizenLetter", label: t("EST_CITIZEN_REQUEST_LETTER") },
       { key: "allotmentLetter", label: t("EST_ALLOTMENT_LETTER") },
-      { key: "signedDeed", label: t("EST_SIGNED_DEED") }
+      { key: "signedDeed", label: t("EST_SIGNED_DEED") },
     ];
 
     const filestoreIds = [];
@@ -63,7 +74,9 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
 
     if (filestoreIds.length === 0) {
       if (mounted) setPreviewDocs([]);
-      return () => (mounted = false);
+      return () => {
+        mounted = false;
+      };
     }
 
     setLoadingDocs(true);
@@ -83,7 +96,7 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
               values.push({
                 url,
                 title: idToLabelMap[fsid] || t("DOCUMENT"),
-                documentType: fsid
+                documentType: fsid,
               });
             }
           });
@@ -101,7 +114,9 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
       })
       .finally(() => mounted && setLoadingDocs(false));
 
-    return () => (mounted = false);
+    return () => {
+      mounted = false;
+    };
   }, [AssignAssetsData, t]);
 
   return (
@@ -114,9 +129,14 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
         <Row
           label={t("EST_ASSET_NUMBER")}
           text={checkForNA(value?.assetData?.estateNo)}
-          actionButton={<ActionButton jumpTo={`/upyog-ui/employee/est/assignassets/assign-assets`} />}
+          actionButton={
+            <ActionButton jumpTo={`/upyog-ui/employee/est/assignassets/assign-assets`} />
+          }
         />
-        <Row label={t("EST_BUILDING_NAME")} text={checkForNA(value?.assetData?.buildingName)} />
+        <Row
+          label={t("EST_BUILDING_NAME")}
+          text={checkForNA(value?.assetData?.buildingName)}
+        />
         <Row label={t("EST_LOCALITY")} text={checkForNA(value?.assetData?.locality)} />
         <Row label={t("EST_TOTAL_AREA")} text={checkForNA(value?.assetData?.totalFloorArea)} />
         <Row label={t("EST_FLOOR")} text={checkForNA(value?.assetData?.floor)} />
@@ -125,11 +145,17 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
 
       {/* ----------------- PERSONAL DETAILS ----------------- */}
       <CardSubHeader>{t("EST_PERSONAL_DETAILS_OF_ALLOTTEE")}</CardSubHeader>
-      <StatusTable>
-        <Row label={t("EST_PROPERTY_TYPE")} text={checkForNA(AssignAssetsData?.propertyType)} />
+      <StatusTable> 
+        <Row
+          label={t("EST_ALLOTMENT_TYPE")}
+          text={checkForNA(getAllotmentTypeLabel())}
+        />
         <Row label={t("EST_ALLOTTEE_NAME")} text={checkForNA(AssignAssetsData?.allotteeName)} />
         <Row label={t("EST_PHONE_NUMBER")} text={checkForNA(AssignAssetsData?.phoneNumber)} />
-        <Row label={t("EST_ALTERNATE_PHONE_NUMBER")} text={checkForNA(AssignAssetsData?.altPhoneNumber)} />
+        <Row
+          label={t("EST_ALTERNATE_PHONE_NUMBER")}
+          text={checkForNA(AssignAssetsData?.altPhoneNumber)}
+        />
         <Row label={t("EST_EMAIL_ID")} text={checkForNA(AssignAssetsData?.email)} />
       </StatusTable>
 
@@ -144,10 +170,22 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
           label={t("EST_AGREEMENT_END_DATE")}
           text={formatEpochDate(AssignAssetsData?.endDate)}
         />
-        <Row label={t("EST_DURATION_IN_YEARS")} text={checkForNA(AssignAssetsData?.duration)} />
-        <Row label={t("EST_RATE_PER_SQFT")} text={checkForNA(AssignAssetsData?.rate)} />
-        <Row label={t("EST_MONTHLY_RENT_IN_INR")} text={checkForNA(AssignAssetsData?.monthlyRent)} />
-        <Row label={t("EST_ADVANCE_PAYMENT_IN_INR")} text={checkForNA(AssignAssetsData?.advancePayment)} />
+        <Row
+          label={t("EST_DURATION_IN_YEARS")}
+          text={checkForNA(AssignAssetsData?.duration)}
+        />
+        <Row
+          label={t("EST_RATE_PER_SQFT")}
+          text={checkForNA(AssignAssetsData?.rate)}
+        />
+        <Row
+          label={t("EST_MONTHLY_RENT_IN_INR")}
+          text={checkForNA(AssignAssetsData?.monthlyRent)}
+        />
+        <Row
+          label={t("EST_ADVANCE_PAYMENT_IN_INR")}
+          text={checkForNA(AssignAssetsData?.advancePayment)}
+        />
         <Row
           label={t("EST_ADVANCE_PAYMENT_DATE")}
           text={formatEpochDate(AssignAssetsData?.advancePaymentDate)}
@@ -163,21 +201,19 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
 
       {loadingDocs ? (
         <div style={{ padding: "12px 16px" }}>{t("CS_LOADING")}</div>
+      ) : previewDocs.length > 0 ? (
+        <div style={{ paddingTop: 8 }}>
+          <ESTDocumnetPreview
+            documents={previewDocs}
+            titleStyles={{ fontSize: "14px" }}
+            pdfSize={48}
+            labelWidth={220}
+          />
+        </div>
       ) : (
-        previewDocs.length > 0 ? (
-          <div style={{ paddingTop: 8 }}>
-            <ESTDocumnetPreview 
-              documents={previewDocs} 
-              titleStyles={{ fontSize: "14px" }} 
-              pdfSize={48}
-              labelWidth={220}
-            />
-          </div>
-        ) : (
-          <div style={{ padding: "8px 16px", color: "#666" }}>
-            {t("EST_NO_DOCUMENTS_UPLOADED_LABEL")}
-          </div>
-        )
+        <div style={{ padding: "8px 16px", color: "#666" }}>
+          {t("EST_NO_DOCUMENTS_UPLOADED_LABEL")}
+        </div>
       )}
 
       {/* ----------------- DECLARATION + SUBMIT ----------------- */}
@@ -190,7 +226,11 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <SubmitBar label={t("EST_COMMON_SUBMIT")} onSubmit={onSubmit} disabled={!agree} />
+        <SubmitBar
+          label={t("EST_COMMON_SUBMIT")}
+          onSubmit={onSubmit}
+          disabled={!agree}
+        />
       </div>
     </Card>
   );
