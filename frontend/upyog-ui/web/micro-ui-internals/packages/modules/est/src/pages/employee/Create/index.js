@@ -4,6 +4,16 @@ import { useQueryClient } from "react-query";
 import { Redirect, Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { Config } from "../../../config/Create/config";
 
+
+/**
+ * ESTRegCreate
+ * -------------
+ * Main container component responsible for:
+ * - Rendering multi-step EST registration form
+ * - Handling navigation between steps
+ * - Managing form data in session storage
+ * - Rendering check & acknowledgement screens
+ */
 const ESTRegCreate = ({ parentRoute }) => {
 
   const queryClient = useQueryClient();
@@ -15,7 +25,16 @@ const ESTRegCreate = ({ parentRoute }) => {
   let config = [];
   const [params, setParams, clearParams] = Digit.Hooks.useSessionStorage("EST_NEW_REGISTRATION_CREATES", {});
 
-   // function used for traversing through form screens 
+   /**
+   * goNext
+   * -------
+   * Handles navigation logic between form steps.
+   * Supports:
+   * - Skipping steps
+   * - Multiple-entry screens (owners, units, etc.)
+   * - Backward and forward navigation
+   */
+
   const goNext = (skipStep, index, isAddMultiple, key) => {  
     let currentPath = pathname.split("/").pop(),
       lastchar = currentPath.charAt(currentPath.length - 1),
@@ -60,6 +79,10 @@ const ESTRegCreate = ({ parentRoute }) => {
     redirectWithHistory(nextPage);
   };
 
+   /**
+   * Clear old form data when user enters the first screen again,
+   * unless user navigated using browser back button
+   */
   // to clear formdata if the data is present before coming to first page of form
   if(params && Object.keys(params).length>0 && window.location.href.includes("/info") && sessionStorage.getItem("docReqScreenByBack") !== "true")
     {
@@ -71,6 +94,12 @@ const ESTRegCreate = ({ parentRoute }) => {
   history.replace(`${match.path}/acknowledgement`);
 };
 
+  /**
+   * handleSelect
+   * ------------
+   * Saves form data into session storage
+   * Handles special cases like owners and units (multiple entries)
+   */
 
   function handleSelect(key, data, skipStep, index, isAddMultiple = false) {
   
@@ -92,10 +121,11 @@ const ESTRegCreate = ({ parentRoute }) => {
   const handleMultiple = () => {};
 
 
-  /**
-   * this onSuccess dunction will execute once the application submitted successfully 
-   * it will clear all the params from the session storage  and also invalidate the query client
-   * as well as remove the beneficiary & disabilityStatus from the session storage
+ /**
+   * onSuccess
+   * ----------
+   * Called after successful submission
+   * Clears session storage and invalidates cached queries
    */
   const onSuccess = () => {
     clearParams();

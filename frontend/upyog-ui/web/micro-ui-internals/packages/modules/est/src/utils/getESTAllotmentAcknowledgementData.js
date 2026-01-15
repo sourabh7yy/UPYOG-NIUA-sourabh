@@ -5,13 +5,23 @@ import {
   formatDate,
   formatDurationWithMonths,
 } from "./index";
+/**
+ * getESTAllotmentAcknowledgementData
+ * ---------------------------------
+ * Prepares structured acknowledgement data for EST Asset Allotment.
+ * This data is consumed by the acknowledgement UI to display
+ * asset, allottee, and invoice-related details in sections.
+ * */
 
 const getESTAllotmentAcknowledgementData = async (
   application = {},
   tenantInfo = {},
   t = (k) => k
 ) => {
-  /* ---------------- Safe destructuring ---------------- */
+  /* ---------------- Safe destructuring ----------------
+     Extract possible sources of asset and allotment data
+     while avoiding runtime errors
+  */
 
   const {
     Assets = [],
@@ -21,7 +31,9 @@ const getESTAllotmentAcknowledgementData = async (
     AssignAssetsData,
   } = application;
 
-  /* ---------------- Asset ---------------- */
+   /* ---------------- Asset resolution ----------------
+     Resolve asset details from the first available source
+  */
 
   const asset =
     Assets[0] ||
@@ -29,14 +41,19 @@ const getESTAllotmentAcknowledgementData = async (
     Assetdata ||
     {};
 
-  /* ---------------- Allotment ---------------- */
+ /* ---------------- Allotment resolution ----------------
+     Resolve allotment details safely
+  */
 
   const allotment =
     Allotments[0] ||
     AssignAssetsData?.AllotmentData ||
     {};
 
-  /* ---------------- Section builders ---------------- */
+  /* ---------------- Asset Details Section ----------------
+     Basic information related to the allotted asset
+  */
+
 
   const assetDetails = filterEmpty([
     {
@@ -52,6 +69,10 @@ const getESTAllotmentAcknowledgementData = async (
     { title: t("EST_ASSET_TYPE"), value: asset.assetType },
   ]);
 
+   /* ---------------- Allottee Details Section ----------------
+     Personal and contact details of the allottee
+  */
+
   const allotteeDetails = filterEmpty([
     { title: t("EST_ALLOTTEE_NAME"), value: allotment.alloteeName },
     { title: t("EST_PHONE_NUMBER"), value: allotment.mobileNo },
@@ -61,6 +82,10 @@ const getESTAllotmentAcknowledgementData = async (
     },
     { title: t("EST_EMAIL_ID"), value: allotment.emailId },
   ]);
+
+    /* ---------------- Invoice / Agreement Details Section ----------------
+     Financial and agreement-related information
+  */
 
   const invoiceDetails = filterEmpty([
     {
@@ -93,7 +118,9 @@ const getESTAllotmentAcknowledgementData = async (
     },
   ]);
 
-  /* ---------------- Final Details ---------------- */
+  /* ---------------- Final Section Assembly ----------------
+     Combine all sections for UI rendering
+  */
 
   const details = [
     {
@@ -113,7 +140,7 @@ const getESTAllotmentAcknowledgementData = async (
     },
   ];
 
-  /* ---------------- Final output ---------------- */
+   /* ---------------- Final Acknowledgement Payload ---------------- */
 
   return {
     heading: t("EST_ACKNOWLEDGEMENT"),

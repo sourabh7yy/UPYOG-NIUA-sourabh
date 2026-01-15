@@ -7,6 +7,14 @@ import {
 } from "@upyog/digit-ui-react-components";
 import React from "react";
 
+/**
+ * ESTAssignAstRequiredDoc Component
+ * --------------------------------
+ * This is an informational step that informs the user:
+ * - Which documents are mandatory for asset allotment
+ * - This page is for information only (no user input is collected here)
+ */
+
 const ESTAssignAstRequiredDoc = ({ t, config, onSelect, userType, formData }) => {
   console.log("Info page props:", { t, config, onSelect, userType, formData });
   

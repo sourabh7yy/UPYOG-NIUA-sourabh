@@ -7,6 +7,7 @@ const ESTManageProperties = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
+  
 //  This is for the page to navigate to different sections related to property management in the EST module.
 //  It provides links to the following sections:
 //  1. Manage Property: Allows users to manage properties by navigating to the "manage-properties-table" route.
@@ -14,6 +15,7 @@ const ESTManageProperties = () => {
 //  3. Assign Assets: Allows users to assign assets by navigating to the "assignassets/info" route.
 //  4. Allotte Asset: Allows users to view allottee details by navigating to the "property-allottee-details" route.
 // Each link is styled for better visibility and user experience.
+
 
   return (
     <React.Fragment>
