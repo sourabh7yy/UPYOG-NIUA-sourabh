@@ -18,12 +18,13 @@ const ESTCard = () => {
   }, []);
 
   const EST_CEMP = Digit.UserService.hasAccess(["EST_CEMP"]) || false;
+  if (!EST_CEMP) return null;
 
   const links = [
-    {
-      label: t("INBOX"),
-      link: `/upyog-ui/employee/est/inbox`,
-    },
+    //{
+    //label: t("INBOX"),
+    //link: `/upyog-ui/employee/est/inbox`,
+    //},
     {
       label: t("ES_COMMON_APPLICATION_SEARCH"),
       link: `/upyog-ui/employee/est/search-applications`,
