@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,Fragment } from "react";
 import {
   Card,
   CardHeader,
@@ -14,10 +14,34 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { checkForNA, ESTDocumnetPreview, formatEpochDate } from "../../../utils"; // ensure path is correct
 
+/* =========================================================
+   Action Button Component
+   ========================================================= */
+
+/**
+ * ActionButton
+ * ---------------------------------------------------------
+ * Displays an edit icon button that navigates
+ * the user back to a specific form step
+ */
 const ActionButton = ({ jumpTo }) => {
   const history = useHistory();
   return <LinkButton label={<EditIcon />} onClick={() => history.push(jumpTo)} />;
 };
+
+/* =========================================================
+   Main Check Page Component
+   ========================================================= */
+
+/**
+ * ESTAssignAssetsCheckPage
+ * ---------------------------------------------------------
+ * This component:
+ * - Displays a complete summary of asset allotment details
+ * - Shows uploaded document previews
+ * - Collects final declaration
+ * - Submits data for final processing
+ */
 
 const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
@@ -38,6 +62,14 @@ const ESTAssignAssetsCheckPage = ({ onSubmit, value = {} }) => {
     // fallback – if some other code comes in future
     return code;
   };
+
+   /* =========================================================
+     Single File Open Handler (Unused but retained)
+     ========================================================= */
+
+  /**
+   * Opens a document in a new browser tab
+   */
 
   const handleFileOpen = (fileId) => {
     if (!fileId) return;
