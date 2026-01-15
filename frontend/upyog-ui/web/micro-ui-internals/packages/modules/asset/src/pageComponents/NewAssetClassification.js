@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import { FormStep, TextInput, CardLabel, InfoBannerIcon, Dropdown, TextArea } from "@upyog/digit-ui-react-components";
 import { useLocation } from "react-router-dom";
 import Timeline from "../components/ASTTimeline";
@@ -30,6 +30,7 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
   const [assettype, setassettype] = useState(
     (formData.asset && formData.asset[index] && formData.asset[index].assettype) || formData?.asset?.assettype || ""
   );
+
   const [assetsubtype, setassetsubtype] = useState(
     (formData.asset && formData.asset[index] && formData.asset[index].assetsubtype) || formData?.asset?.assetsubtype || ""
   );
@@ -158,31 +159,45 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
       menu_Asset.push({ i18nKey: `${asset_mdms.name}`, code: `${asset_mdms.code}`, value: `${asset_mdms.name}` });
     });
 
+
+    
   Asset_Type &&
-    Asset_Type.map((asset_type_mdms) => {
-      if (asset_type_mdms.assetClassification == assetclassification?.code) {
-        asset_type.push({
-          i18nKey: `${asset_type_mdms.name}`,
-          code: `${asset_type_mdms.code}`,
-          value: `${asset_type_mdms.name}`,
-        });
-      }
-    });
+  Asset_Type.map((asset_type_mdms) => {
+    if (asset_type_mdms.assetClassification == assetclassification?.code) {
+      const displayValue = (asset_type_mdms.minorCode && asset_type_mdms.minorCode !== "undefined")
+        ? `${asset_type_mdms.minorCode} - ${asset_type_mdms.name}` 
+        : asset_type_mdms.name;
+      asset_type.push({
+        i18nKey: displayValue,
+        code: `${asset_type_mdms.code}`,
+        value: displayValue,
+        minorCode: asset_type_mdms.minorCode || null,
+        name: `${asset_type_mdms.name}`
+      });
+    }
+  });
+
+
 
   Asset_Sub_Type &&
     Asset_Sub_Type.map((asset_sub_type_mdms) => {
       if (asset_sub_type_mdms.assetParentCategory == assettype?.code) {
+        const displayValue = (asset_sub_type_mdms.glcode && asset_sub_type_mdms.glcode !== "undefined")
+        ? `${asset_sub_type_mdms.glcode} - ${asset_sub_type_mdms.name}` 
+        : asset_sub_type_mdms.name;
         asset_sub_type.push({
-          i18nKey: `${asset_sub_type_mdms.name}`,
+          i18nKey: displayValue,
           code: `${asset_sub_type_mdms.code}`,
-          value: `${asset_sub_type_mdms.name}`,
+          value: displayValue,
+          glcode: asset_sub_type_mdms.glcode || null,
+          name: `${asset_sub_type_mdms.name}`
         });
       }
     });
 
   Asset_Parent_Sub_Type &&
     Asset_Parent_Sub_Type.map((asset_parent_mdms) => {
-      if (asset_parent_mdms.assetCategory == assetsubtype?.code) {
+      if (asset_parent_mdms.assetParentCategory == assettype?.code) {
         asset_parent_sub_category.push({
           i18nKey: `${asset_parent_mdms.name}`,
           code: `${asset_parent_mdms.code}`,
@@ -428,6 +443,11 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
               />
             )}
           />
+
+
+
+
+
           <div>{`${t("AST_PARENT_CATEGORY")}`} <span style={{ color: "red" }}>*</span></div>
           <Controller
             control={control}
@@ -446,6 +466,12 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
               />
             )}
           />
+
+
+
+
+
+
           <div>{`${t("AST_SUB_CATEGORY")}`} <span style={{ color: "red" }}>*</span></div>
           <Controller
             control={control}
@@ -464,6 +490,14 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
               />
             )}
           />
+
+
+
+
+
+
+
+
 
           <div>{`${t("AST_CATEGORY_SUB_CATEGORY")}`}</div>
           <Controller

@@ -189,7 +189,17 @@ export const Assetdata = (data) => {
         moduleName: "asset-services"
       },
 
-      additionalDetails: filteredAdditionalDetails,
+      additionalDetails: {
+        ...filteredAdditionalDetails,
+        assetParentCategory: data?.asset?.assettype?.code,
+        assetCategoryGlcode: data?.asset?.assetsubtype?.glcode,
+        modeOfPossessionOrAcquisition: {
+          i18nKey: data?.assetDetails?.modeOfPossessionOrAcquisition?.code,
+          code: data?.assetDetails?.modeOfPossessionOrAcquisition?.code,
+          name: "modeOfPossessionOrAcquisition"
+        },
+        warranty: data?.assetDetails?.warranty
+      },
 
     },
   };
