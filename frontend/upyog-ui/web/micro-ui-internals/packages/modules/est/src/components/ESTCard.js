@@ -21,10 +21,7 @@ const ESTCard = () => {
   if (!EST_CEMP) return null;
 
   const links = [
-    //{
-    //label: t("INBOX"),
-    //link: `/upyog-ui/employee/est/inbox`,
-    //},
+    
     {
       label: t("ES_COMMON_APPLICATION_SEARCH"),
       link: `/upyog-ui/employee/est/search-applications`,
