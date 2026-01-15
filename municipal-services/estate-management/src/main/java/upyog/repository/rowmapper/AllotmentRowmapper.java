@@ -50,7 +50,7 @@ public class AllotmentRowmapper implements ResultSetExtractor<List<Allotment>> {
                 allotment.setAgreementStartDate(getLocalDate(rs, "agreement_start_date"));
                 allotment.setAgreementEndDate(getLocalDate(rs, "agreement_end_date"));
                 allotment.setAdvancePaymentDate(getLocalDate(rs, "advance_payment_date"));
-                allotment.setDuration(rs.getString("duration"));
+                allotment.setDuration(rs.getInt("duration"));
                 allotment.setRentRate(getBigDecimal(rs, "rate"));
                 allotment.setMonthlyRent(getBigDecimal(rs, "monthly_rent"));
                 allotment.setAdvancePayment(getBigDecimal(rs, "advance_payment"));

@@ -8,6 +8,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
 
@@ -15,10 +17,12 @@ import org.upyog.Automation.Utils.DriverFactory;
 //@Component
 public class CreateApplication {
 
+    private static final Logger logger = LoggerFactory.getLogger(CreateApplication.class);
+
     //@PostConstruct
     public void svCreateApplication() {
 
-        System.out.println("Street Vending Registration by Citizen");
+        logger.info("Street Vending Registration by Citizen");
 
         // Initialize WebDriver using DriverFactory
         WebDriver driver = DriverFactory.createChromeDriver();
@@ -57,12 +61,11 @@ public class CreateApplication {
             //Step 10: Download Acknowledgement
             downloadAcknowledgement(driver, wait, js);
 
-            System.out.println("Street Vending Registration completed successfully!");
+            logger.info("Street Vending Registration completed successfully!");
             Thread.sleep(50000); // Keep browser open for observation
 
         } catch (Exception e) {
-            System.out.println("Exception in Street Vending Registration: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Exception in Street Vending Registration: " + e.getMessage(), e);
         } finally {
             // Uncomment to close browser after test
             // driver.quit();
@@ -74,7 +77,7 @@ public class CreateApplication {
      */
     private void performCitizenLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions) throws InterruptedException {
         driver.get(ConfigReader.get("citizen.base.url"));
-        System.out.println("Open the Citizen Login Portal");
+        logger.info("Open the Citizen Login Portal");
 
         // Enter mobile number
         fillInput(wait, "mobileNumber", ConfigReader.get("citizen.mobile.number"));
@@ -115,7 +118,7 @@ public class CreateApplication {
      * Navigates to Street Vending application
      */
     private void navigateToStreetVending(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Navigating to Street Vending Application");
+        logger.info("Navigating to Street Vending Application");
         
         // Click Street Vending sidebar link
         js.executeScript("arguments[0].click();", wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -137,7 +140,7 @@ public class CreateApplication {
      * Fills vendor personal details
      */
     private void fillVendorPersonalDetails(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Filling Vendor Personal Details");
+        logger.info("Filling Vendor Personal Details");
         
         // Select first dropdown option
         selectDropdownOption(driver, wait, 0);
@@ -162,7 +165,7 @@ public class CreateApplication {
      * Fills vendor business details
      */
     private void fillVendorBusinessDetails(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Filling Vendor Business Details");
+        logger.info("Filling Vendor Business Details");
         
         // Select Vending Type
         selectDropdownOption(driver, wait, 0);
@@ -197,7 +200,7 @@ public class CreateApplication {
      * Fills vendor address details
      */
     private void fillVendorAddressDetails(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Filling Vendor Address Details");
+        logger.info("Filling Vendor Address Details");
         
         // Fill House No
         fillInput(wait, "houseNo", "123");
@@ -238,7 +241,7 @@ public class CreateApplication {
      * Fills vendor bank details
      */
     private void fillVendorBankDetails(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Filling Vendor Bank Details");
+        logger.info("Filling Vendor Bank Details");
         
         // Fill Account Number
         fillInput(wait, "accountNumber", "123456789012");
@@ -260,7 +263,7 @@ public class CreateApplication {
      * Uploads required documents
      */
     private void uploadDocuments(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Uploading Documents");
+        logger.info("Uploading Documents");
         
         String[] filePaths = {
             "/Users/kaveri/Downloads/1765952287364QizTgOLXYI.png",
@@ -299,7 +302,7 @@ public class CreateApplication {
      * Selects owner category
      */
     private void selectOwnerCategory(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Selecting Owner Category");
+        logger.info("Selecting Owner Category");
         
         Thread.sleep(1000);
         
@@ -334,7 +337,7 @@ public class CreateApplication {
                     Actions actions = new Actions(driver);
                     actions.moveToElement(option).click().perform();
                 }
-                System.out.println("Selected: None of the above");
+                logger.info("Selected: None of the above");
                 break;
             }
         }
@@ -347,7 +350,7 @@ public class CreateApplication {
      * Accepts declaration checkbox
      */
     private void acceptDeclaration(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Accepting Declaration");
+        logger.info("Accepting Declaration");
         
         Thread.sleep(1000);
         
@@ -362,27 +365,27 @@ public class CreateApplication {
         // Check if not already selected
         if (!declarationCheckbox.isSelected()) {
             js.executeScript("arguments[0].click();", declarationCheckbox);
-            System.out.println("Declaration checkbox selected");
+            logger.info("Declaration checkbox selected");
         }
         
         Thread.sleep(500);
         
         // Click Submit Application button
         clickButtonByHeader(driver, wait, "Submit Application");
-        System.out.println("Application submitted successfully");
+        logger.info("Application submitted successfully");
     }
 
     /**
      * Downloads acknowledgement
      */
     private void downloadAcknowledgement(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Downloading Acknowledgement");
+        logger.info("Downloading Acknowledgement");
         
         Thread.sleep(2000);
         
         // Click Download Acknowledgement button
         clickButtonByHeader(driver, wait, "Download Acknowledgement");
-        System.out.println("Acknowledgement downloaded successfully");
+        logger.info("Acknowledgement downloaded successfully");
         
         Thread.sleep(2000);
     }

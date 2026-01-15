@@ -8,6 +8,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
@@ -16,10 +18,12 @@ import org.upyog.Automation.Utils.DriverFactory;
 @Component
 public class SvEmp {
 
+    private static final Logger logger = LoggerFactory.getLogger(SvEmp.class);
+
     @PostConstruct
     public void InboxEmpSv() {
 
-        System.out.println("SV Employee Inbox Workflow");
+        logger.info("SV Employee Inbox Workflow");
 
         // Initialize WebDriver using DriverFactory
         WebDriver driver = DriverFactory.createChromeDriver();
@@ -40,12 +44,11 @@ public class SvEmp {
             // STEP 4: Execute Complete Workflow
             runWorkflow(driver, wait);
 
-            System.out.println("SV Employee Workflow completed successfully!");
+            logger.info("SV Employee Workflow completed successfully!");
             Thread.sleep(50000); // Keep browser open for observation
 
         } catch (Exception e) {
-            System.out.println("Exception in SV Employee Workflow: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Exception in SV Employee Workflow: " + e.getMessage(), e);
         } finally {
             // Uncomment to close browser after test
             // driver.quit();
@@ -55,12 +58,12 @@ public class SvEmp {
     private void performEmployeeLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions) throws InterruptedException {
         driver.get(ConfigReader.get("sv.employee.base.url"));
         driver.manage().window().maximize();
-        System.out.println("Open the Employee Login Portal");
+        logger.info("Open the Employee Login Portal");
 
         // Enter credentials from configuration
         fillInput(wait, "username", ConfigReader.get("sv.login.username"));
         fillInput(wait, "password", ConfigReader.get("SV.login.password"));
-        System.out.println("Filled username and password");
+        logger.info("Filled username and password");
 
         // Select city dropdown
         selectCityDropdown(driver, wait, actions);
@@ -90,7 +93,7 @@ public class SvEmp {
     }
 
     private void navigateToInbox(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
-        System.out.println("Navigating to SV Inbox");
+        logger.info("Navigating to SV Inbox");
 
         Thread.sleep(300);
 
@@ -99,11 +102,11 @@ public class SvEmp {
         js.executeScript("arguments[0].scrollIntoView({block: 'center'});", svInbox);
         Thread.sleep(300);
         js.executeScript("arguments[0].click();", svInbox);
-        System.out.println("Clicked SV Inbox");
+        logger.info("Clicked SV Inbox");
     }
 
     private void searchAndSelectApplication(WebDriver driver, WebDriverWait wait) throws InterruptedException {
-        System.out.println("Searching and selecting application");
+        logger.info("Searching and selecting application");
 
         Thread.sleep(1000);
 
@@ -123,7 +126,7 @@ public class SvEmp {
         WebElement appLink = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.linkText(appNumber)));
         appLink.click();
-        System.out.println("Selected application: " + appNumber);
+        logger.info("Selected application: " + appNumber);
     }
 
     private void runWorkflow(WebDriver driver, WebDriverWait wait) throws InterruptedException {
@@ -195,7 +198,7 @@ public class SvEmp {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", takeActionButton);
         Thread.sleep(300);
         takeActionButton.click();
-        System.out.println("Clicked TAKE ACTION button");
+        logger.info("Clicked TAKE ACTION button");
     }
 
     private void clickTakeActionButton2(WebDriver driver, WebDriverWait wait) throws InterruptedException {
@@ -205,7 +208,7 @@ public class SvEmp {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", takeActionButton);
         Thread.sleep(300);
         takeActionButton.click();
-        System.out.println("Clicked TAKE ACTION button");
+        logger.info("Clicked TAKE ACTION button");
     }
 
 
@@ -214,7 +217,7 @@ public class SvEmp {
                 By.xpath("//div/p[text()='Forward']")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", forwardOption);
         Thread.sleep(2000);
-        System.out.println("Clicked Forward option");
+        logger.info("Clicked Forward option");
     }
 
     private void selectDropdownFirstOption(WebDriver driver, WebDriverWait wait) throws InterruptedException {
@@ -230,7 +233,7 @@ public class SvEmp {
         WebElement firstOption = optionsContainer.findElement(
                 By.cssSelector("div.profile-dropdown--item:first-child"));
         firstOption.click();
-        System.out.println("Selected first option from dropdown");
+        logger.info("Selected first option from dropdown");
         Thread.sleep(500);
     }
 
@@ -240,7 +243,7 @@ public class SvEmp {
         commentsField.clear();
         commentsField.sendKeys(comment);
         Thread.sleep(300);
-        System.out.println("Filled comments: " + comment);
+        logger.info("Filled comments: " + comment);
     }
 
     private void clickForwardButton(WebDriver driver, WebDriverWait wait) throws InterruptedException {
@@ -248,7 +251,7 @@ public class SvEmp {
                 By.xpath("//button[@type='submit'][@form='modal-action']//h2[text()='Forward']/..")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", forwardButton);
         Thread.sleep(1000);
-        System.out.println("Clicked Forward button");
+        logger.info("Clicked Forward button");
     }
 
     private void approveStep(WebDriver driver, WebDriverWait wait) throws InterruptedException {
@@ -263,7 +266,7 @@ public class SvEmp {
         WebElement approveOption = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//div/p[text()='Approve']")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", approveOption);
-        System.out.println("Clicked Approve option");
+        logger.info("Clicked Approve option");
         Thread.sleep(500);
     }
 
@@ -272,7 +275,7 @@ public class SvEmp {
                 By.xpath("//button[@type='submit'][@form='modal-action']//h2[text()='Approve']/..")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", approveButton);
         Thread.sleep(1000);
-        System.out.println("Clicked Approve button");
+        logger.info("Clicked Approve button");
     }
 
     private void collectFeesStep(WebDriver driver, WebDriverWait wait) throws InterruptedException {
@@ -286,7 +289,7 @@ public class SvEmp {
         WebElement collectFeesOption = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//div/p[text()='Collect Fees']")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", collectFeesOption);
-        System.out.println("Clicked Collect Fees option");
+        logger.info("Clicked Collect Fees option");
         Thread.sleep(500);
     }
 
@@ -296,7 +299,7 @@ public class SvEmp {
                 By.name("payerMobile")));
         payerMobileInput.clear();
         payerMobileInput.sendKeys("9999999999");
-        System.out.println("Filled Payer Mobile: 9999999999");
+        logger.info("Filled Payer Mobile: 9999999999");
         Thread.sleep(500);
         
         // Click Collect Payment button
@@ -309,7 +312,7 @@ public class SvEmp {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", collectPaymentButton);
         Thread.sleep(300);
         collectPaymentButton.click();
-        System.out.println("Clicked Collect Payment button");
+        logger.info("Clicked Collect Payment button");
         Thread.sleep(1000);
     }
 }

@@ -37,8 +37,7 @@ public class Allotment {
     @NotBlank
     private LocalDate agreementEndDate;
     @NotBlank
-    @Size(max = 50, message = "Duration must be less than or equal to 50 characters")
-    private String duration;
+    private Integer duration;
     @NotBlank
     private BigDecimal rentRate;
     @NotBlank
