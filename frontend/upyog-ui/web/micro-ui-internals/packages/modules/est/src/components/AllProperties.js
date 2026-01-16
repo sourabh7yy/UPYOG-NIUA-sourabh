@@ -197,7 +197,7 @@ const AllProperties = ({ t }) => {
         </SearchField>
 
         <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
-          <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', padding: isMobile ? '12px' : '10px', fontSize: isMobile ? '14px' : '16px' }} />
+          <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', fontSize: isMobile ? '14px' : '16px' }} />
           <p
             style={{ 
               marginTop: isMobile ? "10px" : "0", 
