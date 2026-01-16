@@ -34,11 +34,7 @@ const ManageProperties = ({ t }) => {
   });
 
  const handleEditAsset = (asset) => {
-  console.log("CLICKED EDIT, SENDING ASSET → ", asset);
-
   sessionStorage.setItem("EST_EDIT_DATA", JSON.stringify(asset));
-
-  console.log("SESSION STORED VALUE → ", sessionStorage.getItem("EST_EDIT_DATA"));
 
   history.push("/upyog-ui/employee/est/create-asset/newRegistration?edit=true");
 };
@@ -159,22 +155,27 @@ const ManageProperties = ({ t }) => {
 
   const columns = useMemo(
     () => [
-      {
-        Header: "Asset Number",
-        accessor: "estateNo",
-        disableSortBy: true,
-        Cell: ({ row }) => {
-          return (
-            <div>
-              <span className="link">
-                <Link to={`property-details/${row.original["estateNo"]}`}>
-                  {row.original["estateNo"]}
-                </Link>
-              </span>
-            </div>
-          );
-        },
-      },
+     {
+  Header: "Asset Number",
+  accessor: "estateNo",
+  disableSortBy: true,
+  Cell: ({ row }) => (
+    <span
+      style={{
+        color: "#a82227",
+        cursor: "pointer",
+        textDecoration: "underline"
+      }}
+      onClick={() =>
+        history.push(
+          `/upyog-ui/employee/est/application-details/${row.original.estateNo}`
+        )
+      }
+    >
+      {row.original.estateNo}
+    </span>
+  ),
+},
       {
         Header: "Asset Ref",
         Cell: ({ row }) => GetCell(row.original["assetRef"]),
@@ -285,32 +286,8 @@ const ManageProperties = ({ t }) => {
           <TextInput name="locality" inputRef={register({})} style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }} />
         </SearchField>
 
-        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
-          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_STATUS")}</label>
-         <Dropdown
-  name="assetStatus"
-  option={assetStatusOptions}
-  optionKey="i18nKey"
-  selected={{ i18nKey: "ES_COMMON_ALL" }}
-  t={t}
-  style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
-/>
-        </SearchField>
-
-        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
-          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_TYPE")}</label>
-          <Dropdown
-  name="assetType"
-  option={assetTypeOptions}
-  optionKey="i18nKey"
-  selected={{ i18nKey: "ES_COMMON_ALL" }}
-  t={t}
-  style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
-/>
-        </SearchField>
-
         <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
-          <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', padding: isMobile ? '12px' : '10px', fontSize: isMobile ? '14px' : '16px' }} />
+          <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', fontSize: isMobile ? '14px' : '16px' }} />
           <p
             style={{ 
               marginTop: isMobile ? "10px" : "0", 
