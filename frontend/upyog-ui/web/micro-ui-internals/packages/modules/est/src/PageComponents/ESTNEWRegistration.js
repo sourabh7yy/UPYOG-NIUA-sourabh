@@ -80,7 +80,7 @@ const NewRegistration = ({ parentRoute, t: propT, onSelect, onSkip, formData = {
   // Fetch all cities / ULBs
   const allCities = Digit.Hooks.estate.useTenants();
   const cityList = allCities?.data || allCities || [];
-
+  const [dimensionError, setDimensionError] = useState("");
 
 const [buildingName, setBuildingName] = useState("");
 const [buildingNo, setBuildingNo] = useState("");
@@ -123,7 +123,6 @@ const { control } = useForm();
    */
 useEffect(() => {
  
-  console.log("Edit Data:", editData); // Add this line to see what data is being passed
   if (isEditMode && editData) {
     setBuildingName(editData.buildingName || "");
     setBuildingNo(editData.buildingNo || "");
@@ -180,6 +179,25 @@ useEffect(() => {
   }
 }, [cityList, tenantId, isEditMode]);
 
+const validateDimensions = (length, width, totalArea) => {
+  if (!length || !width || !totalArea) {
+    setDimensionError("");
+    return true;
+  }
+
+  const dimensionArea = Number(length) * Number(width);
+  const totalAreaNum = Number(totalArea);
+
+  if (dimensionArea > totalAreaNum) {
+    const errorMsg = "Length × Width (" + dimensionArea + ") cannot be greater than Total Plot Area (" + totalAreaNum + ")";
+    setDimensionError(errorMsg);
+    return false;
+  }
+  setDimensionError("");
+  return true;
+};
+
+
   const isFormInvalid =
     !buildingName ||
     !buildingNo ||
@@ -190,7 +208,8 @@ useEffect(() => {
     !dimensionLength ||
     !dimensionWidth ||
     !rate ||
-    !assetType;
+    !assetType ||
+    !!dimensionError;
 
      /**
    * Generic input sanitizer
@@ -211,7 +230,14 @@ useEffect(() => {
    * - Handles create or update flow
    */
   const goNext = () => {
-    if (isFormInvalid) return;
+    
+    // Force validation check before proceeding
+    const isValid = validateDimensions(dimensionLength, dimensionWidth, totalFloorArea);
+    
+    if (!isValid || dimensionError) {
+      alert("Error: Length × Width cannot be greater than Total Plot Area");
+      return;
+    }
 
     const selectedLocality =
       structuredLocality?.find((locality) => locality.code === serviceType) || null;
@@ -244,11 +270,9 @@ useEffect(() => {
       };
       updateMutation.mutate(updatePayload, {
         onSuccess: () => {
-          
-          console.log("Asset updated successfully");
+        
         },
         onError: (error) => {
-          console.error("Update failed:", error);
         }
       });
           // Create flow
@@ -268,7 +292,17 @@ useEffect(() => {
   );
 // Standard input width styling
   const fullWidthStyle = { width: "70%", marginBottom: "16px" };
+  const cardStyle = {
+    padding: isMobile ? "12px" : "16px"
+  };
 
+  const dimensionContainerStyle = {
+    ...fullWidthStyle,
+    display: "flex",
+    flexDirection: isMobile ? "column" : "row",
+    gap: isMobile ? "8px" : "16px",
+    alignItems: "flex-start",
+  };
   return (
     <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={isFormInvalid}>
       <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>
@@ -393,12 +427,11 @@ useEffect(() => {
           name="totalFloorArea"
           placeholder={t("EST_ENTER_TOTAL_PLOT_AREA")}
           value={totalFloorArea}
-          onChange={(e) =>
-            sanitizeAndSet(e.target.value, setTotalFloorArea, {
-              maxLength: 10,
-              regex: /\D/g,
-            })
-          }
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, "");
+            setTotalFloorArea(value);
+            validateDimensions(dimensionLength, dimensionWidth, value);
+          }}
           pattern="^[0-9]+$"
           title={t("EST_INVALID_TOTAL_PLOT_AREA")}
           required
@@ -413,12 +446,12 @@ useEffect(() => {
               name="dimensionLength"
               placeholder={t("EST_LENGTH")}
               value={dimensionLength}
-              onChange={(e) =>
-                sanitizeAndSet(e.target.value, setDimensionLength, {
-                  maxLength: 6,
-                  regex: /\D/g,
-                })
-              }
+              onChange={(e) => {
+  const value = e.target.value.replace(/\D/g, "");
+  setDimensionLength(value);
+  validateDimensions(value, dimensionWidth, totalFloorArea);
+}}
+
               pattern="^[0-9]+$"
               title={t("EST_INVALID_LENGTH")}
               required
@@ -432,19 +465,25 @@ useEffect(() => {
               name="dimensionWidth"
               placeholder={t("EST_WIDTH")}
               value={dimensionWidth}
-              onChange={(e) =>
-                sanitizeAndSet(e.target.value, setDimensionWidth, {
-                  maxLength: 6,
-                  regex: /\D/g,
-                })
-              }
+              onChange={(e) => {
+  const value = e.target.value.replace(/\D/g, "");
+  setDimensionWidth(value);
+  validateDimensions(dimensionLength, value, totalFloorArea);
+}}
+
               pattern="^[0-9]+$"
-              title={t("EST_INVALID_BREADTH")}
+              title={t("EST_INVALID_WIDTH")}
               required
               style={{ width: "100%" }}
             />
           </div>
         </div>
+        {dimensionError && (
+  <div style={{ color: "red", marginTop: "8px", fontSize: "14px" }}>
+    {dimensionError}
+  </div>
+)}
+
 
         <RequiredLabel label="EST_RATES" unit="(Per sq ft)" />
         <TextInput

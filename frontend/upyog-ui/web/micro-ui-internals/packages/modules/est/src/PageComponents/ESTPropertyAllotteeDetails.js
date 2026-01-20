@@ -76,13 +76,12 @@ const ESTPropertyAllotteeDetails = () => {
   }
 );
 
-  const onSubmit = (data, event) => {
-  event.preventDefault(); // Prevent form submission and page refresh
+ const onSubmit = (data) => {
   const searchParams = {};
   if (data.assetNumber?.trim()) searchParams.assetNo = data.assetNumber.trim();
   if (data.alloteeName?.trim()) searchParams.alloteeName = data.alloteeName.trim();
   if (selectedStatus?.code) searchParams.status = selectedStatus.code;
-  
+
   fetchAllotmentData(searchParams);
 };
 
@@ -153,11 +152,9 @@ const clearFilters = (event) => {
     <div style={{ padding: isMobile ? '10px' : '20px' }}>
       <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>{t("EST_COMMON_ALLOTTEE_DETAILS")}</Header>
       
-      <Card className="card-search-heading" style={{ padding: isMobile ? '10px' : '16px', marginBottom: '15px' }}>
-        <span style={{color:"#505A5F", fontSize: isMobile ? '14px' : '16px'}}>{t("Provide at least one parameter to search for allottee details")}</span>
-      </Card>
       
       <Card style={{ padding: isMobile ? '10px' : '16px' }}>
+         <span style={{color:"#505A5F", fontSize: isMobile ? '14px' : '16px',padding: isMobile ? '8px' : '10px',}}>{t("Provide at least one parameter to search for allottee details")}</span>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ 
             display: "grid", 
@@ -165,14 +162,10 @@ const clearFilters = (event) => {
             gap: isMobile ? "12px" : "16px", 
             alignItems: "end" 
           }}>
-            <SearchField style={{ marginBottom: isMobile ? '10px' : '0' }}>
-              <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_NUMBER")}</label>
-              <TextInput 
-                name="assetNumber" 
-                inputRef={register("assetNumber")}
-                style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }}
-              />
-            </SearchField>
+            <div>
+  <label htmlFor="assetNumber">Asset Number</label>
+  <TextInput id="assetNumber" name="assetNumber" />
+</div>
 
             <SearchField style={{ marginBottom: isMobile ? '10px' : '0' }}>
               <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ALLOTTEE_NAME")}</label>
@@ -182,30 +175,9 @@ const clearFilters = (event) => {
                 style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }}
               />
             </SearchField>
-            
-            <SearchField style={{ marginBottom: isMobile ? '10px' : '0' }}>
-              <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ALLOTMENT_STATUS")}</label>
-              <Dropdown
-                option={allotmentStatusData?.map(item => ({
-                  code: item.code,
-                  i18nKey: item.name,
-                  value: item.code
-                })) || []}
-                optionKey="i18nKey"
-                selected={selectedStatus}
-                select={setSelectedStatus}
-                placeholder={t("EST_SELECT_STATUS")}
-                t={t}
-                style={{ width: '100%', fontSize: isMobile ? '14px' : '16px' }}
-              />
-            </SearchField>
 
-            <SearchField style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center' }}>
-              <SubmitBar 
-                label={t("ES_COMMON_SEARCH")} 
-                submit 
-                style={{ width: isMobile ? '100%' : 'auto', padding: isMobile ? '12px' : '10px', fontSize: isMobile ? '14px' : '16px' }}
-              />
+            <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center' }}>
+             <SubmitBar label={t("ES_COMMON_SEARCH")} onSubmit={handleSubmit(onSubmit)} submit style={{ width: isMobile ? '100%' : 'auto', fontSize: isMobile ? '14px' : '16px' }} />
               <p 
                 style={{ 
                   marginTop: isMobile ? "10px" : "0", 

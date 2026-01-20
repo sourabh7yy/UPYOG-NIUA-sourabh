@@ -40,7 +40,7 @@ const ESTSearchApplication = ({
     },
   });
 
-  // 🔹 Asset Parent Category (LAND / BUILDING)
+  // Asset Parent Category (LAND / BUILDING)
   const { data: assetTypeData } = Digit.Hooks.useCustomMDMS(
     Digit.ULBService.getStateId(),
     "ASSET",
@@ -81,7 +81,7 @@ const ESTSearchApplication = ({
       label: loc.name || loc.label || loc.code,
     })) || [];
 
-  // 🔹 Submit handler: send clean payload to parent
+  // Submit handler: send clean payload to parent
   const handleFormSubmit = (formData) => {
     setIsCleared(false); // Reset cleared state when searching
     const searchData = {
@@ -90,7 +90,6 @@ const ESTSearchApplication = ({
       localityCode: selectedLocality?.code || undefined,
     };
 
-    console.log("Search data being sent:", searchData);
     onSubmit(searchData);
   };
 
@@ -107,7 +106,7 @@ const ESTSearchApplication = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 🔹 Apply frontend filtering (type + locality) over API data
+  // Apply frontend filtering (type + locality) over API data
   useEffect(() => {
     if (!Array.isArray(data) || isCleared) return;
 
@@ -302,7 +301,7 @@ const ESTSearchApplication = ({
 
           {/* Submit + Clear */}
           <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center' }}>
-            <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', padding: isMobile ? '12px' : '10px', fontSize: isMobile ? '14px' : '16px' }} />
+            <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', fontSize: isMobile ? '14px' : '16px' }} />
             <p
               style={{ 
                 marginTop: isMobile ? "10px" : "0", 
