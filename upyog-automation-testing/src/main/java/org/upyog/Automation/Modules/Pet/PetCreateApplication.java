@@ -1,7 +1,6 @@
 package org.upyog.Automation.Modules.Pet;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
@@ -14,17 +13,8 @@ import org.springframework.stereotype.Component;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
 
-/**
- * Automated test class for UPYOG Pet Registration Application
- * This class handles the complete pet registration workflow including:
- * - User login with OTP verification
- * - Pet owner details entry
- * - Pet information and medical details
- * - Property and address information
- * - Document uploads
- * - Application submission and tracking
- */
-//@Component
+
+@Component
 public class PetCreateApplication {
 
     /**
@@ -33,6 +23,16 @@ public class PetCreateApplication {
      */
     //@PostConstruct
     public void testingPetApp() {
+        PetApptest(ConfigReader.get("citizen.base.url"),
+                   "Pet Registration",
+                   ConfigReader.get("citizen.mobile.number"),
+                   ConfigReader.get("test.otp"),
+                   ConfigReader.get("test.city.name"));
+    }
+
+    public void PetApptest(String baseUrl, String moduleName, String mobileNumber, String otp, String cityName) {
+        System.out.println("Pet Registration by Citizen");
+
         // Initialize WebDriver using DriverFactory
         WebDriver driver = DriverFactory.createChromeDriver();
         WebDriverWait wait = DriverFactory.createWebDriverWait(driver);
@@ -41,11 +41,11 @@ public class PetCreateApplication {
 
         try {
             // STEP 1: User Login Process
-            driver.get(ConfigReader.get("citizen.base.url"));
+            driver.get(baseUrl);
             
-            // Enter mobile number from config
+            // Enter mobile number
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("mobileNumber")))
-                .sendKeys(ConfigReader.get("citizen.mobile.number"));
+                .sendKeys(mobileNumber);
 
             // Accept terms and conditions checkbox
             WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -62,7 +62,6 @@ public class PetCreateApplication {
             // STEP 2: OTP Verification
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.input-otp-wrap")));
             List<WebElement> otpInputs = driver.findElements(By.cssSelector("input.input-otp"));
-            String otp = ConfigReader.get("test.otp");
             // Fill each OTP digit in separate input fields
             for (int i = 0; i < otp.length() && i < otpInputs.size(); i++) {
                 otpInputs.get(i).sendKeys(String.valueOf(otp.charAt(i)));
@@ -80,7 +79,6 @@ public class PetCreateApplication {
                     By.cssSelector("div.radio-wrap.reverse-radio-selection-wrapper div"));
             
             // Find and select the specified city
-            String cityName = ConfigReader.get("test.city.name");
             for (WebElement option : cityOptions) {
                 WebElement label = option.findElement(By.tagName("label"));
                 if (label.getText().trim().equals(cityName)) {

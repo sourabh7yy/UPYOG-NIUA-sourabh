@@ -10,17 +10,26 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
 
 
-//@Component
+@Component
 public class CreateApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateApplication.class);
 
     //@PostConstruct
     public void svCreateApplication() {
+        svCreateApplication(ConfigReader.get("citizen.base.url"),
+                           "Street Vending", 
+                           ConfigReader.get("citizen.mobile.number"),
+                           ConfigReader.get("test.otp"),
+                           ConfigReader.get("test.city.name"));
+    }
+
+    public void svCreateApplication(String baseUrl, String moduleName, String mobileNumber, String otp, String cityName) {
 
         logger.info("Street Vending Registration by Citizen");
 
@@ -32,40 +41,20 @@ public class CreateApplication {
 
         try {
             // STEP 1: Citizen Login
-            performCitizenLogin(driver, wait, js, actions);
+            performCitizenLogin(driver, wait, js, actions, baseUrl, mobileNumber, otp, cityName);
 
             // STEP 2: Navigate to Street Vending Application
             navigateToStreetVending(driver, wait, js);
 
-            // STEP 3: Fill Vendor Personal Details
-            fillVendorPersonalDetails(driver, wait, js);
-
-            // STEP 4: Fill Vendor Business Details
-            fillVendorBusinessDetails(driver, wait, js);
-
-            // STEP 5: Fill Vendor Address Details
-            fillVendorAddressDetails(driver, wait, js);
-
-            // STEP 6: Fill Vendor Bank Details
-            fillVendorBankDetails(driver, wait, js);
-
-            // STEP 7: Upload Documents
-            uploadDocuments(driver, wait, js);
-
-            //Step 8: Special Category / Schemes
-            selectOwnerCategory(driver, wait, js);
-
-            //Step 9: Accept Declaration
-            acceptDeclaration(driver, wait, js);
-
-            //Step 10: Download Acknowledgement
-            downloadAcknowledgement(driver, wait, js);
+            // STEP 3-10: Street Vending workflow
+            executeStreetVendingWorkflow(driver, wait, js);
 
             logger.info("Street Vending Registration completed successfully!");
             Thread.sleep(50000); // Keep browser open for observation
 
         } catch (Exception e) {
-            logger.error("Exception in Street Vending Registration: " + e.getMessage(), e);
+            logger.error("Exception in Street Vending Registration: {}", e.getMessage());
+            e.printStackTrace();
         } finally {
             // Uncomment to close browser after test
             // driver.quit();
@@ -75,12 +64,12 @@ public class CreateApplication {
     /**
      * Handles citizen login process
      */
-    private void performCitizenLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions) throws InterruptedException {
-        driver.get(ConfigReader.get("citizen.base.url"));
+    private void performCitizenLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions, String baseUrl, String mobileNumber, String otp, String cityName) throws InterruptedException {
+        driver.get(baseUrl);
         logger.info("Open the Citizen Login Portal");
 
         // Enter mobile number
-        fillInput(wait, "mobileNumber", ConfigReader.get("citizen.mobile.number"));
+        fillInput(wait, "mobileNumber", mobileNumber);
 
         // Accept terms and conditions checkbox
         WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -96,7 +85,6 @@ public class CreateApplication {
         // Fill OTP
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.input-otp-wrap")));
         List<WebElement> otpInputs = driver.findElements(By.cssSelector("input.input-otp"));
-        String otp = ConfigReader.get("test.otp");
         for (int i = 0; i < otp.length() && i < otpInputs.size(); i++) {
             otpInputs.get(i).sendKeys(String.valueOf(otp.charAt(i)));
         }
@@ -105,7 +93,7 @@ public class CreateApplication {
         clickButton(wait, js, "//button[@type='submit']//header[text()='Next']/..");
 
         // Select city
-        selectCity(driver, wait, js, ConfigReader.get("test.city.name"));
+        selectCity(driver, wait, js, cityName);
 
         // Continue to home page
         WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(
@@ -120,10 +108,17 @@ public class CreateApplication {
     private void navigateToStreetVending(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
         logger.info("Navigating to Street Vending Application");
         
-        // Click Street Vending sidebar link
         js.executeScript("arguments[0].click();", wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//a[@href='/sv-ui/citizen/sv-home']"))));
+        
+        Thread.sleep(1000);
+        logger.info("Reached Street Vending home page");
+    }
 
+    /**
+     * Executes Street Vending workflow
+     */
+    private void executeStreetVendingWorkflow(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
         // Click Apply for Street Vending License
         js.executeScript("arguments[0].click();", wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//a[@href='/sv-ui/citizen/sv/apply']"))));
@@ -134,6 +129,15 @@ public class CreateApplication {
         js.executeScript("arguments[0].scrollIntoView({block: 'center'});", nextBtn);
         Thread.sleep(500);
         js.executeScript("arguments[0].click();", nextBtn);
+        
+        fillVendorPersonalDetails(driver, wait, js);
+        fillVendorBusinessDetails(driver, wait, js);
+        fillVendorAddressDetails(driver, wait, js);
+        fillVendorBankDetails(driver, wait, js);
+        uploadDocuments(driver, wait, js);
+        selectOwnerCategory(driver, wait, js);
+        acceptDeclaration(driver, wait, js);
+        downloadAcknowledgement(driver, wait, js);
     }
 
     /**

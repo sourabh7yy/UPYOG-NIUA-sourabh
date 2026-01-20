@@ -1,5 +1,6 @@
 package org.upyog.Automation.Modules.Pet;
 
+import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -11,18 +12,8 @@ import org.springframework.stereotype.Component;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
 
-/**
- * Automated test class for UPYOG Pet Application Employee Workflow
- * This class handles the complete employee-side pet application processing including:
- * - Employee login and city selection
- * - Navigation to Pet Application Inbox
- * - Application verification and approval workflow
- * - Payment collection and receipt generation
- */
-//@Component
+@Component
 public class PetApplicationEmp {
 
     /**
@@ -31,6 +22,13 @@ public class PetApplicationEmp {
      */
     //@PostConstruct
     public void petInbox() {
+        petInboxEmp(ConfigReader.get("employee.base.url"),
+                    ConfigReader.get("app.login.username"),
+                    ConfigReader.get("app.login.password"),
+                    ConfigReader.get("pet.application.number"));
+    }
+
+    public void petInboxEmp(String baseUrl, String username, String password, String applicationNumber) {
         System.out.println("Pet Application Employee Workflow");
         
         // Initialize WebDriver using DriverFactory
@@ -41,13 +39,13 @@ public class PetApplicationEmp {
 
         try {
             // STEP 1: Employee Login
-            performEmployeeLogin(driver, wait, js, actions);
+            performEmployeeLogin(driver, wait, js, actions, baseUrl, username, password);
             
             // STEP 2: Navigate to Pet Application Inbox
             navigateToInbox(driver, wait, js);
             
             // STEP 3: Search Application by Number
-            selectFirstApplication(driver, wait, js);
+            selectFirstApplication(driver, wait, js, applicationNumber);
             
             // STEP 4: Process Application Workflow (Verify -> Approve -> Pay)
             processApplicationWorkflow(driver, wait);
@@ -73,14 +71,14 @@ public class PetApplicationEmp {
     /**
      * Handles employee login process
      */
-    private void performEmployeeLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions) throws InterruptedException {
-        driver.get(ConfigReader.get("employee.base.url"));
+    private void performEmployeeLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions, String baseUrl, String username, String password) throws InterruptedException {
+        driver.get(baseUrl);
         driver.manage().window().maximize();
         System.out.println("Open the Employee Login Portal");
 
         // Enter credentials from configuration
-        fillInput(wait, "username", ConfigReader.get("app.login.username"));
-        fillInput(wait, "password", ConfigReader.get("app.login.password"));
+        fillInput(wait, "username", username);
+        fillInput(wait, "password", password);
         System.out.println("Filled username and password");
 
         // Select city dropdown
@@ -110,7 +108,7 @@ public class PetApplicationEmp {
     /**
      * Searches for application by application number
      */
-    private void selectFirstApplication(WebDriver driver, WebDriverWait wait, JavascriptExecutor js) throws InterruptedException {
+    private void selectFirstApplication(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, String applicationNumber) throws InterruptedException {
         System.out.println("Searching for application by number");
         
         // Wait for application number input field
@@ -118,7 +116,6 @@ public class PetApplicationEmp {
                 By.cssSelector("input.employee-card-input")));
         
         // Fill application number from configuration
-        String applicationNumber = ConfigReader.get("pet.application.number");
         applicationInput.clear();
         applicationInput.sendKeys(applicationNumber);
         System.out.println("Entered application number: " + applicationNumber);

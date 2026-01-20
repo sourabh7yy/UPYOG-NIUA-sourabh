@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
 
@@ -20,8 +21,15 @@ public class SvEmp {
 
     private static final Logger logger = LoggerFactory.getLogger(SvEmp.class);
 
-    @PostConstruct
+    //@PostConstruct
     public void InboxEmpSv() {
+        InboxEmpSv(ConfigReader.get("sv.employee.base.url"),
+                  ConfigReader.get("sv.login.username"),
+                  ConfigReader.get("SV.login.password"),
+                  ConfigReader.get("sv.application.number"));
+    }
+
+    public void InboxEmpSv(String baseUrl, String username, String password, String applicationNumber) {
 
         logger.info("SV Employee Inbox Workflow");
 
@@ -33,13 +41,13 @@ public class SvEmp {
 
         try {
             // STEP 1: Employee Login
-            performEmployeeLogin(driver, wait, js, actions);
+            performEmployeeLogin(driver, wait, js, actions, baseUrl, username, password);
 
             // STEP 2: Navigate to SV Inbox
             navigateToInbox(driver, wait, js);
 
             // STEP 3: Search and Select Application
-            searchAndSelectApplication(driver, wait);
+            searchAndSelectApplication(driver, wait, applicationNumber);
 
             // STEP 4: Execute Complete Workflow
             runWorkflow(driver, wait);
@@ -48,21 +56,22 @@ public class SvEmp {
             Thread.sleep(50000); // Keep browser open for observation
 
         } catch (Exception e) {
-            logger.error("Exception in SV Employee Workflow: " + e.getMessage(), e);
+            logger.error("Exception in SV Employee Workflow: {}", e.getMessage());
+            e.printStackTrace();
         } finally {
             // Uncomment to close browser after test
             // driver.quit();
         }
     }
 
-    private void performEmployeeLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions) throws InterruptedException {
-        driver.get(ConfigReader.get("sv.employee.base.url"));
+    private void performEmployeeLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions, String baseUrl, String username, String password) throws InterruptedException {
+        driver.get(baseUrl);
         driver.manage().window().maximize();
         logger.info("Open the Employee Login Portal");
 
-        // Enter credentials from configuration
-        fillInput(wait, "username", ConfigReader.get("sv.login.username"));
-        fillInput(wait, "password", ConfigReader.get("SV.login.password"));
+        // Enter credentials from parameters
+        fillInput(wait, "username", username);
+        fillInput(wait, "password", password);
         logger.info("Filled username and password");
 
         // Select city dropdown
@@ -105,17 +114,16 @@ public class SvEmp {
         logger.info("Clicked SV Inbox");
     }
 
-    private void searchAndSelectApplication(WebDriver driver, WebDriverWait wait) throws InterruptedException {
+    private void searchAndSelectApplication(WebDriver driver, WebDriverWait wait, String applicationNumber) throws InterruptedException {
         logger.info("Searching and selecting application");
 
         Thread.sleep(1000);
 
-        // Enter application number
-        String appNumber = ConfigReader.get("sv.application.number");
+        // Enter application number from parameter
         WebElement appNumberInput = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.className("employee-card-input")));
         appNumberInput.clear();
-        appNumberInput.sendKeys(appNumber);
+        appNumberInput.sendKeys(applicationNumber);
 
         // Click search button
         WebElement searchButton = wait.until(ExpectedConditions.elementToBeClickable(
@@ -124,75 +132,77 @@ public class SvEmp {
 
         // Click on application link
         WebElement appLink = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.linkText(appNumber)));
+                By.linkText(applicationNumber)));
         appLink.click();
-        logger.info("Selected application: " + appNumber);
+        logger.info("Selected application: {}", applicationNumber);
     }
 
     private void runWorkflow(WebDriver driver, WebDriverWait wait) throws InterruptedException {
-        System.out.println("========== Executing complete workflow ==========");
+        logger.info("========== Executing complete workflow ==========");
 
-        System.out.println("\n========== STARTING 1ST FORWARD ==========");
+        logger.info("\n========== STARTING 1ST FORWARD ==========");
         FirstForwardStep(driver, wait);
-        System.out.println("========== COMPLETED 1ST FORWARD ==========\n");
-        
-        System.out.println("\n========== STARTING 2ND FORWARD ==========");
+        logger.info("========== COMPLETED 1ST FORWARD ==========\n");
+
+        Thread.sleep(2000);
+        logger.info("\n========== STARTING 2ND FORWARD ==========");
         SecondForwardStep(driver, wait);
-        System.out.println("========== COMPLETED 2ND FORWARD ==========\n");
+        logger.info("========== COMPLETED 2ND FORWARD ==========\n");
 
-        System.out.println("\n========== STARTING APPROVE ==========");
+        logger.info("\n========== STARTING APPROVE ==========");
         approveStep(driver, wait);
-        System.out.println("========== COMPLETED APPROVE ==========\n");
+        logger.info("========== COMPLETED APPROVE ==========\n");
 
-        System.out.println("\n========== STARTING COLLECT FEES ==========");
+        logger.info("\n========== STARTING COLLECT FEES ==========");
         collectFeesStep(driver, wait);
-        System.out.println("========== COMPLETED COLLECT FEES ==========\n");
+        logger.info("========== COMPLETED COLLECT FEES ==========\n");
 
-        System.out.println("========== Full workflow completed successfully! ==========");
+        logger.info("========== Full workflow completed successfully! ==========");
     }
 
     private void FirstForwardStep(WebDriver driver, WebDriverWait wait) throws InterruptedException {
-        System.out.println("[FORWARD] Step 1: Clicking Take Action button...");
+        logger.info("[FORWARD] Step 1: Clicking Take Action button...");
         clickTakeActionButton(driver, wait);
         
-        System.out.println("[FORWARD] Step 2: Clicking Forward option...");
+        logger.info("[FORWARD] Step 2: Clicking Forward option...");
         clickForward(driver, wait);
         
-        System.out.println("[FORWARD] Step 3: Selecting dropdown option...");
+        logger.info("[FORWARD] Step 3: Selecting dropdown option...");
         selectDropdownFirstOption(driver, wait);
         
-        System.out.println("[FORWARD] Step 4: Filling comments...");
+        logger.info("[FORWARD] Step 4: Filling comments...");
         fillComments(driver, wait, "Forward");
         
-        System.out.println("[FORWARD] Step 5: Clicking Forward button...");
+        logger.info("[FORWARD] Step 5: Clicking Forward button...");
         clickForwardButton(driver, wait);
         
-        System.out.println("[FORWARD] All steps completed successfully!");
+        logger.info("[FORWARD] First forward steps completed successfully!");
     }
 
 
     private void SecondForwardStep(WebDriver driver, WebDriverWait wait) throws InterruptedException {
 
         Thread.sleep(2000);
-        System.out.println("[FORWARD] Step 1: Clicking Take Action button...");
+        logger.info("[FORWARD] Step 1: Clicking Take Action button...");
         clickTakeActionButton2(driver, wait);
 
-        System.out.println("[FORWARD] Step 2: Clicking Forward option...");
+        logger.info("[FORWARD] Step 2: Clicking Forward option...");
         clickForward(driver, wait);
 
-        System.out.println("[FORWARD] Step 3: Selecting dropdown option...");
+        logger.info("[FORWARD] Step 3: Selecting dropdown option...");
         selectDropdownFirstOption(driver, wait);
 
-        System.out.println("[FORWARD] Step 4: Filling comments...");
+        logger.info("[FORWARD] Step 4: Filling comments...");
         fillComments(driver, wait, "Forward");
 
-        System.out.println("[FORWARD] Step 5: Clicking Forward button...");
+        logger.info("[FORWARD] Step 5: Clicking Forward button...");
         clickForwardButton(driver, wait);
 
-        System.out.println("[FORWARD] All steps completed successfully!");
+        logger.info("[FORWARD] All steps completed successfully!");
     }
 
     private void clickTakeActionButton(WebDriver driver, WebDriverWait wait) throws InterruptedException {
+       // Thread.sleep(5000);
         WebElement takeActionButton = wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//button[contains(@class, 'submit-bar') and .//header[normalize-space()='TAKE ACTION']]")));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", takeActionButton);
@@ -202,14 +212,40 @@ public class SvEmp {
     }
 
     private void clickTakeActionButton2(WebDriver driver, WebDriverWait wait) throws InterruptedException {
-        Thread.sleep(1000); // Add this line
-        WebElement takeActionButton = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[contains(@class, 'submit-bar') and .//header[normalize-space()='TAKE ACTION']]")));
+        Thread.sleep(1000);
+
+        // Wait for page to be stable
+        wait.until(webDriver -> ((JavascriptExecutor) webDriver)
+                .executeScript("return document.readyState").equals("complete"));
+
+        // Get fresh element reference
+        WebElement takeActionButton = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//button[@type='button' and contains(@class, 'submit-bar')]//header[text()='TAKE ACTION']/..")));
+
+        // Wait for it to be clickable
+        wait.until(ExpectedConditions.elementToBeClickable(takeActionButton));
+
+        // Scroll into view
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", takeActionButton);
-        Thread.sleep(300);
-        takeActionButton.click();
-        logger.info("Clicked TAKE ACTION button");
+        Thread.sleep(500);
+
+        // Try multiple click methods
+        try {
+            takeActionButton.click();
+            logger.info("Clicked TAKE ACTION button (regular click)");
+        } catch (Exception e) {
+            try {
+                Actions actions = new Actions(driver);
+                actions.moveToElement(takeActionButton).click().perform();
+                logger.info("Clicked TAKE ACTION button (Actions click)");
+            } catch (Exception e2) {
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", takeActionButton);
+                logger.info("Clicked TAKE ACTION button (JS click)");
+            }
+        }
     }
+
+
 
 
     private void clickForward(WebDriver driver, WebDriverWait wait) throws InterruptedException {
@@ -243,7 +279,7 @@ public class SvEmp {
         commentsField.clear();
         commentsField.sendKeys(comment);
         Thread.sleep(300);
-        logger.info("Filled comments: " + comment);
+        logger.info("Filled comments: {}", comment);
     }
 
     private void clickForwardButton(WebDriver driver, WebDriverWait wait) throws InterruptedException {

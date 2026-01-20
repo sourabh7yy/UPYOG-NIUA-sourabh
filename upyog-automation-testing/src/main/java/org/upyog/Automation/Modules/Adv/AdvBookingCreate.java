@@ -1,20 +1,17 @@
 package org.upyog.Automation.Modules.Adv;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
-
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.stereotype.Component;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
-import org.openqa.selenium.ElementClickInterceptedException;
+
 
 /**
  * Automated test class for UPYOG Advertisement Booking (Citizen)
@@ -28,15 +25,23 @@ import org.openqa.selenium.ElementClickInterceptedException;
  *  - Upload documents (3 document rows on one page)
  *  - Submit application
  */
-@Component
+//@Component
 public class AdvBookingCreate {
 
     /**
      * Main test method for Advertisement booking workflow.
      * Uncomment @PostConstruct above to run automatically on context init.
      */
-    @PostConstruct
+    //@PostConstruct
     public void AdvBookingReg() {
+        AdvBookingReg(ConfigReader.get("citizen.base.url"),
+                     "Advertisement",
+                     ConfigReader.get("citizen.mobile.number"),
+                     ConfigReader.get("test.otp"),
+                     ConfigReader.get("test.city.name"));
+    }
+
+    public void AdvBookingReg(String baseUrl, String moduleName, String mobileNumber, String otp, String cityName) {
         System.out.println("Advertisement Booking by Citizen");
 
         WebDriver driver = DriverFactory.createChromeDriver();
@@ -46,7 +51,7 @@ public class AdvBookingCreate {
 
         try {
             // STEP 1: Citizen Login
-            performCitizenLogin(driver, wait, js, actions);
+            performCitizenLogin(driver, wait, js, actions, baseUrl, mobileNumber, otp, cityName);
 
             // STEP 2: Navigate to Advertisement Booking
             navigateToAdvertisement(driver, wait, js);
@@ -90,14 +95,14 @@ public class AdvBookingCreate {
     // STEP 1: CITIZEN LOGIN (same style as TradeLicenseCreate)
     // =====================================================================
 
-    private void performCitizenLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions)
+    private void performCitizenLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions, String baseUrl, String mobileNumber, String otp, String cityName)
             throws InterruptedException {
 
-        driver.get(ConfigReader.get("citizen.base.url"));
+        driver.get(baseUrl);
         System.out.println("Open the Citizen Login Portal");
 
         // Mobile number
-        fillInput(wait, "mobileNumber", ConfigReader.get("citizen.mobile.number"));
+        fillInput(wait, "mobileNumber", mobileNumber);
 
         // Accept terms checkbox
         WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -113,7 +118,6 @@ public class AdvBookingCreate {
         // OTP
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.input-otp-wrap")));
         List<WebElement> otpInputs = driver.findElements(By.cssSelector("input.input-otp"));
-        String otp = ConfigReader.get("test.otp");
         for (int i = 0; i < otp.length() && i < otpInputs.size(); i++) {
             otpInputs.get(i).sendKeys(String.valueOf(otp.charAt(i)));
         }
@@ -122,7 +126,7 @@ public class AdvBookingCreate {
         clickButton(wait, js, "//button[@type='submit']//header[text()='Next']/..");
 
         // Select city`1
-        selectCity(driver, wait, js, ConfigReader.get("test.city.name"));
+        selectCity(driver, wait, js, cityName);
 
         // Continue
         WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(
@@ -144,9 +148,14 @@ public class AdvBookingCreate {
         js.executeScript("arguments[0].click();", wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//a[@href='/upyog-ui/citizen/ads-home']"))));
 
-        // "Book Advertisement" card
+        Thread.sleep(2000);
+        System.out.println("Reached Advertisement home page");
+
+        // "Advertisement Book" link
         js.executeScript("arguments[0].click();", wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//div[contains(@class,'CitizenHomeCard')]//a[text()='Book Advertisement']"))));
+                By.xpath("//a[@href='/upyog-ui/citizen/ads/bookad']"))));
+
+        System.out.println("Clicked Advertisement Book link");
     }
 
     // =====================================================================
@@ -360,6 +369,7 @@ public class AdvBookingCreate {
 
         System.out.println("Submitting Advertisement Application");
 
+        Thread.sleep(5000);
         // Declaration checkbox – assume last checkbox on page
         List<WebElement> checkboxes = driver.findElements(By.cssSelector("input[type='checkbox']"));
         if (!checkboxes.isEmpty()) {
