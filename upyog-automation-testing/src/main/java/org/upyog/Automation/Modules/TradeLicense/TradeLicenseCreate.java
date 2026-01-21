@@ -1,7 +1,6 @@
 package org.upyog.Automation.Modules.TradeLicense;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -9,7 +8,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.stereotype.Component;
 import org.upyog.Automation.Utils.ConfigReader;
 import org.upyog.Automation.Utils.DriverFactory;
 
@@ -22,17 +20,25 @@ import org.upyog.Automation.Utils.DriverFactory;
  * - Owner details and document uploads
  * - Application submission
  */
-@Component
+//@Component
 public class TradeLicenseCreate {
 
     /**
      * Main test method for trade license registration workflow
      * Runs automatically when Spring context is initialized
      */
-    @PostConstruct
+    //@PostConstruct
     public void TradeLicenseReg() {
-        System.out.println("Trade License Registration by Citizen");
-        
+        TradeLicenceCitizenReg(ConfigReader.get("citizen.base.url"),
+                               "Trade License",
+                               ConfigReader.get("citizen.mobile.number"),
+                               ConfigReader.get("test.otp"),
+                               ConfigReader.get("test.city.name"));
+    }
+
+    public void TradeLicenceCitizenReg(String baseUrl, String moduleName, String mobileNumber, String otp, String cityName) {
+        System.out.println("Trade license by Citizen");
+
         // Initialize WebDriver using DriverFactory
         WebDriver driver = DriverFactory.createChromeDriver();
         WebDriverWait wait = DriverFactory.createWebDriverWait(driver);
@@ -41,7 +47,7 @@ public class TradeLicenseCreate {
 
         try {
             // STEP 1: Citizen Login
-            performCitizenLogin(driver, wait, js, actions);
+            performCitizenLogin(driver, wait, js, actions, baseUrl, mobileNumber, otp, cityName);
             
             // STEP 2: Navigate to Trade License Application
             navigateToTradeLicense(driver, wait, js);
@@ -82,12 +88,12 @@ public class TradeLicenseCreate {
     /**
      * Handles citizen login process
      */
-    private void performCitizenLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions) throws InterruptedException {
-        driver.get(ConfigReader.get("citizen.base.url"));
+    private void performCitizenLogin(WebDriver driver, WebDriverWait wait, JavascriptExecutor js, Actions actions, String baseUrl, String mobileNumber, String otp, String cityName) throws InterruptedException {
+        driver.get(baseUrl);
         System.out.println("Open the Citizen Login Portal");
 
         // Enter mobile number
-        fillInput(wait, "mobileNumber", ConfigReader.get("citizen.mobile.number"));
+        fillInput(wait, "mobileNumber", mobileNumber);
 
         // Accept terms and conditions checkbox
         WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -103,7 +109,6 @@ public class TradeLicenseCreate {
         // Fill OTP
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.input-otp-wrap")));
         List<WebElement> otpInputs = driver.findElements(By.cssSelector("input.input-otp"));
-        String otp = ConfigReader.get("test.otp");
         for (int i = 0; i < otp.length() && i < otpInputs.size(); i++) {
             otpInputs.get(i).sendKeys(String.valueOf(otp.charAt(i)));
         }
@@ -112,7 +117,7 @@ public class TradeLicenseCreate {
         clickButton(wait, js, "//button[@type='submit']//header[text()='Next']/..");
 
         // Select city
-        selectCity(driver, wait, js, ConfigReader.get("test.city.name"));
+        selectCity(driver, wait, js, cityName);
 
         // Continue to home page
         WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(

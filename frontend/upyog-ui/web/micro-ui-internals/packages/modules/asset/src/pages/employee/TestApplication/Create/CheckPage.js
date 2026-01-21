@@ -118,7 +118,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
 
             <Row
               label={t("AST_SUB_CATEGORY")}
-              text={`${t(checkForNA(asset?.assetsubtype?.code))}`}
+              text={`${checkForNA(asset?.assetsubtype?.value || asset?.assetsubtype?.code)}`}
               actionButton={<ActionButton jumpTo={`/upyog-ui/employee/asset/assetservice/new-assets/asset-deatils`} />}
             />
             <Row

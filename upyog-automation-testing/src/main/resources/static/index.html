@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPYOG Automation Testing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #fff; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; }
+        .tab.active { background: #007bff; color: white; border-color: #007bff; }
+        .tab-content { display: none; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        button { background: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; }
+        .result.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .result.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>UPYOG Automation Testing Portal</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('citizen')">Citizen Testing</div>
+            <div class="tab" onclick="switchTab('employee')">Employee Testing</div>
+        </div>
+
+        <!-- Citizen Testing Form -->
+        <div id="citizen" class="tab-content active">
+            <h2>Citizen Application Testing</h2>
+            <form id="citizenForm">
+                <div class="form-group">
+                    <label>Base URL *</label>
+                    <input type="text" name="baseUrl" placeholder="https://upyog-test.niua.org/upyog-ui/citizen/login" required>
+                </div>
+                <div class="form-group">
+                    <label>Module Name *</label>
+                    <select name="moduleName" required>
+                        <option value="">Select Module</option>
+                        <option value="STREET_VENDING">Street Vending</option>
+                        <option value="PET_REGISTRATION">Pet Registration</option>
+                        <option value="TRADE_LICENSE">Trade License</option>
+                        <option value="ADVERTISEMENT">Advertisement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number *</label>
+                    <input type="text" name="mobileNumber" placeholder="9999999999" required>
+                </div>
+                <div class="form-group">
+                    <label>OTP *</label>
+                    <input type="text" name="otp" placeholder="123456" required>
+                </div>
+                <div class="form-group">
+                    <label>City Name *</label>
+                    <input type="text" name="cityName" placeholder="City A Muncipal Corporation" required>
+                </div>
+                <button type="submit">Run Test</button>
+            </form>
+            <div id="citizenResult" class="result"></div>
+        </div>
+
+        <!-- Employee Testing Form -->
+        <div id="employee" class="tab-content">
+            <h2>Employee Workflow Testing</h2>
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label>Base URL *</label>
+                    <input type="text" name="baseUrl" placeholder="https://upyog-test.niua.org/sv-ui/employee/user/login" required>
+                </div>
+                <div class="form-group">
+                    <label>Module Name *</label>
+                    <select name="moduleName" required>
+                        <option value="">Select Module</option>
+                        <option value="STREET_VENDING">Street Vending</option>
+                        <option value="PET_REGISTRATION">Pet Registration</option>
+                        <option value="TRADE_LICENSE">Trade License</option>
+                        <option value="ADVERTISEMENT">Advertisement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" name="username" placeholder="SV_CEMP" required>
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" name="password" placeholder="upyogTest@123" required>
+                </div>
+                <div class="form-group">
+                    <label>Application Number *</label>
+                    <input type="text" name="applicationNumber" placeholder="SV-1013-000044" required>
+                </div>
+                <button type="submit">Run Test</button>
+            </form>
+            <div id="employeeResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+        }
+
+        document.getElementById('citizenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            const resultDiv = document.getElementById('citizenResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Running test...';
+
+            try {
+                const response = await fetch('/api/test/citizen', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.text();
+                resultDiv.className = 'result success';
+                resultDiv.textContent = result;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+
+        document.getElementById('employeeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            const resultDiv = document.getElementById('employeeResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Running test...';
+
+            try {
+                const response = await fetch('/api/test/employee', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.text();
+                resultDiv.className = 'result success';
+                resultDiv.textContent = result;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
