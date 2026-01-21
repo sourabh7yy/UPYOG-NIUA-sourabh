@@ -161,13 +161,13 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
   Asset_Type &&
     Asset_Type.map((asset_type_mdms) => {
       if (asset_type_mdms.assetClassification == assetclassification?.code) {
-        const MinorcodeAndAssetType = (asset_type_mdms.minorCode && asset_type_mdms.minorCode !== "undefined")
+        const minorcodeAndAssetType = (asset_type_mdms.minorCode && asset_type_mdms.minorCode !== "undefined")
           ? `${asset_type_mdms.minorCode} - ${asset_type_mdms.name}` 
           : asset_type_mdms.name;
         asset_type.push({
           i18nKey: `${asset_type_mdms.name}`,
           code: `${asset_type_mdms.code}`,
-          value: MinorcodeAndAssetType,
+          value: minorcodeAndAssetType,
           minorCode: asset_type_mdms.minorCode,
           name: `${asset_type_mdms.name}`
         });
