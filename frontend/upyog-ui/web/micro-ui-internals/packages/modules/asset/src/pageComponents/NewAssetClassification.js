@@ -161,14 +161,14 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
   Asset_Type &&
     Asset_Type.map((asset_type_mdms) => {
       if (asset_type_mdms.assetClassification == assetclassification?.code) {
-        const displayValue = (asset_type_mdms.minorCode && asset_type_mdms.minorCode !== "undefined")
+        const MinorcodeAndAssetType = (asset_type_mdms.minorCode && asset_type_mdms.minorCode !== "undefined")
           ? `${asset_type_mdms.minorCode} - ${asset_type_mdms.name}` 
           : asset_type_mdms.name;
         asset_type.push({
-          i18nKey: displayValue,
+          i18nKey: `${asset_type_mdms.name}`,
           code: `${asset_type_mdms.code}`,
-          value: displayValue,
-          minorCode: asset_type_mdms.minorCode || null,
+          value: MinorcodeAndAssetType,
+          minorCode: asset_type_mdms.minorCode,
           name: `${asset_type_mdms.name}`
         });
       }
@@ -177,14 +177,14 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
   Asset_Sub_Type &&
     Asset_Sub_Type.map((asset_sub_type_mdms) => {
       if (asset_sub_type_mdms.assetParentCategory == assettype?.code) {
-        const displayValue = (asset_sub_type_mdms.glcode && asset_sub_type_mdms.glcode !== "undefined")
+        const glcodeAndAssetsubType = (asset_sub_type_mdms.glcode && asset_sub_type_mdms.glcode !== "undefined")
           ? `${asset_sub_type_mdms.glcode} - ${asset_sub_type_mdms.name}` 
           : asset_sub_type_mdms.name;
         asset_sub_type.push({
-          i18nKey: displayValue,
+          i18nKey: `${asset_sub_type_mdms.name}`,
           code: `${asset_sub_type_mdms.code}`,
-          value: displayValue,
-          glcode: asset_sub_type_mdms.glcode || null,
+          value: glcodeAndAssetsubType,
+          glcode: asset_sub_type_mdms.glcode,
           name: `${asset_sub_type_mdms.name}`
         });
       }
@@ -192,7 +192,7 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
 
   Asset_Parent_Sub_Type &&
     Asset_Parent_Sub_Type.map((asset_parent_mdms) => {
-      if (asset_parent_mdms.assetParentCategory == assettype?.code) {
+      if (asset_parent_mdms.assetCategory == assetsubtype?.code) {
         asset_parent_sub_category.push({
           i18nKey: `${asset_parent_mdms.name}`,
           code: `${asset_parent_mdms.code}`,
@@ -450,7 +450,7 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
                 selected={assettype}
                 select={setassettype}
                 option={asset_type}
-                optionKey="i18nKey"
+                optionKey="value"
                 placeholder={"Select"}
                 t={t}
               />
@@ -468,7 +468,7 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
                 selected={assetsubtype}
                 select={setassetsubtype}
                 option={asset_sub_type}
-                optionKey="i18nKey"
+                optionKey="value"
                 placeholder={"Select"}
                 t={t}
               />
