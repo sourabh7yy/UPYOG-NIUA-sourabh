@@ -86,17 +86,25 @@ const ActionModal = ({ t, action, tenantId, state, id, closeModal, submitAction,
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [selectVehicle, setSelectVehicle] = useState(null);
 
+  console.log("euwhsajgwefhdhjwefhjwfbjh",action);
+
   useEffect(() => {
     setApprovers(approverData?.Employees?.map((employee) => ({ uuid: employee?.uuid, name: employee?.user?.name })));
   }, [approverData]);
 
   function submit(data) {
-    let workflow = { action: action?.action, comments: data?.comments, businessService, moduleName: moduleCode, assignes:
-      action?.state === "WASTE_PICKUP_INPROGRESS"
-      ? null
-      : action?.state === "PENDING_FOR_VEHICLE_DRIVER_ASSIGN"
-      ? [selectedVendor?.vendorId]
-      : [selectedApprover?.uuid]};
+    let workflow = { action: action?.action, comments: data?.comments, businessService, moduleName: moduleCode };
+    // add assignes only if action is NOT REJECT
+    if (action?.action !== "REJECT") {
+      workflow.assignes =
+        action?.state === "WASTE_PICKUP_INPROGRESS"
+          ? null
+          : action?.state === "PENDING_FOR_VEHICLE_DRIVER_ASSIGN"
+          ? [selectedVendor?.vendorId]
+          : [selectedApprover?.uuid];
+    }
+
+
 
     if (action?.state === "PENDING_FOR_VEHICLE_DRIVER_ASSIGN") {
       applicationData.vendorId = selectedVendor?.vendorId;
