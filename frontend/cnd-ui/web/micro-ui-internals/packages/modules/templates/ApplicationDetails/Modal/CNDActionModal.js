@@ -86,8 +86,6 @@ const ActionModal = ({ t, action, tenantId, state, id, closeModal, submitAction,
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [selectVehicle, setSelectVehicle] = useState(null);
 
-  console.log("euwhsajgwefhdhjwefhjwfbjh",action);
-
   useEffect(() => {
     setApprovers(approverData?.Employees?.map((employee) => ({ uuid: employee?.uuid, name: employee?.user?.name })));
   }, [approverData]);
