@@ -88,7 +88,12 @@ const SVAdrressDetails = ({ t, config, onSelect, userType, formData, editdata, p
   }
 
   const setAddressPincode = (e) => {
-    setPincode(e.target.value);
+    const value = e.target.value;
+    // Allow numbers between 0 and 999999 (1 to 6 digits)
+    if (/^\d{0,6}$/.test(value)) {
+      setPincode(value);
+    }
+    // setPincode(e.target.value);
   };
 
   const sethouseNo = (e) => {
@@ -109,7 +114,11 @@ const SVAdrressDetails = ({ t, config, onSelect, userType, formData, editdata, p
   }
 
   const setcAddressPincode = (e) => {
-    setCPincode(e.target.value);
+    const value = e.target.value;
+    // Allow numbers between 0 and 999999 (1 to 6 digits)
+    if (/^\d{0,6}$/.test(value)) {
+      setCPincode(value);
+    }
   };
 
   const setchouseNo = (e) => {
@@ -540,7 +549,7 @@ const SVAdrressDetails = ({ t, config, onSelect, userType, formData, editdata, p
             <CardLabel>{`${t("SV_ADDRESS_PINCODE")}`} <span className="astericColor">*</span></CardLabel>
             <TextInput
               t={t}
-              type="tel"
+              type="number"
               isMandatory={false}
               optionKey="i18nKey"
               name="pincode"
@@ -700,7 +709,7 @@ const SVAdrressDetails = ({ t, config, onSelect, userType, formData, editdata, p
             <CardLabel>{`${t("SV_ADDRESS_PINCODE")}`} <span className="astericColor">*</span></CardLabel>
             <TextInput
               t={t}
-              type="tel"
+              type="number"
               isMandatory={false}
               optionKey="i18nKey"
               name="cpincode"
@@ -712,7 +721,7 @@ const SVAdrressDetails = ({ t, config, onSelect, userType, formData, editdata, p
               validation={{
                 required: true,
                 pattern: "^[0-9]{6}$",
-                type: "tel",
+                type: "number",
                 title: t("SV_ADDRESS_PINCODE_INVALID"),
               }}
               minLength={6}
