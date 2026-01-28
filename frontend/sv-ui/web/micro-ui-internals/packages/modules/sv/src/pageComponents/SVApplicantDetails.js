@@ -2,7 +2,7 @@ import { CardLabel, FormStep,RadioButtons, TextInput, CheckBox, LinkButton, Mobi
 import React, { useState,useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Timeline from "../components/Timeline";
-import { calculateAge } from "../utils";
+import { calculateAge, formatToInputDate } from "../utils";
 import { useLocation } from "react-router-dom";
 
 /**
@@ -49,22 +49,27 @@ const SVApplicantDetails = ({ t, config, onSelect, userType, formData,editdata,p
   const inputStyles = user.type === "EMPLOYEE" ? "50%" : "86%";
   const [showToast, setShowToast] = useState(null);
   const { control } = useForm();
+  
+   // Extracting details based on relationship type because vendorDetail is an array of objects
+    const vendorPersonalDetails = previousData?.vendorDetail?.find((item)=>item.relationshipType==="VENDOR") || editdata?.vendorDetail?.find((item)=>item.relationshipType==="VENDOR")|| {};
+    const vendorSpouseDetails = previousData?.vendorDetail?.find((item)=>item.relationshipType==="SPOUSE") || editdata?.vendorDetail?.find((item)=>item.relationshipType==="SPOUSE")|| {};
+    const vendorDependentDetails = previousData?.vendorDetail?.find((item)=>item.relationshipType==="DEPENDENT") || editdata?.vendorDetail?.find((item)=>item.relationshipType==="DEPENDENT")|| {};
 
   const [fields, setFeilds] = useState(
     (formData?.owner && formData?.owner?.units) || [{ 
-      vendorName: (previousData?.vendorDetail?.[0]?.name ||editdata?.vendorDetail?.[0]?.name ||(user?.type==="CITIZEN"?user?.name:"") || ""),
-      userCategory:(Objectconvert(previousData?.vendorDetail?.[0]?.userCategory||editdata?.vendorDetail?.[0]?.userCategory)||""), 
-      vendorDateOfBirth:(previousData?.vendorDetail?.[0]?.dob||editdata?.vendorDetail?.[0]?.dob|| ""), 
-      gender: convertToObject(previousData?.vendorDetail?.[0]?.gender||editdata?.vendorDetail?.[0]?.gender)||"", 
-      fatherName: (previousData?.vendorDetail?.[0]?.fatherName||editdata?.vendorDetail?.[0]?.fatherName||""), 
-      spouseName: (previousData?.vendorDetail?.[1]?.name||editdata?.vendorDetail?.[1]?.name||""), 
-      mobileNumber: (previousData?.vendorDetail?.[0]?.mobileNo||editdata?.vendorDetail?.[0]?.mobileNo||(user?.type==="CITIZEN"?user?.mobileNumber:"") || ""), 
-      spouseDateBirth: (previousData?.vendorDetail?.[1]?.dob||editdata?.vendorDetail?.[1]?.dob|| ""), 
-      dependentName: (previousData?.vendorDetail?.[2]?.name||editdata?.vendorDetail?.[2]?.name||""), 
-      dependentDateBirth: (previousData?.vendorDetail?.[2]?.dob||editdata?.vendorDetail?.[2]?.dob||""), 
-      dependentGender: (convertToObject(previousData?.vendorDetail?.[2]?.gender||editdata?.vendorDetail?.[2]?.gender)||""), 
-      email:(previousData?.vendorDetail?.[0]?.emailId||editdata?.vendorDetail?.[0]?.emailId||(user?.type==="CITIZEN"?user?.emailId:"") || ""), 
-      tradeNumber:(previousData?.vendorDetail?.[0]?.tradeNumber||editdata?.vendorDetail?.[0]?.tradeNumber||"")
+      vendorName: (vendorPersonalDetails?.name ||(user?.type==="CITIZEN"?user?.name:"") || ""),
+      userCategory:(Objectconvert(vendorPersonalDetails?.userCategory)||""), 
+      vendorDateOfBirth:formatToInputDate(vendorPersonalDetails?.dob|| ""), 
+      gender: (convertToObject(vendorPersonalDetails?.gender)||""), 
+      fatherName: (vendorPersonalDetails?.fatherName||""), 
+      spouseName: (vendorSpouseDetails?.name||""), 
+      mobileNumber: (vendorPersonalDetails?.mobileNo||(user?.type==="CITIZEN"?user?.mobileNumber:"") || ""), 
+      spouseDateBirth: formatToInputDate(vendorSpouseDetails?.dob|| ""), 
+      dependentName: (vendorDependentDetails?.name||""), 
+      dependentDateBirth: formatToInputDate(vendorDependentDetails?.dob||""), 
+      dependentGender: (convertToObject(vendorDependentDetails?.gender)||""), 
+      email:(vendorPersonalDetails?.emailId||(user?.type==="CITIZEN"?user?.emailId:"") || ""), 
+      tradeNumber:(vendorPersonalDetails?.tradeNumber||"")
     }]);
 
   function handleAdd() {

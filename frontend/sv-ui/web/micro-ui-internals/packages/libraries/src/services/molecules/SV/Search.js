@@ -29,6 +29,24 @@ export const SVSearch = {
       dgender = response?.vendorDetail[0]?.dependentGender == "M" ? "Male" : "Female";
     }
 
+    // function to get gender string from gender code
+    const getGender = (genderCode) => {
+      switch (genderCode) {
+        case 'M':
+          return 'Male';
+        case 'F':
+          return 'Female';
+        default:
+          return '';
+      }
+    };
+
+    // Extracting details based on relationship type because vendorDetail is an array of objects
+    const vendorPersonalDetails = response?.vendorDetail?.find((item)=>item.relationshipType==="VENDOR") || {};
+    const vendorSpouseDetails = response?.vendorDetail?.find((item)=>item.relationshipType==="SPOUSE") || {};
+    const vendorDependentDetails = response?.vendorDetail?.find((item)=>item.relationshipType==="DEPENDENT") || {};
+
+
     return [
 
       {
@@ -40,17 +58,17 @@ export const SVSearch = {
           [{ title: "SV_VALIDITY_DATE", value: response?.validityDate, isBold:true }]
           :[]
         ),
-          { title: "SV_VENDOR_NAME", value: response?.vendorDetail[0]?.name},
-          { title: "SV_FATHER_NAME", value: response?.vendorDetail[0]?.fatherName },
-          { title: "SV_REGISTERED_MOB_NUMBER", value: response?.vendorDetail[0]?.mobileNo},
-          { title: "SV_EMAIL", value: response?.vendorDetail[0]?.emailId },
-          { title: "SV_DATE_OF_BIRTH", value: response?.vendorDetail[0]?.dob },
-          { title: "SV_GENDER", value: gender },
-          { title: "SV_SPOUSE_NAME", value: response?.vendorDetail[0]?.spouseName },
-          { title: "SV_SPOUSE_DATE_OF_BIRTH", value: response?.vendorDetail[0]?.spouseDob },
-          { title: "SV_DEPENDENT_NAME", value: response?.vendorDetail[0]?.dependentName },
-          { title: "SV_DEPENDENT_DATE_OF_BIRTH", value: response?.vendorDetail[0]?.dependentDob },
-          { title: "SV_DEPENDENT_GENDER", value: dgender },
+          { title: "SV_VENDOR_NAME", value: vendorPersonalDetails?.name},
+          { title: "SV_FATHER_NAME", value: vendorPersonalDetails?.fatherName },
+          { title: "SV_REGISTERED_MOB_NUMBER", value: vendorPersonalDetails?.mobileNo},
+          { title: "SV_EMAIL", value: vendorPersonalDetails?.emailId },
+          { title: "SV_DATE_OF_BIRTH", value: vendorPersonalDetails?.dob },
+          { title: "SV_GENDER", value: getGender(vendorPersonalDetails?.gender) },
+          { title: "SV_SPOUSE_NAME", value: vendorSpouseDetails?.name },
+          { title: "SV_SPOUSE_DATE_OF_BIRTH", value: vendorSpouseDetails?.dob },
+          { title: "SV_DEPENDENT_NAME", value: vendorDependentDetails?.name },
+          { title: "SV_DEPENDENT_DATE_OF_BIRTH", value: vendorDependentDetails?.dob },
+          { title: "SV_DEPENDENT_GENDER", value: getGender(vendorDependentDetails?.gender) },
           { title: "SV_TRADE_NUMBER", value: response?.vendorDetail[0]?.tradeNumber },
         ]),
       },

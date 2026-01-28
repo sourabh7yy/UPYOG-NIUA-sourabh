@@ -47,6 +47,13 @@ export const formatTime = (time) => {
   return `${time} ${hour >= 12 ? UPYOG_CONSTANTS.PM : UPYOG_CONSTANTS.AM}`;
 };
 
+// helper function to format date from DD-MM-YYYY to YYYY-MM-DD
+export const formatToInputDate = (dateStr) => {
+  if (!dateStr) return "";
+  const [dd, mm, yyyy] = dateStr.split("-");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 /**
  * This function processes an array of uploaded documents to create a list of unique document types,
  * grouping documents that share the same type. It returns an array of objects, each containing the 
