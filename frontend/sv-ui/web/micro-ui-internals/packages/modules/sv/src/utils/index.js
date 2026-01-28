@@ -411,8 +411,6 @@ export const svPayloadData = (data) =>{
 
 
 export const svUpdatePayload = (data) =>{
-  console.log("datataaaaaaa",data);
-  debugger
   let vendordetails = [];
 
   const createVendorObject = (data) => ({
