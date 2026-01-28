@@ -32,6 +32,13 @@ const SVCreate = ({ parentRoute }) => {
         enabled: vendingApplicationNo?true:false
     },
   );
+  // addin the Ids of both spouse and dependent if both exist so that while updating the data we can send the Ids to update the correct details
+  const vendorSpouseDetails = vendingApplicationData?.SVDetail?.[0]?.vendorDetail?.find((item)=>item.relationshipType==="SPOUSE") || {};
+  const vendorDependentDetails = vendingApplicationData?.SVDetail?.[0]?.vendorDetail?.find((item)=>item.relationshipType==="DEPENDENT") || {};
+  const spouseId = vendorSpouseDetails?.id; 
+  const dependentId = vendorDependentDetails?.id;
+  sessionStorage.setItem("spouseId",spouseId) || null;
+  sessionStorage.setItem("dependentId",dependentId) || null;
   const vendingData=vendingApplicationData?.SVDetail?.[0]
 
   const { data: vendingDraftData } = Digit.Hooks.sv.useSvSearchApplication(
@@ -137,6 +144,8 @@ const SVCreate = ({ parentRoute }) => {
     sessionStorage.removeItem("vendorIds");
     sessionStorage.removeItem("bankIds");
     sessionStorage.removeItem("venId");
+    sessionStorage.removeItem("spouseId");
+    sessionStorage.removeItem("dependentId");
   };
   
   let commonFields = Config;

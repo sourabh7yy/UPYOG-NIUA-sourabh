@@ -411,6 +411,8 @@ export const svPayloadData = (data) =>{
 
 
 export const svUpdatePayload = (data) =>{
+  console.log("datataaaaaaa",data);
+  debugger
   let vendordetails = [];
 
   const createVendorObject = (data) => ({
@@ -449,7 +451,7 @@ export const svUpdatePayload = (data) =>{
     fatherName: "",
     specialCategory: data?.specialCategoryData?.ownerCategory?.code,
     gender: "O",
-    id: sessionStorage.getItem("venId"),
+    id: sessionStorage.getItem("spouseId"),
     mobileNo: "",
     name: data?.owner?.units?.[0]?.spouseName,
     relationshipType: "SPOUSE",
@@ -471,7 +473,7 @@ export const svUpdatePayload = (data) =>{
     fatherName: "",
     specialCategory: data?.specialCategoryData?.ownerCategory?.code,
     gender: data?.owner?.units?.[0]?.dependentGender?.code.charAt(0),
-    id: sessionStorage.getItem("venId"),
+    id: sessionStorage.getItem("dependentId"),
     mobileNo: "",
     name: data?.owner?.units?.[0]?.dependentName,
     relationshipType: "DEPENDENT",
