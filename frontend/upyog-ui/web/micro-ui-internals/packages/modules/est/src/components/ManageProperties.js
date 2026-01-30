@@ -12,9 +12,19 @@ import {
 import { Link, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
+// Manage Properties Component
+// This component allows users to manage properties by viewing, filtering, editing, and allotting assets.
+
 const ManageProperties = ({ t }) => {
   const history = useHistory();
   const tenantId = Digit.ULBService.getCurrentTenantId();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const { isLoading, isSuccess, data: apiData, error } = Digit.Hooks.estate.useESTAssetSearch({
     tenantId,
@@ -22,6 +32,12 @@ const ManageProperties = ({ t }) => {
   }, {
     enabled: true,
   });
+
+ const handleEditAsset = (asset) => {
+  sessionStorage.setItem("EST_EDIT_DATA", JSON.stringify(asset));
+
+  history.push("/upyog-ui/employee/est/create-asset/newRegistration?edit=true");
+};
 
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
@@ -139,22 +155,27 @@ const ManageProperties = ({ t }) => {
 
   const columns = useMemo(
     () => [
-      {
-        Header: "Asset Number",
-        accessor: "estateNo",
-        disableSortBy: true,
-        Cell: ({ row }) => {
-          return (
-            <div>
-              <span className="link">
-                <Link to={`property-details/${row.original["estateNo"]}`}>
-                  {row.original["estateNo"]}
-                </Link>
-              </span>
-            </div>
-          );
-        },
-      },
+     {
+  Header: "Asset Number",
+  accessor: "estateNo",
+  disableSortBy: true,
+  Cell: ({ row }) => (
+    <span
+      style={{
+        color: "#a82227",
+        cursor: "pointer",
+        textDecoration: "underline"
+      }}
+      onClick={() =>
+        history.push(
+          `/upyog-ui/employee/est/application-details/${row.original.estateNo}`
+        )
+      }
+    >
+      {row.original.estateNo}
+    </span>
+  ),
+},
       {
         Header: "Asset Ref",
         Cell: ({ row }) => GetCell(row.original["assetRef"]),
@@ -200,21 +221,41 @@ const ManageProperties = ({ t }) => {
         Cell: ({ row }) => {
           const isAllotted = row.original["assetStatus"] === "Allotted";
           return (
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "4px" : "8px", justifyContent: "center" }}>
             <button
               onClick={() => !isAllotted && handleAllotAsset(row.original)}
               style={{
                 backgroundColor: isAllotted ? "#ccc" : "#007bff",
                 color: "white",
                 border: "none",
-                padding: "6px 10px",
+                padding: isMobile ? "4px 8px" : "6px 10px",
                 borderRadius: "4px",
                 cursor: isAllotted ? "not-allowed" : "pointer",
-                fontSize: "12px"
+                fontSize: isMobile ? "10px" : "12px",
+                minWidth: isMobile ? "60px" : "auto"
               }}
               disabled={isAllotted}
             >
               Allot Asset
             </button>
+            <button
+  onClick={() => handleEditAsset(row.original)}
+  style={{
+    backgroundColor: "#a23c59",
+    color: "white",
+    border: "none",
+    padding: isMobile ? "4px 8px" : "6px 10px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: isMobile ? "10px" : "12px",
+    minWidth: isMobile ? "40px" : "auto"
+  }}
+>
+  Edit
+</button>
+
+            </div>
+            
           );
         },
         disableSortBy: true,
@@ -223,56 +264,38 @@ const ManageProperties = ({ t }) => {
     [properties]
   );
 
-  if (isLoading) return <Loader />;
+ if (isLoading) return <Loader />;
 
   return (
-    <div>
-      <Header>Manage Properties</Header>
+    <div style={{ padding: isMobile ? '10px' : '20px' }}>
+      <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>Manage Properties</Header>
 
-      <SearchForm onSubmit={onFilterSubmit} handleSubmit={handleSubmit}>
-        <SearchField>
-          <label>{t("EST_ASSET_NUMBER")}</label>
-          <TextInput name="assetNumber" inputRef={register({})} />
+      <SearchForm onSubmit={onFilterSubmit} handleSubmit={handleSubmit} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '10px' : '15px', flexWrap: 'wrap' }}>
+        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ASSET_NUMBER")}</label>
+          <TextInput name="assetNumber" inputRef={register({})} style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }} />
         </SearchField>
 
-        <SearchField>
-          <label>{t("EST_BUILDING_NAME")}</label>
-          <TextInput name="buildingName" inputRef={register({})} />
+        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_BUILDING_NAME")}</label>
+          <TextInput name="buildingName" inputRef={register({})} style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }} />
         </SearchField>
 
-        <SearchField>
-          <label>{t("EST_LOCALITY")}</label>
-          <TextInput name="locality" inputRef={register({})} />
+        <SearchField style={{ marginBottom: isMobile ? '10px' : '15px', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_LOCALITY")}</label>
+          <TextInput name="locality" inputRef={register({})} style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }} />
         </SearchField>
 
-        <SearchField>
-          <label>{t("EST_ASSET_STATUS")}</label>
-         <Dropdown
-  name="assetStatus"
-  inputRef={register({})}
-  option={assetStatusOptions}
-  optionKey="i18nKey"  // Changed from "name" to "i18nKey"
-  selected={{ i18nKey: "ES_COMMON_ALL" }}
-  t={t}  // Add translation function
-/>
-        </SearchField>
-
-        <SearchField>
-          <label>{t("EST_ASSET_TYPE")}</label>
-          <Dropdown
-  name="assetType"
-  inputRef={register({})}
-  option={assetTypeOptions}
-  optionKey="i18nKey"  // Changed from "name" to "i18nKey"
-  selected={{ i18nKey: "ES_COMMON_ALL" }}
-  t={t}  // Add translation function
-/>
-        </SearchField>
-
-        <SearchField className="submit">
-          <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
+        <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center', flex: isMobile ? '1 1 100%' : '1 1 200px' }}>
+          <SubmitBar label={t("ES_COMMON_SEARCH")} submit style={{ width: isMobile ? '100%' : 'auto', fontSize: isMobile ? '14px' : '16px' }} />
           <p
-            style={{ marginTop: "10px", cursor: "pointer" }}
+            style={{ 
+              marginTop: isMobile ? "10px" : "0", 
+              cursor: "pointer",
+              width: isMobile ? '100%' : 'auto',
+              textAlign: isMobile ? 'center' : 'left',
+              fontSize: isMobile ? '14px' : '16px'
+            }}
             onClick={clearFilters}
           >
             {t("ES_COMMON_CLEAR_ALL")}
@@ -280,7 +303,13 @@ const ManageProperties = ({ t }) => {
         </SearchField>
       </SearchForm>
 
-      <div style={{ overflowX: "auto", width: "100%", marginTop: "20px" }}>
+      <div style={{ 
+        overflowX: "auto", 
+        width: "100%", 
+        marginTop: "20px",
+        WebkitOverflowScrolling: "touch",
+        padding: isMobile ? '5px' : '10px'
+      }}>
         <Table
           t={t}
           data={filteredProperties}
@@ -291,9 +320,9 @@ const ManageProperties = ({ t }) => {
           pageSizeLimit={10}
           getCellProps={(cellInfo) => ({
             style: {
-              minWidth: "100px",
-              padding: "8px 6px",
-              fontSize: "12px",
+              minWidth: isMobile ? "70px" : "100px",
+              padding: isMobile ? "4px 2px" : "8px 6px",
+              fontSize: isMobile ? "10px" : "12px",
               textAlign: "center",
               whiteSpace: "nowrap",
             },

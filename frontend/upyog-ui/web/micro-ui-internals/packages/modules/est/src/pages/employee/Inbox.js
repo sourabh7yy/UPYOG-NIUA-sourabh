@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Header } from "@upyog/digit-ui-react-components";
-
 import ESTDesktopInbox from "../../components/ESTDesktopInbox";
 import MobileInbox from "../../components/MobileInbox";
 
@@ -37,6 +36,7 @@ const ESTInbox = ({
 }) => {
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const { t } = useTranslation();
+  const styles = getResponsiveStyles(isMobile);
 
   const [enableSearch, setEnableSearch] = useState(() => (isInbox ? {} : { enabled: false }));
   const [TableConfig] = useState(() => Digit.ComponentRegistryService?.getComponent("ESTInboxTableConfig"));

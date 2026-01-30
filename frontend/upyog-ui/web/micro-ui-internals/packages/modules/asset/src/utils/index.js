@@ -129,6 +129,7 @@ export const Assetdata = (data) => {
       acc[key] = assetDetails[key]; // Add remaining keys to the accumulator
       return acc;
     }, {});
+    filteredAdditionalDetails.assetCategoryGlcode = data?.asset?.assetsubtype?.glcode;
   const formdata = {
     Asset: {
       accountId: "",

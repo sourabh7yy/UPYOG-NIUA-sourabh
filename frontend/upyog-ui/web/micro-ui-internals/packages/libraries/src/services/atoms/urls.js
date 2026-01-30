@@ -321,6 +321,14 @@ eSign:{
     update: "/request-service/mobile-toilet/v1/_update",
     search: "/request-service/mobile-toilet/v1/_search",
   },
+
+ est: {
+    create: "/estate-management/estate/asset/v1/_create",
+    search: "/estate-management/estate/asset/v1/_search",
+    allotment: "/estate-management/estate/allotment/v1/_create",
+    allotmentSearch: "/estate-management/estate/allotment/v1/_search",
+  },
+  
   tp: {
     create: "/tp-services/tree-pruning/v1/_create",
     update: "/tp-services/tree-pruning/v1/_update",

@@ -13,12 +13,11 @@ const Filter = ({ searchParams, onFilterChange, defaultSearchParams, statusMap, 
   const [_searchParams, setSearchParams] = useState(() => ({ ...searchParams, services: [] }));
 
   const ApplicationTypeMenu = [
-    {
-      label: "EST_NEW_ASSET",
-      value: "asset-create",
-    },
-    
-  ];
+  {
+    label: "EST_ALLOTMENT_APPLICATION",
+    value: "EST",
+  },
+];
 
   const localParamChange = (filterParam) => {
     let keys_to_delete = filterParam.delete;

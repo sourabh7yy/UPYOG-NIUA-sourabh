@@ -4,225 +4,223 @@ import {
   Header,
   Card,
   SearchField,
-  SearchForm,
   TextInput,
   SubmitBar,
   Loader,
+  Dropdown,
 } from "@upyog/digit-ui-react-components";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
+// EST Property Allottee Details Component
+// This component allows users to search and view details of property allottees with filtering options based on asset number, allottee name, and allotment status.
+
 const ESTPropertyAllotteeDetails = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const tenantId = Digit.ULBService.getCurrentTenantId();
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const [allotteeDetails, setAllotteeDetails] = useState([]);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const { register, handleSubmit, reset } = useForm();
   const isMountedRef = React.useRef(true);
-  const stickyTableStyle = `
-  .sticky-table thead th {
-    position: sticky !important;
-    top: 0 !important;
-    background-color: #f5f5f5 !important;
-    z-index: 10 !important;
-    border-bottom: 2px solid #ddd !important;
-  }
-`;
-  // Fetch allotment data on component mount
+
   useEffect(() => {
-    const styleElement = document.createElement("style");
-    styleElement.innerHTML = stickyTableStyle;
-    document.head.appendChild(styleElement);
-     
     fetchAllotmentData();
     return () => {
       isMountedRef.current = false;
     };
-  },
-   []);
+  }, []);
 
   const fetchAllotmentData = async (searchParams = {}) => {
-  if (!isMountedRef.current) return;
-  setLoading(true);
-  try {
-    const response = await Digit.ESTService.allotmentSearch({
-      tenantId,
-      filters: {
-        tenantId,
-        ...searchParams
-      }
-    });
     if (!isMountedRef.current) return;
+    setLoading(true);
     
-     const allotments = response?.Allotments || [];
-    
-    setAllotteeDetails(allotments);
-    setFilteredData(allotments);
-  } catch (error) {
-    console.error("Error fetching allotment data:", error);
-    if (isMountedRef.current){
-      setAllotteeDetails([]);
-      setFilteredData([]);
+    try {
+      const response = await Digit.ESTService.allotmentSearch({
+        tenantId,
+        filters: {
+          tenantId,
+          ...searchParams
+        }
+      });
+      
+      if (!isMountedRef.current) return;
+      const allotments = response?.Allotments || [];
+      setFilteredData(allotments);
+    } catch (error) {
+      console.error("Error fetching allotment data:", error);
+      if (isMountedRef.current) {
+        setFilteredData([]);
+      }
+    } finally {
+      if (isMountedRef.current)
+        setLoading(false);
     }
-  } finally {
-    if (isMountedRef.current)
-      setLoading(false);
+  };
+  const { data: allotmentStatusData } = Digit.Hooks.useCustomMDMS(
+  Digit.ULBService.getStateId(),
+  "Estate",
+  [{ name: "AllotmentStatus" }],
+  {
+    select: (data) => data?.Estate?.AllotmentStatus || [],
   }
+);
+
+ const onSubmit = (data) => {
+  const searchParams = {};
+  if (data.assetNumber?.trim()) searchParams.assetNo = data.assetNumber.trim();
+  if (data.alloteeName?.trim()) searchParams.alloteeName = data.alloteeName.trim();
+  if (selectedStatus?.code) searchParams.status = selectedStatus.code;
+
+  fetchAllotmentData(searchParams);
 };
 
-  const onSearch = (data) => {
-    const searchParams = {};
-    if (data.assetNumber) searchParams.assetNo = data.assetNumber;
-    if (data.allotteeName) searchParams.alloteeName = data.allotteeName;
-    
-    fetchAllotmentData(searchParams);
-  };
-
-  const clearFilters = () => {
-    reset();
-    fetchAllotmentData();
-  };
-
- const GetCell = (value) => {
-  if (!value || value === "string" || value === "0" || value === 0) {
-    return <span className="cell-text">N/A</span>;
-  }
-  return <span className="cell-text">{value}</span>;
+const clearFilters = (event) => {
+  event.preventDefault(); // Prevent page refresh
+  reset({ assetNumber: "", alloteeName: "" });
+  setSelectedStatus(null);
+  fetchAllotmentData();
 };
 
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "N/A";
-    return new Date(timestamp).toLocaleDateString("en-GB");
+
+  const GetCell = (value) => {
+    if (!value || value === "string" || value === "0" || value === 0) {
+      return <span className="cell-text">N/A</span>;
+    }
+    return <span className="cell-text">{value}</span>;
   };
 
   const columns = useMemo(
-  () => [
-    { 
-      Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>Asset<br/>Number</div>, 
-      accessor: "assetNo", 
-      disableSortBy: true, 
-      Cell: ({ row }) => GetCell(row.original.assetNo) 
-    },
-    { 
-      Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>Allottee<br/>Name</div>, 
-      accessor: "alloteeName", 
-      disableSortBy: true, 
-      Cell: ({ row }) => GetCell(row.original.alloteeName) 
-    },
-    { 
-      Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>Phone<br/>Number</div>, 
-      accessor: "mobileNo", 
-      disableSortBy: true, 
-      Cell: ({ row }) => {
-  const mobile = row.original.mobileNo === "string" ? "" : row.original.mobileNo;
-  const altMobile = row.original.alternateMobileNo === "string" ? "" : row.original.alternateMobileNo;
-  const phoneText = mobile && altMobile ? `${mobile} / ${altMobile}` : mobile || altMobile;
-  return GetCell(phoneText); }
-    },
-    { 
-      Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>Email<br/>ID</div>, 
-      accessor: "emailId", 
-      disableSortBy: true, 
-      Cell: ({ row }) => GetCell(row.original.emailId) 
-    },
-    { 
-  Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>Duration<br/>(Years)</div>, 
-  accessor: "duration", 
-  disableSortBy: true, 
-  Cell: ({ row }) => {
-    const duration = row.original.duration;
-    // Don't filter out 0 for duration - it's a valid value
-    return <span className="cell-text">{duration !== null && duration !== undefined && duration !== "" ? duration : "N/A"}</span>;
-  }
-},
-    { 
-      Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>Monthly<br/>Rent</div>, 
-      accessor: "monthlyRent", 
-      disableSortBy: true, 
-      Cell: ({ row }) => {
-      const rent = row.original.monthlyRent;
-      return GetCell(rent && rent !== "string" && rent !== 0 ? `Rs.${rent}` : "");
-    } 
-    },
-    { 
-      Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>Advance<br/>Payment</div>, 
-      accessor: "advancePayment", 
-      disableSortBy: true, 
-      Cell: ({ row }) => {
-      const advance = row.original.advancePayment;
-      return GetCell(advance && advance !== "string" && advance !== 0 ? `Rs.${advance}` : "");
-}
- 
-    },
-    { 
-      Header: <div style={{whiteSpace: "normal", lineHeight: "1.2", textAlign: "center"}}>E-Office<br/>File No</div>, 
-      accessor: "eofficeFileNo", 
-      disableSortBy: true, 
-      Cell: ({ row }) => GetCell(row.original.eofficeFileNo) 
-    },
-  ],
-  [t]
-);
+    () => [
+      { 
+        Header: t("EST_ASSET_NUMBER"), 
+        accessor: "assetNo", 
+        disableSortBy: true, 
+        Cell: ({ row }) => (
+          <span 
+            style={{ color: "#a82227", cursor: "pointer", textDecoration: "underline" }}
+            onClick={() => history.push(`/upyog-ui/employee/est/application-details/${row.original.assetNo}`)}
+          >
+            {row.original.assetNo || "N/A"}
+          </span>
+        )
+      },
+      { 
+        Header: t("EST_ALLOTTEE_NAME"), 
+        accessor: "alloteeName", 
+        disableSortBy: true, 
+        Cell: ({ row }) => GetCell(row.original.alloteeName) 
+      },
+      { 
+        Header: t("EST_PHONE_NUMBER"), 
+        accessor: "mobileNo", 
+        disableSortBy: true, 
+        Cell: ({ row }) => GetCell(row.original.mobileNo) 
+      },
+      { 
+        Header: t("EST_MONTHLY_RENT"), 
+        accessor: "monthlyRent", 
+        disableSortBy: true, 
+        Cell: ({ row }) => {
+          const rent = row.original.monthlyRent;
+          return GetCell(rent && rent !== "string" && rent !== 0 ? `₹${rent}` : "");
+        } 
+      },
+      { 
+        Header: t("EST_STATUS"), 
+        accessor: "status", 
+        disableSortBy: true, 
+        Cell: ({ row }) => GetCell(row.original.status || "ACTIVE") 
+      },
+    ],
+    [t, history]
+  );
 
   if (loading) return <Loader />;
 
   return (
-    <React.Fragment>
-      <div>
-       <div style={{ padding: "0 20px", maxWidth: "100%", margin: "0 auto" }}>
-          <Header>{t("EST_COMMON_ALLOTTEE_DETAILS")}</Header>
-        </div>
-        
-        <div style={{ margin: "20px" }}>
-          <SearchForm onSubmit={onSearch} handleSubmit={handleSubmit}>
-            <SearchField>
-              <label>{t("EST_ASSET_NUMBER")}</label>
-              <TextInput name="assetNumber" inputRef={register({})} />
+    <div style={{ padding: isMobile ? '10px' : '20px' }}>
+      <Header style={{ fontSize: isMobile ? '18px' : '24px', marginBottom: '15px' }}>{t("EST_COMMON_ALLOTTEE_DETAILS")}</Header>
+      
+      
+      <Card style={{ padding: isMobile ? '10px' : '16px' }}>
+         <span style={{color:"#505A5F", fontSize: isMobile ? '14px' : '16px',padding: isMobile ? '8px' : '10px',}}>{t("Provide at least one parameter to search for allottee details")}</span>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", 
+            gap: isMobile ? "12px" : "16px", 
+            alignItems: "end" 
+          }}>
+            <div>
+  <label htmlFor="assetNumber">Asset Number</label>
+  <TextInput id="assetNumber" name="assetNumber" />
+</div>
+
+            <SearchField style={{ marginBottom: isMobile ? '10px' : '0' }}>
+              <label style={{ fontSize: isMobile ? '14px' : '16px', marginBottom: '5px', display: 'block' }}>{t("EST_ALLOTTEE_NAME")}</label>
+              <TextInput 
+                name="alloteeName" 
+                inputRef={register("alloteeName")}
+                style={{ width: '100%', fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px' : '10px' }}
+              />
             </SearchField>
 
-            <SearchField>
-              <label>{t("EST_ALLOTTEE_NAME")}</label>
-              <TextInput name="allotteeName" inputRef={register({})} />
-            </SearchField>
-
-            <SearchField className="submit">
-              <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
-              <p style={{ marginTop: "10px", cursor: "pointer" }} onClick={clearFilters}>
+            <SearchField className="submit" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', alignItems: isMobile ? 'stretch' : 'center' }}>
+             <SubmitBar label={t("ES_COMMON_SEARCH")} onSubmit={handleSubmit(onSubmit)} submit style={{ width: isMobile ? '100%' : 'auto', fontSize: isMobile ? '14px' : '16px' }} />
+              <p 
+                style={{ 
+                  marginTop: isMobile ? "10px" : "0", 
+                  cursor: "pointer",
+                  width: isMobile ? '100%' : 'auto',
+                  textAlign: isMobile ? 'center' : 'left',
+                  fontSize: isMobile ? '14px' : '16px'
+                }} 
+                onClick={clearFilters}
+              >
                 {t("ES_COMMON_CLEAR_ALL")}
               </p>
             </SearchField>
-          </SearchForm>
+          </div>
+        </form>
+      </Card>
 
-          <div className="sticky-table" style={{ width: "100%", marginTop: "20px", overflowX: "auto" }}>
-  <Table
-    t={t}
-    data={filteredData}
-    columns={columns}
-    totalRecords={filteredData.length}
-    isPaginationRequired={true}
-    pageSizeLimit={10}
-    getCellProps={() => ({
-      style: {
-        padding: "6px",
-        fontSize: "14px",
-        textAlign: "center",
-        whiteSpace: "normal",
-        maxWidth: "120px",
-        overflow: "hidden",
-        wordWrap: "break-word",
-      },
-    })}
-  />
-</div>
-
-
-        </div>
+      <div style={{ 
+        overflowX: "auto", 
+        marginTop: "20px",
+        WebkitOverflowScrolling: "touch",
+        padding: isMobile ? '5px' : '10px'
+      }}>
+        <Table
+          t={t}
+          data={filteredData}
+          columns={columns}
+          totalRecords={filteredData.length}
+          isPaginationRequired={true}
+          pageSizeLimit={10}
+          manualPagination={false}
+          disableSort={true}
+          getCellProps={() => ({
+            style: {
+              padding: isMobile ? "10px 8px" : "20px 18px",
+              fontSize: isMobile ? "12px" : "16px",
+              textAlign: "left",
+              borderBottom: "1px solid #e0e0e0",
+            },
+          })}
+        />
       </div>
-    </React.Fragment>
+    </div>
   );
 };
 

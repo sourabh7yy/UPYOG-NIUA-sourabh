@@ -17,6 +17,19 @@ import { useTranslation } from "react-i18next";
 
 const fieldComponents = {
   mobileNumber: MobileNumber,
+  DatePicker: (props) => (
+    <DatePicker
+    date={props.value}
+    onChange={props.onChange}
+    disabled={false}/>
+  ),
+  Localities: (props) => (
+    <Localities
+      selected={props.value}
+      onChange={props.onChange}
+      t={props.t}
+    />
+  ),
   Dropdown:(props) => (
     <Dropdown
       selected={props.value}
@@ -34,6 +47,25 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
     defaultValues: isInboxPage ? searchParams : { locality: null, city: null, ...searchParams },
   });
 
+  // MDMS data for dropdowns
+  const { data: allotmentStatusData } = Digit.Hooks.useCustomMDMS(
+    Digit.ULBService.getStateId(),
+    "Estate",
+    [{ name: "AllotmentStatus" }],
+    {
+      select: (data) => data?.Estate?.AllotmentStatus || [],
+    }
+  );
+
+  const { data: assetTypeData } = Digit.Hooks.useCustomMDMS(
+    Digit.ULBService.getStateId(),
+    "Estate", 
+    [{ name: "AssetType" }],
+    {
+      select: (data) => data?.Estate?.AssetType || [],
+    }
+  );
+
   const form = watch();
 
   const formValueEmpty = () => {
@@ -47,18 +79,19 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
   };
 
   const mobileView = innerWidth <= 640;
-  const assetClassification=[
-    {
-      code: "MOVABLE",
-      i18nKey: "MOVABLE",
-      value: "MOVABLE"
-    },
-    {
-      code: "IMMOVABLE",
-      i18nKey: "IMMOVABLE",
-      value: "IMMOVABLE"
-    }
-  ];
+
+  // Convert MDMS data to dropdown options
+  const allotmentStatusOptions = allotmentStatusData?.map(item => ({
+    code: item.code,
+    i18nKey: item.name,
+    value: item.code
+  })) || [];
+
+  const assetTypeOptions = assetTypeData?.map(item => ({
+    code: item.code,
+    i18nKey: item.name,
+    value: item.code
+  })) || [];
 
   const onSubmitInput = (data) => {
     if (!data.mobileNumber) {
@@ -101,6 +134,19 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
     );
   };
 
+  // Get appropriate options based on field name
+  const getOptionsForField = (fieldName) => {
+    switch(fieldName) {
+      case "status":
+      case "allotmentStatus":
+        return allotmentStatusOptions;
+      case "assetType":
+        return assetTypeOptions;
+      default:
+        return [];
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmitInput)}>
       <React.Fragment>
@@ -119,7 +165,6 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                 ?.filter((e) => true)
                 ?.map((input, index) => (
                   <div key={input.name} className="input-fields">
-                    {/* <span className={index === 0 ? "complaint-input" : "mobile-input"}> */}
                     <span className={"mobile-input"}>
                       <Label>{t(input.label) + ` ${input.isMendatory ? "*" : ""}`}</Label>
                       {!input.type ? (
@@ -135,7 +180,8 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                         <Controller
                           render={(props) => {
                             const Comp = fieldComponents?.[input.type];
-                            return <Comp formValue={form} setValue={setValue} onChange={props.onChange} value={props.value} options={assetClassification} t={t}/>;
+                            const options = getOptionsForField(input.name);
+                            return <Comp formValue={form} setValue={setValue} onChange={props.onChange} value={props.value} options={options} t={t}/>;
                           }}
                           name={input.name}
                           control={control}
@@ -168,7 +214,6 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                     disabled={!!Object.keys(formState.errors).length || formValueEmpty()}
                     submit
                   />
-                  {/* style={{ paddingTop: "16px", textAlign: "center" }} className="clear-search" */}
                   {!isInboxPage && <div>{clearAll()}</div>}
                 </div>
               )}
