@@ -44,8 +44,7 @@ export const SVSearch = {
     // Extracting details based on relationship type because vendorDetail is an array of objects
     const vendorPersonalDetails = response?.vendorDetail?.find((item)=>item.relationshipType==="VENDOR") || {};
     const vendorSpouseDetails = response?.vendorDetail?.find((item)=>item.relationshipType==="SPOUSE") || {};
-    const vendorDependentDetails = response?.vendorDetail?.find((item)=>item.relationshipType==="DEPENDENT") || {};
-
+    const vendorDependentDetails = response?.vendorDetail?.filter((item) => item.relationshipType === "DEPENDENT") || [];
 
     return [
 
@@ -66,9 +65,20 @@ export const SVSearch = {
           { title: "SV_GENDER", value: getGender(vendorPersonalDetails?.gender) },
           { title: "SV_SPOUSE_NAME", value: vendorSpouseDetails?.name },
           { title: "SV_SPOUSE_DATE_OF_BIRTH", value: vendorSpouseDetails?.dob },
-          { title: "SV_DEPENDENT_NAME", value: vendorDependentDetails?.name },
-          { title: "SV_DEPENDENT_DATE_OF_BIRTH", value: vendorDependentDetails?.dob },
-          { title: "SV_DEPENDENT_GENDER", value: getGender(vendorDependentDetails?.gender) },
+          ...vendorDependentDetails.flatMap((dep, index) => ([
+          {
+            title: `SV_DEPENDENT_${index + 1}_NAME`,
+            value: dep?.name,
+          },
+          {
+            title: `SV_DEPENDENT_${index + 1}_DATE_OF_BIRTH`,
+            value: dep?.dob,
+          },
+          {
+            title: `SV_DEPENDENT_${index + 1}_GENDER`,
+            value: getGender(dep?.gender),
+          }
+        ])),
           { title: "SV_TRADE_NUMBER", value: response?.vendorDetail[0]?.tradeNumber },
         ]),
       },

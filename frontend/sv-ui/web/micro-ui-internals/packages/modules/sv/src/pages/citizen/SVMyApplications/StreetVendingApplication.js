@@ -6,7 +6,6 @@ import RenewPopup from "../../../components/RenewPopup";
 import { RENEWAL_CONSTANTS } from "../../../utils";
 
 const StreetVendingApplication = ({ application, buttonLabel,previousDraftId,onDiscard }) => {
-  console.log("applicationapplication",application);
   const { t } = useTranslation();
   const history = useHistory();
   const [showToast, setShowToast] = useState(null);
