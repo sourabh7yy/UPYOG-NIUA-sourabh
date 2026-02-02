@@ -6,6 +6,9 @@ import org.upyog.Automation.Modules.Adv.AdvBookingCreate;
 import org.upyog.Automation.Modules.Pet.PetCreateApplication;
 import org.upyog.Automation.Modules.StreetVending.CreateApplication;
 import org.upyog.Automation.Modules.TradeLicense.TradeLicenseCreate;
+import org.upyog.Automation.Modules.RequestService.TreePruningCitizen;
+import org.upyog.Automation.Modules.RequestService.WaterTankerCitizen;
+import org.upyog.Automation.Modules.RequestService.MobileToiletCitizen;
 
 /**
  * Common entry point for all citizen module tests
@@ -35,7 +38,20 @@ public class CommonCitizenTest {
                 AdvBookingCreate advApp = new AdvBookingCreate();
                 advApp.AdvBookingReg(baseUrl, moduleName, mobileNumber, otp, cityName);
 
-            } else {
+            }else if ("TREE_PRUNING".equalsIgnoreCase(moduleName)) {
+
+                TreePruningCitizen treePruningApp = new TreePruningCitizen();
+                treePruningApp.TreePruningCreate(baseUrl, moduleName, mobileNumber, otp, cityName);
+
+            } else if ("WATER_TANKER".equalsIgnoreCase(moduleName)) {
+                WaterTankerCitizen waterTankerApp = new WaterTankerCitizen();
+                waterTankerApp.WaterTankerCreate(baseUrl, moduleName, mobileNumber, otp, cityName);
+
+            } else if ("MOBILE_TOILET".equalsIgnoreCase(moduleName)) {
+                MobileToiletCitizen mobileToiletApp = new MobileToiletCitizen();
+                mobileToiletApp.MobileToiletCreate(baseUrl, moduleName, mobileNumber, otp, cityName);
+            }
+            else {
                 logger.error("Unknown module: {}", moduleName);
                 throw new RuntimeException("Unknown module: " + moduleName);
             }
