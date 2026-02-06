@@ -56,8 +56,8 @@ const TopBar = ({
               <NotificationBell />
             </div>
           ) : null}
-          {/* <h3></h3>
-          <img
+          <h3></h3>
+          {/* <img
           className="city"
           id="topbar-logo" 
           src={"https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" || "https://cdn.jsdelivr.net/npm/@egovernments/digit-ui-css@1.0.7/img/m_seva_white_logo.png"}
@@ -69,7 +69,7 @@ const TopBar = ({
             <img
               src="https://github.com/DPGAlliance/dpg-resources/blob/main/docs/assets/dpg-badge.png?raw=true"
               alt="Digital Public Goods Badge"
-              style={{display: "inline-block", height: "30px", width: "100px", padding: "0px", background: "white", borderRadius: "999px"}}
+              style={{display: "inline-block", height: "30px", width: "85px", padding: "0px", background: "white", borderRadius: "999px"}}
             />
           </a>
         </div>
