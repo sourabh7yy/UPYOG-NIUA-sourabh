@@ -30,21 +30,21 @@ Map<String, dynamic> _$TokenToJson(Token instance) => <String, dynamic>{
     };
 
 ResponseInfo _$ResponseInfoFromJson(Map<String, dynamic> json) => ResponseInfo()
-  ..apiId = json['api_id'] as String?
-  ..ver = json['ver'] as String?
-  ..ts = json['ts'] as String?
-  ..resMsgId = json['res_msg_id'] as String?
-  ..msgId = json['msg_id'] as String?
-  ..status = json['status'] as String?;
+  ..apiId = const IntToStringConverter().fromJson(json['api_id'])
+  ..ver = const IntToStringConverter().fromJson(json['ver'])
+  ..ts = const IntToStringConverter().fromJson(json['ts'])
+  ..resMsgId = const IntToStringConverter().fromJson(json['res_msg_id'])
+  ..msgId = const IntToStringConverter().fromJson(json['msg_id'])
+  ..status = const IntToStringConverter().fromJson(json['status']);
 
 Map<String, dynamic> _$ResponseInfoToJson(ResponseInfo instance) =>
     <String, dynamic>{
-      'api_id': instance.apiId,
-      'ver': instance.ver,
-      'ts': instance.ts,
-      'res_msg_id': instance.resMsgId,
-      'msg_id': instance.msgId,
-      'status': instance.status,
+      'api_id': const IntToStringConverter().toJson(instance.apiId),
+      'ver': const IntToStringConverter().toJson(instance.ver),
+      'ts': const IntToStringConverter().toJson(instance.ts),
+      'res_msg_id': const IntToStringConverter().toJson(instance.resMsgId),
+      'msg_id': const IntToStringConverter().toJson(instance.msgId),
+      'status': const IntToStringConverter().toJson(instance.status),
     };
 
 UserRequest _$UserRequestFromJson(Map<String, dynamic> json) => UserRequest()

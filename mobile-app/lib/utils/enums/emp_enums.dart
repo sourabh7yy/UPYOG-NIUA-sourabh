@@ -118,6 +118,7 @@ enum InspectorType {
   PGR_LME_INSPECTOR,
   PT_CEMP_INSPECTOR,
   PT_APPROVER_INSPECTOR,
+  GIS_CEMP
 }
 
 extension InspectorTypeExtension on InspectorType {
@@ -132,6 +133,7 @@ extension InspectorTypeExtension on InspectorType {
     InspectorType.PGR_LME_INSPECTOR: "PGR_LME",
     InspectorType.PT_CEMP_INSPECTOR: "PT_CEMP",
     InspectorType.PT_APPROVER_INSPECTOR: "PT_APPROVER",
+    InspectorType.GIS_CEMP: "GIS_CEMP",
   };
   String get name => actionNames[this]!;
 }

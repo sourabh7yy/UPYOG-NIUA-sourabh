@@ -22,6 +22,7 @@ import 'package:mobile_app/utils/enums/modules.dart';
 import 'package:mobile_app/utils/extension/extension.dart';
 import 'package:mobile_app/utils/platforms/platforms.dart';
 import 'package:mobile_app/utils/utils.dart';
+import 'package:mobile_app/screens/employee/emp_pt/emp_pt_details/gis_map_screen.dart';
 import 'package:mobile_app/widgets/complain_card.dart';
 import 'package:mobile_app/widgets/header_widgets.dart';
 import 'package:mobile_app/widgets/medium_text.dart';
@@ -153,6 +154,19 @@ class _EmpPtScreenState extends State<EmpPtScreen> {
             }
             return Row(
               children: [
+                IconButton(
+                  style: IconButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  onPressed: () => Get.to(() => const GisMapScreen()),
+                  icon: Icon(
+                    Icons.map_outlined,
+                    color: BaseConfig.filterIconColor,
+                    size: o == Orientation.portrait ? 24.h : 34.h,
+                  ),
+                ),
                 IconButton(
                   style: IconButton.styleFrom(
                     shape: RoundedRectangleBorder(

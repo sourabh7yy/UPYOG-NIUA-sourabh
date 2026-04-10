@@ -227,10 +227,11 @@ class MyApp extends StatelessWidget {
                       color: BaseConfig.borderColor,
                       thickness: 1,
                     ),
-                    cardTheme: const CardTheme(
-                      color: BaseConfig.mainBackgroundColor,
-                      elevation: 4,
-                    ),
+                    cardTheme: const CardThemeData(
+                    color: BaseConfig.mainBackgroundColor,
+                     elevation: 4,
+                      ),
+
                     textSelectionTheme: const TextSelectionThemeData(
                       selectionHandleColor: BaseConfig.appThemeColor1,
                     ),

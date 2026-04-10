@@ -15,7 +15,7 @@ class BaseConfig {
   // image: "assets/images/launcherIcon1.png"
   // branding: "assets/images/niuaWithName.png"
 
-  static const String BACKEND_URL = "https://upyog.niua.org/";
+  static const String BACKEND_URL = "https://niuatt.niua.in/";
   // static const String DEV_URL = "https://upyog-test.niua.org/";
   // static const String STAGE_URL = "https://upyog-sandbox.niua.org/";
 

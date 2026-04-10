@@ -48,7 +48,9 @@ import 'package:mobile_app/screens/citizen/property_tax/my_bills/my_bills_screen
 import 'package:mobile_app/screens/citizen/property_tax/my_payments/my_payments_screen.dart';
 import 'package:mobile_app/screens/citizen/property_tax/my_properties/properties_details_screen.dart';
 import 'package:mobile_app/screens/citizen/property_tax/my_properties/property_tax_screen.dart';
-import 'package:mobile_app/screens/citizen/property_tax/my_properties_screen.dart';
+import 'package:mobile_app/screens/citizen/property_tax/create_applications/my_properties_screen.dart';
+import 'package:mobile_app/screens/citizen/property_tax/create_applications/citizen_pt_registration_screen.dart';
+import 'package:mobile_app/screens/citizen/property_tax/create_applications/property_type_screen.dart';
 import 'package:mobile_app/screens/citizen/sign_up/signup_screen.dart';
 import 'package:mobile_app/screens/citizen/trade_license/my_tl_applications/new_tl_applications.dart';
 import 'package:mobile_app/screens/citizen/trade_license/my_tl_applications/trade_license_details/tl_details_screen.dart';
@@ -133,6 +135,8 @@ class AppRoutes {
   static const String MY_PROPERTIES_DETAILS = '/MY_PROPERTIES_DETAILS';
   static const String PROPERTY_APPLICATIONS_DETAILS =
       '/PROPERTY_APPLICATIONS_DETAILS';
+  static const String CREATE_PROPERTY = '/CREATE_PROPERTY';
+  static const String PROPERTY_TYPE = '/PROPERTY_TYPE';
   static const String PROPERTY_MY_PAYMENT_SCREEN =
       '/PROPERTY_MY_PAYMENT_SCREEN';
   static const String PROPERTY_MY_BILLS_SCREEN = '/PROPERTY_MY_BILLS_SCREEN';
@@ -300,6 +304,14 @@ class AppRoutes {
     GetPage(
       name: PROPERTY_APPLICATIONS_DETAILS,
       page: () => const MyPropertyApplicationDetails(),
+    ),
+    GetPage(
+      name: CREATE_PROPERTY,
+      page: () => const PropertyTypeScreen(),
+    ),
+    GetPage(
+      name: PROPERTY_TYPE,
+      page: () => const CitizenPtRegistrationScreen(),
     ),
     GetPage(
       name: PROPERTY_MY_PAYMENT_SCREEN,

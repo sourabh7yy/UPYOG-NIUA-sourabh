@@ -11,20 +11,11 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		9015B2BA2C904E8E009CD278 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2AF2C904E8E009CD278 /* Random.swift */; };
-		9015B2BB2C904E8E009CD278 /* HMAC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B02C904E8E009CD278 /* HMAC.swift */; };
-		9015B2BC2C904E8E009CD278 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B12C904E8E009CD278 /* Crypto.swift */; };
-		9015B2BD2C904E8E009CD278 /* Cryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B22C904E8E009CD278 /* Cryptor.swift */; };
-		9015B2BE2C904E8E009CD278 /* StreamCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B32C904E8E009CD278 /* StreamCryptor.swift */; };
-		9015B2BF2C904E8E009CD278 /* Updateable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B42C904E8E009CD278 /* Updateable.swift */; };
-		9015B2C02C904E8E009CD278 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B52C904E8E009CD278 /* Utilities.swift */; };
-		9015B2C12C904E8E009CD278 /* Digest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B62C904E8E009CD278 /* Digest.swift */; };
-		9015B2C22C904E8E009CD278 /* KeyDerivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B72C904E8E009CD278 /* KeyDerivation.swift */; };
-		9015B2C32C904E8E009CD278 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B82C904E8E009CD278 /* AppDelegate.swift */; };
-		9015B2C42C904E8E009CD278 /* Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9015B2B92C904E8E009CD278 /* Status.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		C8F1DBBC2F1E33580072625F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C8F1DBBB2F1E33580072625F /* main.m */; };
+		C8F1DBBE2F1E33920072625F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F1DBBD2F1E33920072625F /* AppDelegate.swift */; };
 		CD7DCC81F878D320C8FEF811 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1457F1CDACFED43670AEE6D0 /* Pods_RunnerTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -83,6 +74,8 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A548DA52E58BF5259D1698E8 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		BC0A9639C7BB0F944E901F4F /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C8F1DBBB2F1E33580072625F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C8F1DBBD2F1E33920072625F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Runner/AppDelegate.swift; sourceTree = "<group>"; };
 		D3CB54710AF6A1A9B9BD7D4A /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		D6BE8D455311CF9E3E625716 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -129,6 +122,8 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				C8F1DBBD2F1E33920072625F /* AppDelegate.swift */,
+				C8F1DBBB2F1E33580072625F /* main.m */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
@@ -424,18 +419,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9015B2C32C904E8E009CD278 /* AppDelegate.swift in Sources */,
-				9015B2BE2C904E8E009CD278 /* StreamCryptor.swift in Sources */,
-				9015B2C12C904E8E009CD278 /* Digest.swift in Sources */,
-				9015B2BF2C904E8E009CD278 /* Updateable.swift in Sources */,
+				C8F1DBBE2F1E33920072625F /* AppDelegate.swift in Sources */,
+				C8F1DBBC2F1E33580072625F /* main.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
-				9015B2BC2C904E8E009CD278 /* Crypto.swift in Sources */,
-				9015B2BB2C904E8E009CD278 /* HMAC.swift in Sources */,
-				9015B2C02C904E8E009CD278 /* Utilities.swift in Sources */,
-				9015B2C42C904E8E009CD278 /* Status.swift in Sources */,
-				9015B2C22C904E8E009CD278 /* KeyDerivation.swift in Sources */,
-				9015B2BA2C904E8E009CD278 /* Random.swift in Sources */,
-				9015B2BD2C904E8E009CD278 /* Cryptor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -513,7 +499,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -527,22 +513,22 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 9ZB8XD29H5;
+				DEVELOPMENT_TEAM = JUF7PS225X;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mobile App";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.8.10;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.mobileApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sourabh.mobileapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -564,7 +550,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.mobileApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -588,7 +574,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.mobileApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -610,7 +596,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.mobileApp.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -674,7 +660,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -726,7 +712,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -742,22 +728,22 @@
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 9ZB8XD29H5;
+				DEVELOPMENT_TEAM = JUF7PS225X;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mobile App";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.8.10;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.mobileApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sourabh.mobileapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -777,22 +763,22 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 9ZB8XD29H5;
+				DEVELOPMENT_TEAM = JUF7PS225X;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mobile App";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.8.10;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.mobileApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sourabh.mobileapp.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

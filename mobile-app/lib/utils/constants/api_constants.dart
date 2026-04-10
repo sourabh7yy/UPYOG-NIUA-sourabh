@@ -82,6 +82,8 @@ class Url {
   //EMP-FireNoc
   static const String EMP_FIRE_NOC_LOCALITY =
       'egov-searcher/locality/fireNoc/_get';
+
+  static const String GIS_PT_SEARCH = 'gis-dx-service/gis-dx/v1/_search/PT';
 }
 
 class UserUrl {

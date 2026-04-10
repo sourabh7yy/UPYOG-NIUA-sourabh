@@ -36,6 +36,7 @@ import 'package:mobile_app/widgets/mutation_widget/mutation_price_widget.dart';
 import 'package:mobile_app/widgets/mutation_widget/registration_details_widget.dart';
 import 'package:mobile_app/widgets/owner_card/owner_card_widget.dart';
 import 'package:mobile_app/widgets/small_text.dart';
+import 'package:mobile_app/screens/employee/emp_pt/emp_pt_details/gis_map_screen.dart';
 import 'package:mobile_app/widgets/timeline_widget.dart/timeline_wdget.dart';
 
 class EmpPtDetailsScreen extends StatefulWidget {
@@ -46,23 +47,43 @@ class EmpPtDetailsScreen extends StatefulWidget {
 }
 
 class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
+  // Controller for handling file fetch and type detection
   final _fileController = Get.find<FileController>();
+
+  // Controller for auth token and user session
   final _authController = Get.find<AuthController>();
+
+  // Controller for fetching workflow and timeline history
   final _timelineController = Get.find<TimelineController>();
+
+  // Controller for fetching property tax data
   final _ptController = Get.find<PropertiesTaxController>();
+
+  // Controller for handling inbox actions and action dialogue
   final _inboxController = Get.find<InboxController>();
 
+  // Index of the selected item passed via route arguments
   int index = 0;
+
+  // Flags to avoid redundant API calls
   bool _isTimelineFetch = false;
   bool _isFileStoreFetch = false;
 
+  // The inbox item containing business object details
   pt.Item? _item;
+
+  // Status map holding workflow state and business service info
   late StatusMap statusMap;
+
+  // Observable loading state to show/hide loaders
   var isLoading = false.obs;
+
+  // Completer used to lazily fetch file store when documents section expands
   Completer<FileStore?> fileStoreFuture = Completer<FileStore?>();
 
   @override
   void initState() {
+    // Extract route arguments passed from the inbox/list screen
     index = Get.arguments?['index'] as int? ?? 0;
     _item = Get.arguments?['item'] as pt.Item?;
     statusMap = Get.arguments?['statusMap'] as StatusMap? ?? StatusMap();
@@ -70,6 +91,7 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     _init();
   }
 
+  /// Initializes the screen by fetching property details and workflow in sequence.
   _init() async {
     isLoading.value = true;
     await _getProperties();
@@ -77,6 +99,7 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     isLoading.value = false;
   }
 
+  /// Fetches property details for the current item using propertyId and tenantId.
   Future<void> _getProperties() async {
     try {
       await _ptController.getMyPropertiesEmp(
@@ -89,6 +112,8 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     }
   }
 
+  /// Fetches file store data for property documents and completes the [fileStoreFuture].
+  /// Called lazily when the documents expansion tile is opened.
   void getFilesStore() async {
     try {
       fileStoreFuture.complete(
@@ -110,6 +135,8 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     }
   }
 
+  /// Extracts and returns a comma-separated string of fileStoreIds from property documents.
+  /// Returns empty string if no documents are found.
   String getFileStoreIds() {
     if (!isNotNullOrEmpty(
       _ptController.myProperties?.properties?.firstOrNull?.documents,
@@ -125,6 +152,8 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     return fileIds.join(', ');
   }
 
+  /// Fetches the timeline/process history for the current application.
+  /// Sets [_isTimelineFetch] to true after a successful fetch to avoid re-fetching.
   Future<void> _getTimeline() async {
     try {
       await _timelineController
@@ -141,6 +170,7 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     }
   }
 
+  /// Fetches the workflow business service definition used to build action menu items.
   Future<void> _getWorkflow() async {
     try {
       await _timelineController.getWorkFlow(
@@ -174,6 +204,14 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
                     margin:
                         EdgeInsets.all(o == Orientation.portrait ? 16.w : 12.w),
                     child: PopupMenuButton(
+                      onOpened: () {
+                        print("========== TAKE ACTION BUTTON OPENED ==========");
+                        dPrint("========== TAKE ACTION BUTTON OPENED ==========");
+                      },
+                      onCanceled: () {
+                        print("========== MENU CANCELED ==========");
+                        dPrint("========== MENU CANCELED ==========");
+                      },
                       style: FilledButton.styleFrom(
                         backgroundColor: BaseConfig.appThemeColor1,
                         shape: RoundedRectangleBorder(
@@ -188,80 +226,119 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
                         color: BaseConfig.mainBackgroundColor,
                         fontWeight: FontWeight.w600,
                       ),
-                      itemBuilder: (context) => _timelineController
-                          .workflowBusinessServices
-                          .businessServices!
-                          .first
-                          .states!
-                          .where((s) => s.uuid == statusMap.statusId)
-                          .first
-                          .actions!
-                          .map(
-                            (action) => PopupMenuItem<String>(
-                              value: action.action,
-                              child: SmallSelectableTextNotoSans(
-                                text: LocalizeUtils.getTakeActionLocal(
-                                  action.action,
-                                  workflowCode: statusMap.businessService!,
-                                  module: Modules.PT,
-                                  isCommon: true,
-                                ),
-                                color: BaseConfig.textColor,
-                                fontWeight: FontWeight.w600,
-                                size: o == Orientation.portrait ? 14.sp : 8.sp,
-                              ),
-                            ),
-                          )
-                          .toList(),
+                      itemBuilder: (context) {
+                        print("========== BUILDING MENU ITEMS ==========");
+                        dPrint("========== BUILDING MENU ITEMS ==========");
+                        final items = _timelineController
+                            .workflowBusinessServices
+                            .businessServices!
+                            .first
+                            .states!
+                            .where((s) => s.uuid == statusMap.statusId)
+                            .first
+                            .actions!
+                            .map(
+                              (action) {
+                                print("Creating menu item: ${action.action}");
+                                dPrint("Menu Item: ${action.action}");
+                                return PopupMenuItem<String>(
+                                  value: action.action,
+                                  onTap: () {
+                                    print("========== ITEM TAPPED: ${action.action} ==========");
+                                  },
+                                  child: SmallTextNotoSans(
+                                    text: LocalizeUtils.getTakeActionLocal(
+                                      action.action,
+                                      workflowCode: statusMap.businessService!,
+                                      module: Modules.PT,
+                                      isCommon: true,
+                                    ),
+                                    color: BaseConfig.textColor,
+                                    fontWeight: FontWeight.w600,
+                                    size: o == Orientation.portrait ? 14.sp : 8.sp,
+                                  ),
+                                );
+                              },
+                            )
+                            .toList();
+                        dPrint("Total menu items: ${items.length}");
+                        return items;
+                      },
                       onSelected: (value) async {
-                        dPrint("Action $value");
-                        dPrint("Work Flow Id ${statusMap.businessService!}");
+                        print("========== TAKE ACTION CLICKED ==========");
+                        print("Selected Action: $value");
+                        dPrint("========== TAKE ACTION CLICKED ==========");
+                        dPrint("Selected Action: $value");
+                        dPrint("Work Flow Id: ${statusMap.businessService!}");
+                        dPrint("Status Map ID: ${statusMap.statusId}");
+                        dPrint("Tenant ID: ${_item!.businessObject!.tenantId!}");
+                        
+                        // Visual confirmation
+                        snackBar('Action Clicked', 'Processing: $value', Colors.blue);
 
-                        // Get the next state of the action
-                        String uuid = _timelineController
-                                .workflowBusinessServices
-                                .businessServices
-                                ?.first
-                                .states
-                                ?.where((s) => s.uuid == statusMap.statusId)
-                                .first
-                                .actions
-                                ?.where((a) => a.action == value)
-                                .first
-                                .nextState ??
-                            '';
+                        try {
+                          // Get the next state of the action
+                          dPrint("Fetching next state UUID...");
+                          String uuid = _timelineController
+                                  .workflowBusinessServices
+                                  .businessServices
+                                  ?.first
+                                  .states
+                                  ?.where((s) => s.uuid == statusMap.statusId)
+                                  .first
+                                  .actions
+                                  ?.where((a) => a.action == value)
+                                  .first
+                                  .nextState ??
+                              '';
 
-                        dPrint('UUID: $uuid');
+                          dPrint('Next State UUID: $uuid');
 
-                        if (uuid.isEmpty) {
-                          snackBar(
-                            'InComplete',
-                            'Next State is Empty',
-                            Colors.green,
-                          );
-                          return;
-                        }
+                          if (uuid.isEmpty) {
+                            dPrint('ERROR: UUID is empty!');
+                            snackBar(
+                              'InComplete',
+                              'Next State is Empty',
+                              Colors.green,
+                            );
+                            return;
+                          }
 
-                        if (value != BaseAction.reject.name &&
-                            value != BaseAction.sendBackToCitizen.name) {
-                          await _timelineController.getEmployees(
-                            token: _authController.token!.accessToken!,
+                          dPrint('Checking action type...');
+                          if (value != BaseAction.reject.name &&
+                              value != BaseAction.sendBackToCitizen.name) {
+                            dPrint('Fetching employees for UUID: $uuid');
+                            await _timelineController.getEmployees(
+                              token: _authController.token!.accessToken!,
+                              tenantId: _item!.businessObject!.tenantId!,
+                              uuid: uuid,
+                            );
+                            dPrint('Employees fetched successfully');
+                          } else {
+                            dPrint('Skipping employee fetch for action: $value');
+                          }
+
+                          if (!context.mounted) {
+                            dPrint('ERROR: Context not mounted!');
+                            return;
+                          }
+
+                          dPrint('Opening action dialogue...');
+                          _inboxController.actionDialogue(
+                            context,
+                            workFlowId: statusMap.businessService!,
+                            action: value,
+                            module: Modules.PT,
+                            sectionType: ModulesEmp.PT_SERVICES,
                             tenantId: _item!.businessObject!.tenantId!,
-                            uuid: uuid,
+                            businessService: BusinessService.PT,
                           );
+                          dPrint('Action dialogue called successfully');
+                        } catch (e, stackTrace) {
+                          dPrint('ERROR in onSelected: $e');
+                          dPrint('StackTrace: $stackTrace');
                         }
-
-                        if (!context.mounted) return;
-
-                        _inboxController.actionDialogue(
-                          context,
-                          workFlowId: statusMap.businessService!,
-                          action: value,
-                          module: Modules.PT,
-                          sectionType: ModulesEmp.PT_SERVICES,
-                          tenantId: _item!.businessObject!.tenantId!,
-                          businessService: BusinessService.PT,
-                        );
+                        dPrint("========== TAKE ACTION END ==========");
                       },
                     ),
                   )
@@ -282,6 +359,17 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            TextButton.icon(
+                              onPressed: () => Get.to(() => const GisMapScreen()),
+                              icon: const Icon(
+                                Icons.map_outlined,
+                                color: BaseConfig.redColor1,
+                              ),
+                              label: MediumSelectableTextNotoSans(
+                                text: 'Map',
+                                color: BaseConfig.redColor1,
+                              ),
+                            ),
                             TextButton(
                               onPressed: () async {
                                 if (!_isTimelineFetch) {
@@ -313,6 +401,8 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     );
   }
 
+  /// Builds the main details card containing all property sections:
+  /// address, assessment, floor units, ownership, mutation, and documents.
   Widget _buildDetails() => BuildCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,6 +582,8 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
         ),
       );
 
+  /// Builds the assessment details section showing usage, property type,
+  /// land area, floors, electricity number, and UID.
   Widget _buildPropertyAssessment(Property property) => Column(
         children: [
           ColumnHeaderText(
@@ -549,6 +641,7 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
         ],
       );
 
+  /// Builds the address section showing pincode, city, locality, street, and house number.
   Widget _buildAddress({Address? address}) => Column(
         children: [
           ColumnHeaderText(
@@ -589,6 +682,7 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
         ],
       );
 
+  /// Builds a card for a single floor unit showing usage type, occupancy, built-up area, and ARV.
   Widget _buildGroundFloorCard(Unit unit, int index) {
     final unitUsageType =
         (unit.usageCategory != null && unit.usageCategory!.contains('.'))
@@ -670,6 +764,8 @@ class _EmpPtDetailsScreenState extends State<EmpPtDetailsScreen> {
     );
   }
 
+  /// Builds the documents grid view. Shows a grid of document icons with type labels.
+  /// Tapping a document opens a preview dialogue based on file type (PDF or image).
   Widget _buildDocuments(FileStore fileStore) {
     return fileStore.fileStoreIds!.isEmpty
         ? const DocumentsNotFound(module: Modules.PT)

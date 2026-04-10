@@ -2,6 +2,21 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'token.g.dart';
 
+class IntToStringConverter implements JsonConverter<String?, Object?> {
+  const IntToStringConverter();
+
+  @override
+  String? fromJson(Object? json) {
+    if (json == null) return null;
+    if (json is String) return json;
+    if (json is int) return json.toString();
+    return json.toString();
+  }
+
+  @override
+  Object? toJson(String? object) => object;
+}
+
 @JsonSerializable()
 class Token {
   @JsonKey(name: 'access_token')
@@ -28,16 +43,22 @@ class Token {
 
 @JsonSerializable()
 class ResponseInfo {
+  @IntToStringConverter()
   @JsonKey(name: 'api_id')
   String? apiId;
+  @IntToStringConverter()
   @JsonKey(name: 'ver')
   String? ver;
+  @IntToStringConverter()
   @JsonKey(name: 'ts')
   String? ts;
+  @IntToStringConverter()
   @JsonKey(name: 'res_msg_id')
   String? resMsgId;
+  @IntToStringConverter()
   @JsonKey(name: 'msg_id')
   String? msgId;
+  @IntToStringConverter()
   @JsonKey(name: 'status')
   String? status;
 

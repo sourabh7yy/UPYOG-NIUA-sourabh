@@ -30,7 +30,7 @@ dependencies:
   json_annotation: ^4.9.0
   dio: ^5.4.3+1
   mime: ^1.0.5
-  syncfusion_flutter_pdfviewer: ^26.1.35
+  syncfusion_flutter_pdfviewer: ^27.1.0
   flutter_launcher_icons: ^0.13.1
   flutter_localizations:
     sdk: flutter
@@ -49,9 +49,9 @@ dependencies:
   #NttDataPayment
   encrypt: ^5.0.3
   crypto: ^3.0.3
-  intl: ^0.19.0
+  intl: ^0.20.2
   flutter_native_splash: ^2.4.0
-  syncfusion_flutter_datagrid: ^26.1.39
+  syncfusion_flutter_datagrid: ^27.1.0
   google_fonts: ^6.2.1
   dropdown_search: ^5.0.6
   geolocator: ^13.0.1
@@ -65,6 +65,8 @@ dependencies:
   file_saver: ^0.2.14
   permission_handler: ^12.0.0+1
   cached_network_image: ^3.4.1
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
   sqflite: ^2.4.1
   # uuid: ^4.4.0
 
@@ -132,3 +134,5 @@ flutter_native_splash:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+dependency_overrides:
+  intl: ^0.20.2

@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
+
 
 import 'package:get/get.dart';
 import 'package:mobile_app/config/base_config.dart';
 import 'package:mobile_app/controller/auth_controller.dart';
+import 'package:mobile_app/controller/locality_controller.dart';
+import 'package:mobile_app/controller/property_registration_controller.dart';
 import 'package:mobile_app/model/citizen/bill/bill_info.dart';
 import 'package:mobile_app/model/citizen/localization/language.dart';
 import 'package:mobile_app/model/citizen/payments/payment.dart';
@@ -90,8 +94,13 @@ class PropertiesTaxController extends GetxController {
         };
       } else {
         final TenantTenant tenantCityId = await getCityTenant();
+        
+        if (tenantCityId.code?.isEmpty ?? true) {
+          throw Exception('Tenant city code is empty');
+        }
+        
         query = {
-          'tenantId': tenantCityId.code,
+          'tenantId': tenantCityId.code ?? '',
           'limit': limit.toString(),
           'sortOrder': 'ASC',
           'sortBy': 'createdTime',
@@ -365,16 +374,16 @@ class PropertiesTaxController extends GetxController {
   }
 
   //Check roles for Field Inspection and Approver Inspection
-  bool checkRolesForPtInspection() {
-    final roles = Get.find<AuthController>().token?.userRequest?.roles;
-    if (roles == null) return false;
+  // bool checkRolesForPtInspection() {
+  //   final roles = Get.find<AuthController>().token?.userRequest?.roles;
+  //   if (roles == null) return false;
 
-    return roles.any(
-      (role) =>
-          role.code == InspectorType.PT_FIELD_INSPECTOR.name ||
-          role.code == InspectorType.PT_APPROVER_INSPECTOR.name,
-    );
-  }
+  //   return roles.any(
+  //     (role) =>
+  //         role.code == InspectorType.PT_FIELD_INSPECTOR.name ||
+  //         role.code == InspectorType.PT_APPROVER_INSPECTOR.name,
+  //   );
+  // }
 
   /// Get PT inbox applications for employee
   Future<void> getEmpPtInboxApplications({
@@ -412,26 +421,31 @@ class PropertiesTaxController extends GetxController {
       empPtModel = EmpPtModel.fromJson(empRes);
 
       //Check employee permission for field inspection and approver
-      final inspectorHasPermission = checkRolesForPtInspection();
+      // final inspectorHasPermission = checkRolesForPtInspection();
+      dev.log('RAW INBOX COUNT: ${empPtModel.items?.length ?? 0}');
 
-      empPtModel.items = empPtModel.items?.where((item) {
-        final state = item.processInstance?.state?.state;
-        if (state == null) return false;
 
-        final isDocVerified = (state == InboxStatus.DOC_VERIFIED.name);
 
-        final isMutation = (item.processInstance?.businessService ==
-                BusinessServicesEmp.PT_MUTATION.name &&
-            state == 'PAID');
 
-        final isPtCreate = (item.processInstance?.businessService ==
-                BusinessServicesEmp.PT_CREATE.name &&
-            state == InboxStatus.FIELD_VERIFIED.name);
+      // empPtModel.items = empPtModel.items?.where((item) {
+      //   final state = item.processInstance?.state?.state;
+      //   if (state == null) return false;
 
-        return (isDocVerified && inspectorHasPermission) ||
-            (isMutation && inspectorHasPermission) ||
-            (isPtCreate && inspectorHasPermission);
-      }).toList();
+      //   final isDocVerified = (state == InboxStatus.DOC_VERIFIED.name);
+
+      //   final isMutation = (item.processInstance?.businessService ==
+      //           BusinessServicesEmp.PT_MUTATION.name &&
+      //       state == 'PAID');
+
+      //   final isPtCreate = (item.processInstance?.businessService ==
+      //           BusinessServicesEmp.PT_CREATE.name &&
+      //       state == InboxStatus.FIELD_VERIFIED.name);
+
+      //   // return (isDocVerified && inspectorHasPermission) ||
+      //   //     (isMutation && inspectorHasPermission) ||
+      //   //     (isPtCreate && inspectorHasPermission);
+      // }).toList();
+      //   dev.log('EMP PT AFTER FILTER: ${empPtModel.items?.length ?? 0}');
 
       length.value = empPtModel.items?.length ?? 0;
       streamCtrl.add(empPtModel);
@@ -692,5 +706,284 @@ class PropertiesTaxController extends GetxController {
       await ErrorHandler.allExceptionsHandler(e, s);
     }
     return null;
+  }
+
+  // Citizen - PT Form create
+  Future<Property?> createNewPTApplicationCitizen({
+    required String token,
+    required Map<String, dynamic> property,
+  }) async {
+    try {
+      dPrint('Citizen Property: $property');
+      final body = {
+        'Property': property,
+      };
+      final res = await PropertyTaxRepository.createProperties(
+        token: token,
+        body: body,
+      );
+
+      final propertyRes = PtMyProperties.fromJson(res).properties?.first;
+      return propertyRes;
+    } catch (e, s) {
+      dPrint('createNewPTApplicationCitizenError: $e');
+      await ErrorHandler.allExceptionsHandler(e, s);
+      rethrow; // Re-throw to allow caller to handle
+    }
+  }
+
+  // Build property payload with multiple owners support
+  Map<String, dynamic> buildPropertyPayload({
+    required PropertyRegistrationController controller,
+    required String tenantId,
+  }) {
+    dPrint('===== BUILD PROPERTY PAYLOAD =====');
+    dPrint('Controller values:');
+    dPrint('  pincode: ${controller.pincode.value}');
+    dPrint('  city: ${controller.city.value}');
+    dPrint('  locality: ${controller.locality.value}');
+    dPrint('  localityCode: ${controller.localityCode.value}');
+    dPrint('  streetName: ${controller.streetName.value}');
+    dPrint('  houseNo: ${controller.houseNo.value}');
+    dPrint('  landmark: ${controller.landmark.value}');
+    
+    // Determine ownership category first
+    String ownershipCategory = 'INDIVIDUAL';
+    bool isInstitutional = false;
+    
+    if (controller.ownershipType.value == 'multiple') {
+      ownershipCategory = 'INDIVIDUAL';
+    } else if (controller.ownershipType.value == 'government') {
+      ownershipCategory = 'INSTITUTIONALGOVERNMENT';
+      isInstitutional = true;
+    } else if (controller.ownershipType.value == 'private') {
+      ownershipCategory = 'INSTITUTIONALPRIVATE';
+      isInstitutional = true;
+    }
+
+    // Build owners array from allOwners data
+    final owners = controller.allOwners.map((owner) {
+      final ownerData = {
+        'emailId': owner['email'] ?? '',
+        'mobileNumber': owner['mobileNumber'] ?? '',
+        'name': owner['name'] ?? '',
+        'ownerType': 'NONE',
+        'documents': [],
+        'isCorrespondenceAddress': true,
+      };
+      
+      // Add fields based on ownership type
+      if (isInstitutional) {
+        // For institutional: use altContactNumber and designation
+        ownerData['altContactNumber'] = owner['telephone']?.toString() ?? '';
+        ownerData['designation'] = owner['designation'] ?? '';
+        ownerData['correspondenceAddress'] = _buildCorrespondenceAddress(controller);
+      } else {
+        // For individual: add standard fields
+        ownerData['fatherOrHusbandName'] = owner['guardian'] ?? '';
+        ownerData['gender'] = (owner['gender'] ?? '').toString().toUpperCase();
+        ownerData['permanentAddress'] = owner['permanentAddress'] ?? '';
+        ownerData['relationship'] = (owner['relationship'] ?? '').toString().toUpperCase();
+      }
+      
+      ownerData['additionalDetails'] = {
+        'ownerSequence': owner['ownerSequence'] ?? 0,
+        'ownerName': owner['name'] ?? '',
+      };
+      
+      return ownerData;
+    }).toList();
+
+    // Build institution object for institutional ownership
+    Map<String, dynamic>? institution;
+    if (isInstitutional && controller.allOwners.isNotEmpty) {
+      final firstOwner = controller.allOwners.first;
+      institution = {
+        'designation': firstOwner['designation'] ?? '',
+        'name': firstOwner['institutionName'] ?? firstOwner['name'] ?? '',
+        'nameOfAuthorizedPerson': firstOwner['name'] ?? '',
+        'tenantId': tenantId,
+        'type': controller.ownershipType.value == 'government' ? 'GOVERNMENT' : 'PRIVATEBOARD',
+      };
+    }
+
+    // Map property type to MDMS code
+    String propertyTypeCode = _getPropertyTypeCode(controller.propertyType.value);
+    
+    // Map usage category to MDMS code
+    String usageCategoryCode = _getUsageCategoryCode(controller.unitUsageType.value);
+
+    // Build documents array
+    final documents = <Map<String, dynamic>>[];
+    if (controller.identityFileStoreId.value.isNotEmpty) {
+      documents.add({
+        'documentType': controller.identityDocType.value,
+        'fileStoreId': controller.identityFileStoreId.value,
+        'documentUid': controller.identityFileStoreId.value,
+      });
+    }
+    if (controller.addressFileStoreId.value.isNotEmpty) {
+      documents.add({
+        'documentType': controller.addressDocType.value,
+        'fileStoreId': controller.addressFileStoreId.value,
+        'documentUid': controller.addressFileStoreId.value,
+      });
+    }
+
+    final payload = {
+      'tenantId': tenantId,
+      'address': {
+        'pincode': controller.pincode.value,
+        'city': controller.city.value,
+        'locality': {
+          'code': _getLocalityCodeFromController(controller),
+          'area': controller.locality.value,
+        },
+        'street': controller.streetName.value,
+        'doorNo': controller.houseNo.value,
+        'landmark': controller.landmark.value,
+        'documents': [],
+      },
+      'ownershipCategory': ownershipCategory,
+      'owners': owners,
+      'institution': institution,
+      'documents': documents,
+      'units': [
+        {
+          'usageCategory': usageCategoryCode,
+          'unitType': controller.subUsageType.value,
+          'occupancyType': _getOccupancyTypeCode(controller.occupancy.value),
+          'constructionDetail': {
+            'builtUpArea': double.tryParse(controller.builtUpArea.value) ?? 0.0,
+          },
+          'floorNo': int.tryParse(controller.groundFloor.value) ?? 0,
+        }
+      ],
+      'landArea': double.tryParse(controller.builtUpArea.value) ?? 0.0,
+      'propertyType': propertyTypeCode,
+      'noOfFloors': int.tryParse(controller.floors.value) ?? 1,
+      'superBuiltUpArea': null,
+      'usageCategory': usageCategoryCode,
+      'additionalDetails': {
+        'inflammable': false,
+        'heightAbove36Feet': false,
+        'propertyType': {
+          'i18nKey': 'COMMON_PROPTYPE_$propertyTypeCode',
+          'code': propertyTypeCode,
+        },
+        'owners': owners, // Also include in additionalDetails
+      },
+      'creationReason': 'CREATE',
+      'source': 'MUNICIPAL_RECORDS',
+      'channel': 'CITIZEN',
+    };
+    
+    dPrint('Payload: ${jsonEncode(payload)}');
+    dPrint('==================================');
+    
+    return payload;
+  }
+
+  // Helper method to get property type MDMS code
+  String _getPropertyTypeCode(String displayName) {
+    // Map display names to MDMS codes
+    final propertyTypeMap = {
+      'Independent Building': 'BUILTUP.INDEPENDENTPROPERTY',
+      'Flat/Part of the building': 'BUILTUP.SHAREDPROPERTY', 
+      'Vacant Land': 'VACANT',
+      'Built Up': 'BUILTUP',
+    };
+    return propertyTypeMap[displayName] ?? displayName;
+  }
+
+  // Helper method to get usage category MDMS code  
+  String _getUsageCategoryCode(String displayName) {
+    // Map display names to MDMS codes
+    final usageCategoryMap = {
+      'residential': 'RESIDENTIAL',
+      'commercial': 'NONRESIDENTIAL.COMMERCIAL',
+      'industrial': 'NONRESIDENTIAL.INDUSTRIAL', 
+      'institutional': 'NONRESIDENTIAL.INSTITUTIONAL',
+      'others': 'NONRESIDENTIAL.OTHERS',
+    };
+    return usageCategoryMap[displayName] ?? displayName.toUpperCase();
+  }
+
+  // Helper method to get occupancy type MDMS code
+  String _getOccupancyTypeCode(String displayName) {
+    final occupancyTypeMap = {
+      'vacant': 'UNOCCUPIED',
+      'self_occupied': 'SELFOCCUPIED',
+      'rented': 'RENTED',
+    };
+    return occupancyTypeMap[displayName] ?? displayName.toUpperCase();
+  }
+
+  // Helper method to get locality code from LocalityController
+  String _getLocalityCodeFromController(PropertyRegistrationController controller) {
+    try {
+      // First check if controller has localityCode stored
+      if (controller.localityCode.value.isNotEmpty) {
+        return controller.localityCode.value;
+      }
+      
+      if (!Get.isRegistered<LocalityController>()) {
+        dPrint('LocalityController not registered');
+        return controller.locality.value.isNotEmpty ? controller.locality.value : 'JLC477';
+      }
+      
+      final localityController = Get.find<LocalityController>();
+      final boundaries = localityController.locality.value?.tenantBoundary;
+      
+      if (boundaries != null && boundaries.isNotEmpty) {
+        // Try to find by locality name match
+        for (var tenantBoundary in boundaries) {
+          final boundary = tenantBoundary.boundary?.firstWhereOrNull(
+            (b) => b.name?.toLowerCase() == controller.locality.value.toLowerCase() ||
+                   b.label?.toLowerCase() == controller.locality.value.toLowerCase()
+          );
+          if (boundary?.code != null && boundary!.code!.isNotEmpty) {
+            dPrint('Found locality code by name: ${boundary.code}');
+            return boundary.code!;
+          }
+        }
+        
+        // Try to find by pincode
+        final pincode = controller.pincode.value;
+        final code = int.tryParse(pincode);
+        
+        if (code != null) {
+          for (var tenantBoundary in boundaries) {
+            final boundary = tenantBoundary.boundary?.firstWhereOrNull(
+              (b) => b.pinCode?.contains(code) ?? false
+            );
+            if (boundary?.code != null && boundary!.code!.isNotEmpty) {
+              dPrint('Found locality code by pincode: ${boundary.code}');
+              return boundary.code!;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      dPrint('Error getting locality code: $e');
+    }
+    
+    dPrint('ERROR: No valid locality code found!');
+    dPrint('locality.value: ${controller.locality.value}');
+    dPrint('localityCode.value: ${controller.localityCode.value}');
+    dPrint('pincode.value: ${controller.pincode.value}');
+    throw Exception('Please select a valid locality from the dropdown. Locality code is required.');
+  }
+
+  // Helper method to build correspondence address
+  String _buildCorrespondenceAddress(PropertyRegistrationController controller) {
+    final parts = <String>[
+      controller.houseNo.value,
+      controller.streetName.value,
+      controller.locality.value,
+      controller.city.value,
+      controller.pincode.value,
+    ].where((s) => s.isNotEmpty);
+    return parts.join(', ');
   }
 }

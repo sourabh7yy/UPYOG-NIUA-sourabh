@@ -13,6 +13,7 @@ import 'package:mobile_app/utils/constants/i18_key_constants.dart';
 import 'package:mobile_app/utils/enums/modules.dart';
 import 'package:mobile_app/utils/extension/extension.dart';
 import 'package:mobile_app/utils/utils.dart';
+import 'package:mobile_app/screens/employee/emp_pt/emp_pt_details/gis_map_screen.dart';
 import 'package:mobile_app/widgets/complain_card.dart';
 import 'package:mobile_app/widgets/header_widgets.dart';
 
@@ -52,6 +53,15 @@ class MyPropertyApplications extends StatelessWidget {
           ),
         ),
         onPressed: () => Navigator.of(context).pop(),
+        actions: [
+          IconButton(
+            onPressed: () => Get.to(() => const GisMapScreen()),
+            icon: const Icon(
+              Icons.map_outlined,
+              color: BaseConfig.filterIconColor,
+            ),
+          ),
+        ],
       ),
       body: SizedBox(
         height: Get.height,
