@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 //
 import { FormComposer, Toast } from "@upyog/digit-ui-react-components";
 import { updateNDCForm } from "../../../redux/actions/NDCFormActions";
+import _ from "lodash";
+import { hasAnyNonEmptyValue } from "../../../utils";
 
 const NewNDCStepFormTwo = ({ config, onGoNext, onBackClick, t }) => {
   const currentStepData = useSelector((state) =>
@@ -146,6 +148,9 @@ const NewNDCStepFormTwo = ({ config, onGoNext, onBackClick, t }) => {
   }
 
   const onFormValueChange = (setValue = true, data) => {
+    // Skip dispatch when FormComposer emits an empty/blank initial object on mount —
+    // this prevents wiping previously populated Redux state (e.g. API-loaded data).
+    if (_.isEmpty(data) || !hasAnyNonEmptyValue(data)) return;
     if (!_.isEqual(data, currentStepData)) {
       dispatch(updateNDCForm(config.key, data));
     }

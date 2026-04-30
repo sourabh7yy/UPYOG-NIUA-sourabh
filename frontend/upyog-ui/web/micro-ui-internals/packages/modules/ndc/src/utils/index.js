@@ -1,5 +1,22 @@
 import React from "react";
 
+/**
+ * Returns true if `obj` has at least one value that is considered non-empty.
+ * A value is "empty" when it is null, undefined, an empty string '', an empty
+ * array [], or an empty plain object {}.
+ * Used in form components to guard against dispatching a blank initial-mount
+ * emission from FormComposer, which would overwrite already-populated Redux state.
+ */
+export const hasAnyNonEmptyValue = (obj) => {
+  if (obj === null || obj === undefined || typeof obj !== "object") return false;
+  return Object.values(obj).some((v) => {
+    if (v === null || v === undefined || v === "") return false;
+    if (Array.isArray(v)) return v.length > 0;
+    if (typeof v === "object" && v !== null) return Object.keys(v).length > 0;
+    return true;
+  });
+};
+
 /* methid to get date from epoch */
 export const convertEpochToDate = (dateEpoch) => {
     // Returning null in else case because new Date(null) returns initial date from calender
